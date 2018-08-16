@@ -179,7 +179,7 @@ PushVideoTask:
     li      t1, VIDEO_STACK_SIZE
     li      t2, VIDEO_BUFFER & ADDR_MASK
     li      t3, (VIDEO_BUFFER & ADDR_MASK) + VIDEO_BUFFER_SIZE // end pointer (not size!)
-    li      t4, BLAH_DLIST_JUMPER & ADDR_MASK // initial DList (best to just be one jump command)
+    li      t4, ((BLAH_BASE << 16) | BLAH_DLIST_JUMPER) & ADDR_MASK // initial DList
     lli     t5, 8 // size of one jump command
     li      t6, VIDEO_YIELD & ADDR_MASK
     li      t7, VIDEO_YIELD_SIZE
