@@ -134,7 +134,7 @@ MainLoop:
     j MainLoop
     nop // delay slot
 
-include "devcart.asm" // assumes gp is set to CI base
+include "debug.asm" // assumes gp is set to CI base
 
 SetupScreen:
     // NTSC: 640x480, 32BPP, Interlace, Resample Only, DRAM Origin VIDEO_BUFFER
