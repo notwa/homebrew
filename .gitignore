@@ -1,0 +1,10 @@
+old.asm
+_old
+microcodes
+*.bin
+!F3DZEX2.data.bin
+!6102.bin
+*.z64
+*.c
+*.tmp
+*.txt

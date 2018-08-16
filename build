@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# TODO: make this crap actually portable
+set -e
+
+ROM_NAME=test.z64
+
+#while inotifywait -q -e create,modify *.asm *.inc; do
+bass F3DZEX.asm
+bass main.asm
+/tmp/z64crc "$ROM_NAME"
+#done
+
+# don't use -z in msys2 because it hangs
+64drive_usb -c 1 -l "$ROM_NAME" #-z
