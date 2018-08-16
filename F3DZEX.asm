@@ -58,7 +58,7 @@ origin 0x00000000
 base 0x04001000
 
     j       label_1054
-    addi    at, r0, 0x0FC0 // OS data, tells us where the real microcode is
+    addi    at, r0, 0x0FC0 // Task data, tells us where the main program is
 
 label_1008:
     lw      v0, 0x10(at) // TASK_UCODE
@@ -260,10 +260,10 @@ label_11EC:
     j       label_1020 & 0x1FFF
     lw      k0, 0x0138(at)
 
-    ldv     vec29[e0], 0xD0(0)
+    ldv     vec29[e0], 0xD0(r0)
     lw      t9, 0x00D8(r0)
     addi    s7, s7, SP_COP_COMMAND_START
-    sdv     vec29[e0], 0x3F8(23)
+    sdv     vec29[e0], 0x3F8(s7)
 func_1210:
     sw      t8, 0x4(s7)
     sw      t9, 0x0(s7)
@@ -372,18 +372,18 @@ func_1320:
 +
     sll     t3, a1, 1
 
-    ldv     vec2[e0], 0x180(11)
-    ldv     vec4[e0], 0x8(19)
-    ldv     vec5[e0], 0x0(19)
-    ldv     vec6[e0], 0x8(3)
-    ldv     vec7[e0], 0x0(3)
+    ldv     vec2[e0], 0x180(t3)
+    ldv     vec4[e0], 0x8(s3)
+    ldv     vec5[e0], 0x0(s3)
+    ldv     vec6[e0], 0x8(v1)
+    ldv     vec7[e0], 0x0(v1)
     vmudh   vec3,vec2,vec31[e8]
     vmudn   vec8,vec4,vec2[e0]
     vmadh   vec9,vec5,vec2[e0]
     vmadn   vec10,vec6,vec3[e0]
     vmadh   vec11,vec7,vec3[e0]
     vaddc   vec8,vec8,vec8[e2]
-    lqv     vec25[e0], 0x1D0(0)
+    lqv     vec25[e0], 0x1D0(r0)
     vadd    vec9,vec9,vec9[e2]
     vaddc   vec10,vec10,vec10[e2]
     vadd    vec11,vec11,vec11[e2]
@@ -419,13 +419,13 @@ label_13D8:
     vmadn   vec12,vec12,vec11[e0]
     vmadh   vec13,vec13,vec11[e0]
     vmudl   vec29,vec8,vec12[e0]
-    luv     vec26[e0], 0x10(3)
+    luv     vec26[e0], 0x10(v1)
     vmadm   vec29,vec9,vec12[e0]
-    llv     vec26[e8], 0x14(3)
+    llv     vec26[e8], 0x14(v1)
     vmadn   vec10,vec8,vec13[e0]
-    luv     vec25[e0], 0x10(19)
+    luv     vec25[e0], 0x10(s3)
     vmadh   vec11,vec9,vec13[e0]
-    llv     vec25[e8], 0x14(19)
+    llv     vec25[e8], 0x14(s3)
     vmudl   vec29,vec10,vec2[e11]
     vmadm   vec11,vec11,vec2[e11]
     vmadn   vec10,vec10,vec0[e8]
@@ -450,11 +450,11 @@ label_13D8:
     addi    ra, r0, 0x9870
 
 label_1478:
-    slv     vec25[e0], 0x1C8(15)
-    ssv     vec26[e4], 0xCE(15)
-    suv     vec22[e0], 0x3C0(15)
-    slv     vec22[e8], 0x1C4(15)
-    ssv     vec3[e4], 0xCC(15)
+    slv     vec25[e0], 0x1C8(t7)
+    ssv     vec26[e4], 0xCE(t7)
+    suv     vec22[e0], 0x3C0(t7)
+    slv     vec22[e8], 0x1C4(t7)
+    ssv     vec3[e4], 0xCC(t7)
     addi    t7, t7, 0xFFD8
     addi    s5, s5, 0x2
 
@@ -521,68 +521,68 @@ label_14A8:
     addi    s3, r0, 0x0080
 
 +
-    lqv     vec8[e0], 0x80(0)
-    lqv     vec10[e0], 0x90(0)
-    lqv     vec12[e0], 0xA0(0)
-    lqv     vec14[e0], 0xB0(0)
+    lqv     vec8[e0], 0x80(r0)
+    lqv     vec10[e0], 0x90(r0)
+    lqv     vec12[e0], 0xA0(r0)
+    lqv     vec14[e0], 0xB0(r0)
     vadd    vec9,vec8,vec0[e8]
-    ldv     vec9[e0], 0x88(0)
+    ldv     vec9[e0], 0x88(r0)
     vadd    vec11,vec10,vec0[e8]
-    ldv     vec11[e0], 0x98(0)
+    ldv     vec11[e0], 0x98(r0)
     vadd    vec13,vec12,vec0[e8]
-    ldv     vec13[e0], 0xA8(0)
+    ldv     vec13[e0], 0xA8(r0)
     vadd    vec15,vec14,vec0[e8]
-    ldv     vec15[e0], 0xB8(0)
-    ldv     vec8[e8], 0x80(0)
-    ldv     vec10[e8], 0x90(0)
+    ldv     vec15[e0], 0xB8(r0)
+    ldv     vec8[e8], 0x80(r0)
+    ldv     vec10[e8], 0x90(r0)
     jal     func_19F4 & 0x1FFF
-    ldv     vec12[e8], 0xA0(0)
+    ldv     vec12[e8], 0xA0(r0)
 
     jal     func_1FC8 & 0x1FFF
-    ldv     vec14[e8], 0xB0(0)
+    ldv     vec14[e8], 0xB0(r0)
 
-    ldv     vec20[e0], 0x0(14)
+    ldv     vec20[e0], 0x0(t6)
     vmov    vec16[e13],vec21[e9]
-    ldv     vec20[e8], 0x10(14)
+    ldv     vec20[e8], 0x10(t6)
 label_182C:
     vmudn   vec29,vec15,vec1[e8]
     lw      t3, 0x001C(t6)
     vmadh   vec29,vec11,vec1[e8]
-    llv     vec22[e12], 0x8(14)
+    llv     vec22[e12], 0x8(t6)
     vmadn   vec29,vec12,vec20[e4]
     ori     t1, a2, 0x0
     vmadh   vec29,vec8,vec20[e4]
-    lpv     vec2[e0], 0xB0(9)
+    lpv     vec2[e0], 0xB0(t1)
     vmadn   vec29,vec13,vec20[e5]
     sw      t3, 0x8(t6)
     vmadh   vec29,vec9,vec20[e5]
-    lpv     vec7[e0], 0x8(14)
+    lpv     vec7[e0], 0x8(t6)
     vmadn   vec23,vec14,vec20[e6]
     bnez    a2, label_13D8
     vmadh   vec24,vec10,vec20[e6]
 
     vge     vec27,vec25,vec31[e11]
-    llv     vec22[e4], 0x18(14)
+    llv     vec22[e4], 0x18(t6)
     vge     vec3,vec25,vec0[e8]
     addi    at, at, 0xFFFC
     vmudl   vec29,vec23,vec18[e12]
     sub     t3, t0, a3
     vmadm   vec2,vec24,vec18[e12]
-    sbv     vec27[e15], 0x73(11)
+    sbv     vec27[e15], 0x73(t3)
     vmadn   vec21,vec0,vec0[e8]
-    sbv     vec27[e7], 0x4B(11)
+    sbv     vec27[e7], 0x4B(t3)
     vmov    vec26[e9],vec3[e10]
-    ssv     vec3[e12], 0xF4(8)
+    ssv     vec3[e12], 0xF4(t0)
     vmudn   vec7,vec23,vec18[e13]
-    slv     vec25[e8], 0x1F0(8)
+    slv     vec25[e8], 0x1F0(t0)
     vmadh   vec6,vec24,vec18[e13]
-    sdv     vec25[e0], 0x3C8(8)
+    sdv     vec25[e0], 0x3C8(t0)
     vrcph   vec29[e8],vec2[e11]
-    ssv     vec26[e12], 0xF6(8)
+    ssv     vec26[e12], 0xF6(t0)
     vrcpl   vec5[e11],vec21[e11]
-    slv     vec26[e2], 0x1CC(8)
+    slv     vec26[e2], 0x1CC(t0)
     vrcph   vec4[e11],vec2[e15]
-    ldv     vec3[e0], 0x8(14)
+    ldv     vec3[e0], 0x8(t6)
     vrcpl   vec5[e15],vec21[e15]
     sra     t3, at, 31
     vrcph   vec4[e15],vec0[e8]
@@ -594,29 +594,29 @@ label_182C:
     vmudl   vec29,vec21,vec5[e0]
     dw      0x484A0800 // TODO: unknown instruction. similar to mfc2/mtc2
     vmadm   vec29,vec2,vec5[e0]
-    sdv     vec23[e8], 0x3E0(8)
+    sdv     vec23[e8], 0x3E0(t0)
     vmadn   vec21,vec21,vec4[e0]
-    ldv     vec20[e0], 0x20(14)
+    ldv     vec20[e0], 0x20(t6)
     vmadh   vec2,vec2,vec4[e0]
-    sdv     vec23[e0], 0x3B8(15)
+    sdv     vec23[e0], 0x3B8(t7)
     vge     vec29,vec24,vec0[e8]
-    lsv     vec23[e14], 0xE4(8)
+    lsv     vec23[e14], 0xE4(t0)
     vmudh   vec29,vec1,vec31[e9]
-    sdv     vec24[e8], 0x3D8(8)
+    sdv     vec24[e8], 0x3D8(t0)
     vmadn   vec26,vec21,vec31[e12]
-    lsv     vec23[e6], 0xBC(15)
+    lsv     vec23[e6], 0xBC(t7)
     vmadh   vec25,vec2,vec31[e12]
-    sdv     vec24[e0], 0x3B0(15)
+    sdv     vec24[e0], 0x3B0(t7)
     vmrg    vec2,vec0,vec31[e15]
-    ldv     vec20[e8], 0x30(14)
+    ldv     vec20[e8], 0x30(t6)
     vch     vec29,vec24,vec6[e7]
-    slv     vec3[e0], 0x1E8(8)
+    slv     vec3[e0], 0x1E8(t0)
     vmudl   vec29,vec26,vec5[e0]
-    lsv     vec24[e14], 0xDC(8)
+    lsv     vec24[e14], 0xDC(t0)
     vmadm   vec29,vec25,vec5[e0]
-    slv     vec3[e4], 0x1C0(15)
+    slv     vec3[e4], 0x1C0(t7)
     vmadn   vec5,vec26,vec4[e0]
-    lsv     vec24[e6], 0xB4(15)
+    lsv     vec24[e6], 0xB4(t7)
     vmadh   vec4,vec25,vec4[e0]
     sh      t2, 0xFFFE(t0)
     vmadh   vec2,vec2,vec31[e15]
@@ -624,7 +624,7 @@ label_182C:
     vcl     vec29,vec23,vec7[e7]
     dw      0x484A0800 // TODO: unknown instruction. similar to mfc2/mtc2
     vmudl   vec29,vec23,vec5[e7]
-    ssv     vec5[e14], 0xFA(8)
+    ssv     vec5[e14], 0xFA(t0)
     vmadm   vec29,vec24,vec5[e7]
     addi    t6, t6, 0x0020
     vmadn   vec26,vec23,vec2[e7]
@@ -635,14 +635,14 @@ label_182C:
     sh      t3, 0xFFD6(t7)
     sh      t2, 0xFFD4(t7)
     vmudl   vec29,vec26,vec18[e12]
-    ssv     vec5[e6], 0xD2(15)
+    ssv     vec5[e6], 0xD2(t7)
     vmadm   vec25,vec25,vec18[e12]
-    ssv     vec4[e14], 0xF8(8)
+    ssv     vec4[e14], 0xF8(t0)
     vmadn   vec26,vec0,vec0[e8]
-    ssv     vec4[e6], 0xD0(15)
-    slv     vec3[e4], 0x1EC(8)
+    ssv     vec4[e6], 0xD0(t7)
+    slv     vec3[e4], 0x1EC(t0)
     vmudh   vec29,vec17,vec1[e8]
-    slv     vec3[e12], 0x1C4(15)
+    slv     vec3[e12], 0x1C4(t7)
     vmadh   vec29,vec19,vec31[e11]
     vmadn   vec26,vec26,vec16[e0]
     bgtz    at, label_182C
@@ -651,35 +651,35 @@ label_182C:
     bltz    ra, label_1478
     vge     vec3,vec25,vec0[e8]
 
-    slv     vec25[e8], 0x1F0(8)
+    slv     vec25[e8], 0x1F0(t0)
     vge     vec27,vec25,vec31[e11]
-    slv     vec25[e0], 0x1C8(15)
-    ssv     vec26[e12], 0xF6(8)
-    ssv     vec26[e4], 0xCE(15)
-    ssv     vec3[e12], 0xF4(8)
+    slv     vec25[e0], 0x1C8(t7)
+    ssv     vec26[e12], 0xF6(t0)
+    ssv     vec26[e4], 0xCE(t7)
+    ssv     vec3[e12], 0xF4(t0)
     beqz    a3, func_1194
-    ssv     vec3[e4], 0xCC(15)
+    ssv     vec3[e4], 0xCC(t7)
 
-    sbv     vec27[e15], 0x6B(8)
+    sbv     vec27[e15], 0x6B(t0)
     j       func_1194 & 0x1FFF
-    sbv     vec27[e7], 0x43(15)
+    sbv     vec27[e7], 0x43(t7)
 
 func_19F4:
     addi    t5, r0, 0x0180
-    ldv     vec16[e0], 0xE0(0)
-    ldv     vec16[e8], 0xE0(0)
-    llv     vec29[e0], 0x60(13)
-    ldv     vec17[e0], 0xE8(0)
-    ldv     vec17[e8], 0xE8(0)
+    ldv     vec16[e0], 0xE0(r0)
+    ldv     vec16[e8], 0xE0(r0)
+    llv     vec29[e0], 0x60(t5)
+    ldv     vec17[e0], 0xE8(r0)
+    ldv     vec17[e8], 0xE8(r0)
     vlt     vec19,vec31,vec31[e11]
     vsub    vec21,vec0,vec16[e0]
-    llv     vec18[e4], 0x68(13)
+    llv     vec18[e4], 0x68(t5)
     vmrg    vec16,vec16,vec29[e8]
-    llv     vec18[e12], 0x68(13)
+    llv     vec18[e12], 0x68(t5)
     vmrg    vec19,vec0,vec1[e8]
-    llv     vec18[e8], 0xDC(0)
+    llv     vec18[e8], 0xDC(r0)
     vmrg    vec17,vec17,vec29[e9]
-    lsv     vec18[e10], 0x6(13)
+    lsv     vec18[e10], 0x6(t5)
     vmov    vec16[e9],vec21[e9]
     jr      ra
     addi    t0, s7, 0x0050
@@ -689,7 +689,7 @@ func_19F4:
     addi    ra, r0, 0x1194
     sw      t9, 0x4(s7)
 func_1A4C:
-    lpv     vec2[e0], 0x0(23)
+    lpv     vec2[e0], 0x0(s7)
     lbu     at, 0x5(s7)
     lbu     v0, 0x6(s7)
     lbu     v1, 0x7(s7)
@@ -703,11 +703,11 @@ func_1A4C:
     ori     a0, at, 0x0
 func_1A7C:
     vnxor   vec5,vec0,vec31[e15]
-    llv     vec6[e0], 0x18(1)
+    llv     vec6[e0], 0x18(at)
     vnxor   vec7,vec0,vec31[e15]
-    llv     vec4[e0], 0x18(2)
+    llv     vec4[e0], 0x18(v0)
     vmov    vec6[e14],vec2[e13]
-    llv     vec8[e0], 0x18(3)
+    llv     vec8[e0], 0x18(v1)
     vnxor   vec9,vec0,vec31[e15]
     lw      a1, 0x0024(at)
     vmov    vec8[e14],vec2[e15]
@@ -758,39 +758,39 @@ func_1A7C:
     vsub    vec11,vec14,vec2[e0]
     lw      a2, 0x01EC(r0)
     vsub    vec12,vec14,vec10[e0]
-    llv     vec13[e0], 0x20(1)
+    llv     vec13[e0], 0x20(at)
     vsub    vec15,vec10,vec2[e0]
-    llv     vec13[e8], 0x20(2)
+    llv     vec13[e8], 0x20(v0)
     vmudh   vec16,vec6,vec8[e8]
-    llv     vec13[e12], 0x20(3)
+    llv     vec13[e12], 0x20(v1)
     vmadh   vec16,vec8,vec11[e8]
     sll     t3, a2, 10
     vsar    vec17,vec17,vec17[e8]
     bgez    t3,+
     vsar    vec16,vec16,vec16[e9]
 
-    lpv     vec18[e0], 0x10(1)
+    lpv     vec18[e0], 0x10(at)
     vmov    vec15[e10],vec6[e8]
-    lpv     vec19[e0], 0x10(2)
+    lpv     vec19[e0], 0x10(v0)
     vrcp    vec20[e8],vec15[e9]
-    lpv     vec21[e0], 0x10(3)
+    lpv     vec21[e0], 0x10(v1)
     vrcph   vec22[e8],vec17[e9]
     vrcpl   vec23[e9],vec16[e9]
     j       func_1BC0 & 0x1FFF
     vrcph   vec24[e9],vec0[e8]
 
 +
-    lpv     vec18[e0], 0x10(4)
+    lpv     vec18[e0], 0x10(a0)
     vrcp    vec20[e8],vec15[e9]
-    lbv     vec18[e6], 0x13(1)
+    lbv     vec18[e6], 0x13(at)
     vrcph   vec22[e8],vec17[e9]
-    lpv     vec19[e0], 0x10(4)
+    lpv     vec19[e0], 0x10(a0)
     vrcpl   vec23[e9],vec16[e9]
-    lbv     vec19[e6], 0x13(2)
+    lbv     vec19[e6], 0x13(v0)
     vrcph   vec24[e9],vec0[e8]
-    lpv     vec21[e0], 0x10(4)
+    lpv     vec21[e0], 0x10(a0)
     vmov    vec15[e10],vec6[e8]
-    lbv     vec21[e6], 0x13(3)
+    lbv     vec21[e6], 0x13(v1)
 func_1BC0:
     vrcp    vec20[e10],vec6[e9]
     vrcph   vec22[e10],vec6[e9]
@@ -820,19 +820,19 @@ func_1BC0:
     vsubc   vec4,vec0,vec4[e0]
     sw      a1, 0x0010(s7)
     vsub    vec26,vec0,vec0[e0]
-    llv     vec27[e0], 0x10(23)
+    llv     vec27[e0], 0x10(s7)
     vmudm   vec29,vec25,vec20[e0]
     dw      0x48058880
     vmadl   vec29,vec15,vec20[e0]
     lbu     a3, 0x01E6(r0)
     vmadn   vec20,vec15,vec22[e0]
-    lsv     vec19[e14], 0x1C(2)
+    lsv     vec19[e14], 0x1C(v0)
     vmadh   vec15,vec25,vec22[e0]
-    lsv     vec21[e14], 0x1C(3)
+    lsv     vec21[e14], 0x1C(v1)
     vmudl   vec29,vec23,vec16[e0]
-    lsv     vec7[e14], 0x1E(2)
+    lsv     vec7[e14], 0x1E(v0)
     vmadm   vec29,vec24,vec16[e0]
-    lsv     vec9[e14], 0x1E(3)
+    lsv     vec9[e14], 0x1E(v1)
     vmadn   vec16,vec23,vec17[e0]
     ori     t3, a2, 0x00C8
     vmadh   vec17,vec24,vec17[e0]
@@ -841,11 +841,11 @@ func_1BC0:
     vcr     vec15,vec15,vec30[e11]
     sb      t3, 0x0(s7)
     vmudh   vec29,vec1,vec30[e14]
-    ssv     vec10[e2], 0x2(23)
+    ssv     vec10[e2], 0x2(s7)
     vmadn   vec16,vec16,vec30[e12]
-    ssv     vec2[e2], 0x4(23)
+    ssv     vec2[e2], 0x4(s7)
     vmadh   vec17,vec17,vec30[e12]
-    ssv     vec14[e2], 0x6(23)
+    ssv     vec14[e2], 0x6(s7)
     vmudn   vec29,vec3,vec14[e8]
     andi    t4, a1, 0x0080
     vmadl   vec29,vec22,vec4[e9]
@@ -863,34 +863,34 @@ func_1BC0:
     vor     vec22,vec0,vec31[e15]
     vmudm   vec29,vec13,vec10[e8]
     vmadl   vec29,vec14,vec10[e8]
-    llv     vec22[e0], 0x14(1)
+    llv     vec22[e0], 0x14(at)
     vmadn   vec14,vec14,vec27[e8]
-    llv     vec22[e8], 0x14(2)
+    llv     vec22[e8], 0x14(v0)
     vmadh   vec13,vec13,vec27[e8]
     vor     vec10,vec0,vec31[e15]
     vge     vec29,vec30,vec30[e15]
-    llv     vec10[e8], 0x14(3)
+    llv     vec10[e8], 0x14(v1)
     vmudm   vec29,vec22,vec14[e4]
     vmadh   vec22,vec22,vec13[e4]
     vmadn   vec25,vec0,vec0[e8]
     vmudm   vec29,vec10,vec14[e14]
     vmadh   vec10,vec10,vec13[e14]
     vmadn   vec13,vec0,vec0[e8]
-    sdv     vec22[e0], 0x20(23)
+    sdv     vec22[e0], 0x20(s7)
     vmrg    vec19,vec19,vec22[e0]
-    sdv     vec25[e0], 0x28(23)
+    sdv     vec25[e0], 0x28(s7)
     vmrg    vec7,vec7,vec25[e0]
-    ldv     vec18[e8], 0x20(23)
+    ldv     vec18[e8], 0x20(s7)
 
     vmrg    vec21,vec21,vec10[e0]
-    ldv     vec5[e8], 0x28(23)
+    ldv     vec5[e8], 0x28(s7)
     vmrg    vec9,vec9,vec13[e0]
 
 +
     vmudl   vec29,vec16,vec23[e0]
-    lsv     vec5[e14], 0x1E(1)
+    lsv     vec5[e14], 0x1E(at)
     vmadm   vec29,vec17,vec23[e0]
-    lsv     vec18[e14], 0x1C(1)
+    lsv     vec18[e14], 0x1C(at)
     vmadn   vec23,vec16,vec24[e0]
     lh      at, 0x0018(v0)
     vmadh   vec24,vec17,vec24[e0]
@@ -902,25 +902,25 @@ func_1BC0:
     vsubc   vec13,vec7,vec5[e0]
     sw      at, 0x8(s7)
     vsub    vec7,vec19,vec18[e0]
-    ssv     vec3[e6], 0x10(23)
+    ssv     vec3[e6], 0x10(s7)
     vmudn   vec29,vec10,vec6[e9]
-    ssv     vec2[e6], 0x12(23)
+    ssv     vec2[e6], 0x12(s7)
     vmadh   vec29,vec9,vec6[e9]
-    ssv     vec3[e4], 0x18(23)
+    ssv     vec3[e4], 0x18(s7)
     vmadn   vec29,vec13,vec12[e9]
-    ssv     vec2[e4], 0x1A(23)
+    ssv     vec2[e4], 0x1A(s7)
     vmadh   vec29,vec7,vec12[e9]
-    ssv     vec15[e0], 0xC(23)
+    ssv     vec15[e0], 0xC(s7)
     vsar    vec2,vec2,vec2[e9]
-    ssv     vec20[e0], 0xE(23)
+    ssv     vec20[e0], 0xE(s7)
     vsar    vec3,vec3,vec3[e8]
-    ssv     vec15[e6], 0x14(23)
+    ssv     vec15[e6], 0x14(s7)
     vmudn   vec29,vec13,vec8[e8]
-    ssv     vec20[e6], 0x16(23)
+    ssv     vec20[e6], 0x16(s7)
     vmadh   vec29,vec7,vec8[e8]
-    ssv     vec15[e4], 0x1C(23)
+    ssv     vec15[e4], 0x1C(s7)
     vmadn   vec29,vec10,vec11[e8]
-    ssv     vec20[e4], 0x1E(23)
+    ssv     vec20[e4], 0x1E(s7)
     vmadh   vec29,vec9,vec11[e8]
     sll     t3, v1, 4
     vsar    vec6,vec6,vec6[e9]
@@ -938,61 +938,61 @@ func_1BC0:
     vmudl   vec29,vec6,vec23[e9]
     vmadm   vec29,vec7,vec23[e9]
     vmadn   vec6,vec6,vec24[e9]
-    sdv     vec2[e0], 0x18(2)
+    sdv     vec2[e0], 0x18(v0)
     vmadh   vec7,vec7,vec24[e9]
-    sdv     vec3[e0], 0x8(2)
+    sdv     vec3[e0], 0x8(v0)
     vmadl   vec29,vec2,vec20[e11]
-    sdv     vec2[e8], 0x18(1)
+    sdv     vec2[e8], 0x18(at)
     vmadm   vec29,vec3,vec20[e11]
-    sdv     vec3[e8], 0x8(1)
+    sdv     vec3[e8], 0x8(at)
     vmadn   vec8,vec2,vec15[e11]
-    sdv     vec6[e0], 0x38(2)
+    sdv     vec6[e0], 0x38(v0)
     vmadh   vec9,vec3,vec15[e11]
-    sdv     vec7[e0], 0x28(2)
+    sdv     vec7[e0], 0x28(v0)
     vmudn   vec29,vec5,vec1[e8]
-    sdv     vec6[e8], 0x38(1)
+    sdv     vec6[e8], 0x38(at)
     vmadh   vec29,vec18,vec1[e8]
-    sdv     vec7[e8], 0x28(1)
+    sdv     vec7[e8], 0x28(at)
     vmadl   vec29,vec8,vec4[e9]
-    sdv     vec8[e0], 0x30(2)
+    sdv     vec8[e0], 0x30(v0)
     vmadm   vec29,vec9,vec4[e9]
-    sdv     vec9[e0], 0x20(2)
+    sdv     vec9[e0], 0x20(v0)
     vmadn   vec5,vec8,vec26[e9]
-    sdv     vec8[e8], 0x30(1)
+    sdv     vec8[e8], 0x30(at)
     vmadh   vec18,vec9,vec26[e9]
-    sdv     vec9[e8], 0x20(1)
+    sdv     vec9[e8], 0x20(at)
     vmudn   vec10,vec8,vec4[e9]
     beqz    a2,+
     vmudn   vec8,vec8,vec30[e15]
 
     vmadh   vec9,vec9,vec30[e15]
-    sdv     vec5[e0], 0x10(2)
+    sdv     vec5[e0], 0x10(v0)
     vmudn   vec2,vec2,vec30[e15]
-    sdv     vec18[e0], 0x0(2)
+    sdv     vec18[e0], 0x0(v0)
     vmadh   vec3,vec3,vec30[e15]
-    sdv     vec5[e8], 0x10(1)
+    sdv     vec5[e8], 0x10(at)
     vmudn   vec6,vec6,vec30[e15]
-    sdv     vec18[e8], 0x0(1)
+    sdv     vec18[e8], 0x0(at)
     vmadh   vec7,vec7,vec30[e15]
-    ssv     vec8[e14], 0xFA(23)
+    ssv     vec8[e14], 0xFA(s7)
     vmudl   vec29,vec10,vec30[e15]
-    ssv     vec9[e14], 0xF8(23)
+    ssv     vec9[e14], 0xF8(s7)
     vmadn   vec5,vec5,vec30[e15]
-    ssv     vec2[e14], 0xF6(23)
+    ssv     vec2[e14], 0xF6(s7)
     vmadh   vec18,vec18,vec30[e15]
-    ssv     vec3[e14], 0xF4(23)
-    ssv     vec6[e14], 0xFE(23)
-    ssv     vec7[e14], 0xFC(23)
-    ssv     vec5[e14], 0xF2(23)
+    ssv     vec3[e14], 0xF4(s7)
+    ssv     vec6[e14], 0xFE(s7)
+    ssv     vec7[e14], 0xFC(s7)
+    ssv     vec5[e14], 0xF2(s7)
     j       label_125C & 0x1FFF
-    ssv     vec18[e14], 0xF0(23)
+    ssv     vec18[e14], 0xF0(s7)
 
 +
-    sdv     vec5[e0], 0x10(2)
-    sdv     vec18[e0], 0x0(2)
-    sdv     vec5[e8], 0x10(1)
+    sdv     vec5[e0], 0x10(v0)
+    sdv     vec18[e0], 0x0(v0)
+    sdv     vec5[e8], 0x10(at)
     j       label_125C & 0x1FFF
-    sdv     vec18[e8], 0x0(1)
+    sdv     vec18[e8], 0x0(at)
 
     lhu     t9, 0x380(t9)
     lhu     t8, 0x380(t8)
