@@ -28,37 +28,37 @@ Start:
     lui     sp, K_STACK_INIT_BASE
     // SP should always be 8-byte aligned
     // so that SD and LD instructions don't fail on it.
-    subiu   sp, sp, 8
+    // we also need 4 empty words for storing the 32-bit values of a0,a1,a2,a3
+    subiu   sp, sp, 0x10
 
     // TODO: just wipe a portion of RAM?
     sw      r0, K_64DRIVE_MAGIC(k0)
     sw      r0, K_REASON(k0)
 
 Drive64Init:
-    lui     gp, CI_BASE
+    lui     t9, CI_BASE
     lui     t2, 0x5544      // "UD" of "UDEV"
-    lw      t1, CI_HW_MAGIC(gp)
+    lw      t1, CI_HW_MAGIC(t9)
     ori     t2, t2, 0x4556  // "EV" of "UDEV"
 
     beq     t1, t2, Drive64Confirmed
     nop
 
 Drive64TryExtended:
-    lui     gp, CI_BASE_EXTENDED
-    lw      t1, CI_HW_MAGIC(gp)
+    lui     t9, CI_BASE_EXTENDED
+    lw      t1, CI_HW_MAGIC(t9)
     bne     t1, t2, Drive64Done
     nop
 
 Drive64Confirmed:
     sw      t2, K_64DRIVE_MAGIC(k0)
-    sw      gp, K_CI_BASE(k0)
+    sw      t9, K_CI_BASE(k0)
 
     // enable writing to cartROM (SDRAM) for USB writing later
     lli     t1, 0xF0
-
-    CI_WAIT()
-    sw      t1, CI_COMMAND(gp) // send our command
-    CI_WAIT()
+    CI_WAIT() // clobbers t0, requires t9
+    sw      t1, CI_COMMAND(t9)
+    CI_WAIT() // clobbers t0, requires t9
 
 Drive64Done:
 
@@ -199,7 +199,30 @@ InterruptHandler:
     sd      t0, K_DUMP+0x100(k0)
     sd      t1, K_DUMP+0x108(k0)
 
-    // free to modify any GPR here
+    // be wary, this is a tiny temporary stack!
+    ori     sp, k0, K_STACK
+
+IHMain: // free to modify any GPR from here to IHExit
+    la      a2, IHString
+    jal     Drive64WriteDirect
+    lli     a3, 0x20 //IHString.size
+
+    ori     a0, k0, K_DUMP
+    lli     a1, 0x100
+    ori     a2, k0, K_XXD
+    jal     DumpAndWrite
+    lli     a3, 0x400
+
+    ori     a0, k0, K_DUMP
+    addiu   a0, a0, 0x100
+    lli     a1, 0x100
+    ori     a2, k0, K_XXD
+    jal     DumpAndWrite
+    lli     a3, 0x400
+
+IHExit:
+
+    jal     Drive64Write
 
     lui     k0, K_BASE
     ld      t0, K_DUMP+0x100(k0)
@@ -257,4 +280,11 @@ ReturnFromInterrupt:
     jr      k0
     or      k1, r0, r0
 
+include "debug.asm"
+
+align(4)
+IHString:
+    db " ~~~ Interrupt Handled ~~~ ", 0
+
+align(4)
     nops((K_BASE << 16) + 0x10000)

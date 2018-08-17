@@ -32,3 +32,21 @@ constant CI_WIFI_PARAM_RESULT_1($0428)  // word
 
 constant CI_EEPROM($1000)               // 2048 bytes
 constant CI_WRITEBACK_LBA($1800)        // 1024 bytes (256 words)
+
+macro CI_WAIT() {
+    PI_WAIT()
+-
+    lw      t0, CI_STATUS(t9)
+    srl     t0, t0, 12 // first 12 bits are reserved, so ignore them
+    bnez    t0,-
+    nop // delay slot
+}
+
+macro CI_USB_WRITE_WAIT() {
+    PI_WAIT()
+-
+    lw      t0, CI_USB_COMMAND_STATUS(t9)
+    srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
+    bnez    t0,-
+    nop // delay slot
+}

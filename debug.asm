@@ -50,7 +50,7 @@ Drive64Write:
     sw      t3, PI_RD_LEN(t5)  // "read" from DRAM to cart
 //  PI_WAIT() // if we always wait before doing operations, this shouldn't be necessary
 
-Drive64TestPoint:
+Drive64WriteDirect: // TODO: rewrite so this takes a0, a1 instead of a2, a3
     lui     at, 0x0100      // set printf channel
     or      a3, a3, at
     lli     t1, 0x08        // WRITE mode
@@ -59,20 +59,56 @@ Drive64TestPoint:
     and     a2, a2, t9
     srl     a2, a2, 1
 
-    CI_USB_WRITE_WAIT()
-    sw      a2, CI_USB_PARAM_RESULT_0(gp)
+    lui     t9, K_BASE
+    lw      t9, K_CI_BASE(t9)
+
+    CI_USB_WRITE_WAIT() // clobbers t0, requires t9
+    sw      a2, CI_USB_PARAM_RESULT_0(t9)
     PI_WAIT() // yes, these waits seem to be necessary
-    sw      a3, CI_USB_PARAM_RESULT_1(gp)
+    sw      a3, CI_USB_PARAM_RESULT_1(t9)
     PI_WAIT()
-    sw      t1, CI_USB_COMMAND_STATUS(gp)
-//  CI_USB_WRITE_WAIT() // if we always wait before doing operations, this shouldn't be necessary
+    sw      t1, CI_USB_COMMAND_STATUS(t9)
+// if we always wait before doing operations, this shouldn't be necessary:
+//  CI_USB_WRITE_WAIT()
 
 Drive64WriteExit:
     jr      ra
-    nop // delay slot
+    nop
 
 Drive64TestWrite:
     li      a2, 0xA0000020
     lli     a3, 0x20
-    j       Drive64TestPoint
-    nop // delay slot
+    j       Drive64WriteDirect
+    nop
+
+include "xxd.asm"
+
+DumpAndWrite:
+    // a0: source address
+    // a1: source length
+    // a2: temp string address
+    // a3: temp string maximum length
+    // v0: error code (0 is OK)
+    subiu   sp, sp, 0x20
+    sw      ra, 0x10(sp)
+    // TODO: i think i can just use the a0,a1,a2,a3 slots here?
+    sw      s0, 0x14(sp)
+    sw      s1, 0x18(sp)
+
+    or      s0, a2, r0
+    jal     xxd
+    or      s1, a3, r0
+
+    bnez    v0, DumpAndWriteExit
+
+    ori     a0, s0, r0 // delay slot
+    jal     Drive64Write
+    ori     a1, s1, r0
+    // v0 passthru
+
+DumpAndWriteExit:
+    lw      ra, 0x10(sp)
+    lw      s0, 0x14(sp)
+    lw      s1, 0x18(sp)
+    jr      ra
+    addiu   sp, sp, 0x20

@@ -24,7 +24,6 @@ include "kernel.asm"
 
 Main:
     lui     t0, K_BASE
-    lw      gp, K_CI_BASE(t0)
 
     lui     s0, BLAH_BASE
 
@@ -94,8 +93,6 @@ MainLoop:
     j MainLoop
     nop // delay slot
 
-include "debug.asm" // assumes gp is set to CI base
-
 SetupScreen:
     // NTSC: 640x480, 32BPP, Interlace, Resample Only, DRAM Origin VIDEO_BUFFER
     ScreenNTSC(640, 480, BPP32|INTERLACE|AA_MODE_2, VIDEO_BUFFER | UNCACHED)
@@ -116,8 +113,8 @@ LoadRSPBoot:
 
 PushVideoTask:
     // a0: Task RDRAM Pointer (size: 0x40)
-    subiu   sp, sp, 0x8
-    sw      ra, 0(sp)
+    subiu   sp, sp, 0x18
+    sw      ra, 0x10(sp)
 
     lli     t0, 1 // mode: video
     lli     t1, 4 // flags: ???
@@ -154,9 +151,9 @@ PushVideoTask:
     jal     PushRSPTask // a0 passthru
     nop
 
-    lw      ra, 0(sp)
+    lw      ra, 0x10(sp)
     jr      ra
-    addiu   sp, sp, 0x8
+    addiu   sp, sp, 0x18
 
 PushRSPTask:
     lli     t3, 0x40 - 1 // DMA quirk
@@ -167,8 +164,6 @@ PushRSPTask:
     sw      t3, SP_RD_LEN(t5) // pull data from RDRAM into DMEM/IMEM
     jr      ra
     nop
-
-include "xxd.asm"
 
 align(16); insert F3DZEX_BOOT, "F3DZEX2.boot.bin"
 align(16); insert F3DZEX_DMEM, "F3DZEX2.data.bin"

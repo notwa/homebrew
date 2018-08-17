@@ -9,8 +9,10 @@ constant K_REASON(0x0600)
 constant K_CAUSE(0x0604)
 constant K_STATUS(0x0608)
 constant K_EPC(0x060C)
-constant K_64DRIVE_MAGIC(0x0800)
-constant K_CI_BASE(0x0804)
+constant K_64DRIVE_MAGIC(0x0700)
+constant K_CI_BASE(0x0704)
+constant K_STACK(0xC00 - 8)
+constant K_XXD(0x0C00) // size: 0x400 (any larger and you overwrite kernel code)
 
 constant K_STACK_INIT_BASE(0x803F) // note that this gets subtracted by 8
                                    // and that the stack grows *backwards.*
@@ -60,22 +62,3 @@ macro SP_DMA_WAIT() { // external
     bnez    t0,-
     nop
 }
-
-macro CI_WAIT() {
-    PI_WAIT()
--
-    lw      t0, CI_STATUS(gp)
-    srl     t0, t0, 12 // first 12 bits are reserved, so ignore them
-    bnez    t0,-
-    nop // delay slot
-}
-
-macro CI_USB_WRITE_WAIT() {
-    PI_WAIT()
--
-    lw      t0, CI_USB_COMMAND_STATUS(gp)
-    srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
-    bnez    t0,-
-    nop // delay slot
-}
-
