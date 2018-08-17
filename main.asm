@@ -18,68 +18,28 @@ insert "6102.bin"
 
 include "main.inc"
 
-Start:
-    N64_INIT() // enable interrupts
+include "kernel.asm"
 
-    // SP defaults to RSP instruction memory: 0xA4001FF0
-    // we can do better than that.
-    lui     sp, BLAH_BASE
-    // SP should always be 8-byte aligned
-    // so that SD and LD instructions don't fail on it.
-    subiu   sp, sp, 8
+    nops(0x80010000)
+
+Main:
+    lui     t0, K_BASE
+    lw      gp, K_CI_BASE(t0)
 
     lui     s0, BLAH_BASE
 
-Drive64Init:
-    lui     gp, CI_BASE
-    lui     t2, 0x5544      // "UD" of "UDEV"
-    lw      t1, CI_HW_MAGIC(gp)
-    ori     t2, t2, 0x4556  // "EV" of "UDEV"
-
-    beq     t1, t2, Drive64Confirmed
-    nop // delay slot
-
-Drive64TryExtended:
-    lui     gp, CI_BASE_EXTENDED
-    lw      t1, CI_HW_MAGIC(gp)
-    bne     t1, t2, Main
-    nop // delay slot
-
-Drive64Confirmed:
-    sw      t2, BLAH_CONFIRMED(s0)
-    sw      gp, BLAH_CI_BASE(s0)
-
-    // enable writing to cartROM (SDRAM) for USB writing later
-    lli     t1, 0xF0
-
-    CI_WAIT()
-    sw      t1, CI_COMMAND(gp) // send our command
-    CI_WAIT()
-
-Main:
-if 0 {
-    mfc0    t0, 0x9          // move cycle Count register from COP 0
+    mfc0    t0, CP0_Count
+    mfc0    t1, CP0_Status+0
     sw      t0, BLAH_COUNTS+0(s0)
-    mfc0    t0, 0x9          // move cycle Count register from COP 0
-    sw      t0, BLAH_COUNTS+4(s0)
-    // seems like 41 half-cycles between the two mfc0's, rarely 42?
-} else {
-    mfc0    t0, 0x9
-    mfc0    t1, 0x9
-    sw      t0, BLAH_COUNTS+0(s0)
-    sw      t1, BLAH_COUNTS+4(s0)
-    // seems like 22 half-cycles between the two mfc0's
-}
-
-    // what is our stack pointer set to, anyway?
-    sw      sp, 0xC(s0)
+    sw      t1, 8(s0)
 
 // decompress our picture
 include "lz.asm"
 
-    mfc0    t0, 0x9
+    mfc0    t0, CP0_Count
     sw      t0, BLAH_COUNTS+8(s0)
-    lw      t1, BLAH_CONFIRMED(s0)
+    lui     t0, K_BASE
+    lw      t1, K_64DRIVE_MAGIC(t0)
     beqz    t1, InitVideo
     nop // delay slot
 
@@ -112,7 +72,7 @@ InitVideo: // currently 80001190 (this comment is likely out of date)
     jal     SetupScreen
     nop
 
-    mfc0    t0, 0x9 // move cycle Count register from COP 0
+    mfc0    t0, CP0_Count
     sw      t0, BLAH_COUNTS+0xC(s0)
 
 MainLoop:
@@ -175,7 +135,7 @@ PushVideoTask:
     sw      t5, 0x14(a0)
     sw      t6, 0x18(a0)
     sw      t7, 0x1C(a0)
-    li      t0, VIDEO_STACK & ADDR_MASK // ?
+    li      t0, VIDEO_STACK & ADDR_MASK // used for DList calls and returns?
     li      t1, VIDEO_STACK_SIZE
     li      t2, VIDEO_BUFFER & ADDR_MASK
     li      t3, (VIDEO_BUFFER & ADDR_MASK) + VIDEO_BUFFER_SIZE // end pointer (not size!)

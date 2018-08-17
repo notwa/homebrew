@@ -1,4 +1,4 @@
-// via krom
+// by krom, edited by notwa
 
 //=============
 // N64 Include
@@ -66,8 +66,10 @@ constant k0(26)
 constant k1(27)
 constant gp(28)
 constant sp(29)
-constant s8(30)
+constant fp(30)
 constant ra(31)
+
+constant s8(30) // alias of fp
 
 // N64 MIPS 4300 CP1 Floating Point Unit (FPU) Registers (COP1)
 constant f0(0)
@@ -102,6 +104,40 @@ constant f28(28)
 constant f29(29)
 constant f30(30)
 constant f31(31)
+
+// Coprocessor 0 registers
+constant CP0_Index(0)
+constant CP0_Random(1)
+constant CP0_EntryLo0(2)
+constant CP0_EntryLo1(3)
+constant CP0_Context(4)
+constant CP0_PageMask(5)
+constant CP0_Wired(6)
+constant CP0_Reserved_1(7)
+constant CP0_BadVAddr(8)
+constant CP0_Count(9)
+constant CP0_EntryHi(10)
+constant CP0_Compare(11)
+constant CP0_Status(12)
+constant CP0_Cause(13)
+constant CP0_EPC(14)
+constant CP0_PRid(15)
+constant CP0_Config(16)
+constant CP0_LLAddr(17)
+constant CP0_WatchLo(18)
+constant CP0_WatchHi(19)
+constant CP0_XContext(20)
+constant CP0_Reserved_2(21)
+constant CP0_Reserved_3(22)
+constant CP0_Reserved_4(23)
+constant CP0_Reserved_5(24)
+constant CP0_Reserved_6(25)
+constant CP0_PErr(26) // unused
+constant CP0_CacheErr(27) // unused
+constant CP0_TagLo(28)
+constant CP0_TagHi(29) // reserved
+constant CP0_ErrorPC(30)
+constant CP0_Reserved_7(31)
 
 // Memory Map
 constant RDRAM($A000) // $00000000..$003FFFFF RDRAM Memory 4MB ($00000000..$007FFFFF 8MB With Expansion Pak)
