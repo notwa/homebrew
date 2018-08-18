@@ -113,12 +113,12 @@ Drive64Done:
 WipeRegisters:
     // load up most registers with a dummy value for debugging
     lui     at, 0xCAFE
-    ori     at, r0, 0xBABE
-    dsllv   at, 32
+    ori     at, at, 0xBABE
+    dsll    at, 16
     // attempting to use this as an address should trigger an interrupt
-    ori     at, r0, 0xDEAD
-    dsllv   at, 16
-    ori     at, r0, 0xBEEF
+    ori     at, at, 0xDEAD
+    dsll    at, 16
+    ori     at, at, 0xBEEF
 
     // k0, k1, sp intentionally absent
     daddu   v0, at, r0
