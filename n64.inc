@@ -152,6 +152,8 @@ constant CP0_STATUS_IM6($4000) // Interrupt Mask 6 (External)
 constant CP0_STATUS_IM7($8000) // Interrupt Mask 7 (External)
 constant CP0_STATUS_IM_ALL($FF01) // enable all interrupts
 
+// note that these are all masks.
+constant CP0_CAUSE_CODE($007C) // actually supposed to be called ExcCode
 constant CP0_CAUSE_IP0($0100) // Interrupt Pending 0 (Software)
 constant CP0_CAUSE_IP1($0200) // Interrupt Pending 1 (Software)
 constant CP0_CAUSE_IP2($0400) // Interrupt Pending 2 (External)
@@ -160,6 +162,44 @@ constant CP0_CAUSE_IP4($1000) // Interrupt Pending 4 (External)
 constant CP0_CAUSE_IP5($2000) // Interrupt Pending 5 (External)
 constant CP0_CAUSE_IP6($4000) // Interrupt Pending 6 (External)
 constant CP0_CAUSE_IP7($8000) // Interrupt Pending 7 (External)
+// upper halfword:
+constant CP0_CAUSE_CE($30000000) // Coprocessor Error
+constant CP0_CAUSE_BD($80000000) // Branch Delay (not an exception, just info)
+
+// note that these constants are shifted left 2 into the Cause register,
+// so you must unshift the value from the register before comparing them.
+constant CP0_CODE_INT(0)    // Interrupt
+constant CP0_CODE_MOD(1)    // TLB modification exception
+constant CP0_CODE_TLBL(2)   // TLB Exception (Load or instruction fetch)
+constant CP0_CODE_TLBS(3)   // TLB Exception (Store)
+constant CP0_CODE_ADEL(4)   // Address Error Exception (Load or instruction fetch)
+constant CP0_CODE_ADES(5)   // Address Error Exception (Store)
+constant CP0_CODE_IBE(6)    // Bus Error Exception (instruction fetch)
+constant CP0_CODE_DBE(7)    // Bus Error Exception (data reference: load or store)
+constant CP0_CODE_SYS(8)    // SysCall Exception
+constant CP0_CODE_BP(9)     // Breakpoint Exception
+constant CP0_CODE_RI(10)    // Reserved instruction Exception
+constant CP0_CODE_CPU(11)   // Coprocessor Unusable Exception
+constant CP0_CODE_OV(12)    // Arithmetic Overflow Exception
+constant CP0_CODE_TR(13)    // Trap Exception
+constant CP0_CODE_RESERVED_14(14)
+constant CP0_CODE_FPE(15)   // Floating Point Exception
+constant CP0_CODE_RESERVED_16(16)
+constant CP0_CODE_RESERVED_17(17)
+constant CP0_CODE_RESERVED_18(18)
+constant CP0_CODE_RESERVED_19(19)
+constant CP0_CODE_RESERVED_20(20)
+constant CP0_CODE_RESERVED_21(21)
+constant CP0_CODE_RESERVED_22(22)
+constant CP0_CODE_WATCH(23) // Reference to WatchHi/WatchLo address
+constant CP0_CODE_RESERVED_24(24)
+constant CP0_CODE_RESERVED_25(25)
+constant CP0_CODE_RESERVED_26(26)
+constant CP0_CODE_RESERVED_27(27)
+constant CP0_CODE_RESERVED_28(28)
+constant CP0_CODE_RESERVED_29(29)
+constant CP0_CODE_RESERVED_30(30)
+constant CP0_CODE_RESERVED_31(31)
 
 // Memory Map
 constant RDRAM($A000) // $00000000..$003FFFFF RDRAM Memory 4MB ($00000000..$007FFFFF 8MB With Expansion Pak)
