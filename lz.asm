@@ -3,7 +3,7 @@
 
 LZInit:
     la a0, LZ+4 // A0 = Source Address
-    lui a1, 0xA010 // A1 = Destination Address (DRAM Start Offset)
+    lui a1, 0x8010 // A1 = Destination Address (DRAM Start Offset)
 
     lbu t0, -1(a0) // T0 = HI Data Length Byte
     sll t0, 8

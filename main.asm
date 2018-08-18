@@ -27,17 +27,29 @@ Main:
     lui     t0, K_BASE
 
     lui     s0, BLAH_BASE
-
-    mfc0    t0, CP0_Count
     mfc0    t1, CP0_Status+0
-    sw      t0, BLAH_COUNTS+0(s0)
     sw      t1, 8(s0)
 
-// decompress our picture
-include "lz.asm"
+    nop; nop; nop; nop
+    mfc0    t0, CP0_Count
+    sw      t0, BLAH_COUNTS+0(s0)
+
+    // decompress our picture
+    la      a0, LZ_BAKU + 4
+    lw      a3, -4(a0) // load uncompressed size from the file itself
+    li      a1, LZ_BAKU.size - 4
+    li      a2, VIDEO_BUFFER | 0x80000000
+    jal     LzDecomp
+    nop
+    // TODO: flush cache on video buffer
 
     mfc0    t0, CP0_Count
+    nop; nop; nop; nop
+
+    lw      t1, BLAH_COUNTS+0(s0)
     sw      t0, BLAH_COUNTS+8(s0)
+    subu    t1, t0, t1
+    sw      t1, BLAH_COUNTS+0xC(s0)
 
     lui     a0, BLAH_BASE
     lli     a1, 0x20
@@ -150,8 +162,10 @@ PushRSPTask:
     jr      ra
     nop
 
+include "lzss.baku.unsafe.asm"
+
 align(16); insert F3DZEX_BOOT, "bin/F3DZEX2.boot.bin"
 align(16); insert F3DZEX_DMEM, "bin/F3DZEX2.data.bin"
 align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
 align(16); insert FONT, "res/dwarf.1bpp"
-align(16); insert LZ, "res/Image.lz"
+align(16); insert LZ_BAKU, "res/Image.baku.lzss"

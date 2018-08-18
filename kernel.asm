@@ -100,15 +100,15 @@ Drive64Done:
     nop
     nop
 
-    // try out an interrupt:
-    //sw      r0, 0(r0)
-    mfc0    t1, CP0_Status
-    ori     t1, 2
-    mtc0    t1, CP0_Status
-    la      t0, WipeRegisters
-    mtc0    t0, CP0_EPC
-    j       InterruptHandler
-    nop
+//  // try out an interrupt:
+//  //sw      r0, 0(r0)
+//  mfc0    t1, CP0_Status
+//  ori     t1, 2
+//  mtc0    t1, CP0_Status
+//  la      t0, WipeRegisters
+//  mtc0    t0, CP0_EPC
+//  j       InterruptHandler
+//  nop
 
 WipeRegisters:
     // load up most registers with a dummy value for debugging
