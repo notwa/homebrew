@@ -17,7 +17,7 @@ macro KMaybeDumpString(str) {
 }
 
 macro KString(name, str) {
-    // appends trailing newline and null-termination.
+    // appends trailing newline and null-terminator.
     // must be shorter than 0x10000 after padding.
     align(16)
 {name}:
@@ -81,6 +81,7 @@ Start:
     sw      r0, K_64DRIVE_MAGIC(k0)
     sw      r0, K_REASON(k0)
     sw      r0, K_IN_MAIN(k0)
+    sw      r0, K_CONSOLE_AVAILABLE(k0)
 
 Drive64Init:
     lui     t9, CI_BASE
@@ -110,15 +111,15 @@ Drive64Confirmed:
 Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
-    sw      r0, K_CONSOLE_AVAILABLE(k0)
     KDumpString(KConsoleConfirmed)
+    lui     k0, K_BASE // we need to reload this if dumping threw an interrupt
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(k0)
 
 Drive64Done:
 
-    // delay to empty pipeline?
+    // delay to empty pipeline
     nop
     nop
     nop
