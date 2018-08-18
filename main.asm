@@ -18,6 +18,7 @@ insert "bin/6102.bin"
 
 include "inc/main.inc"
 
+include "inc/kernel.inc"
 include "kernel.asm"
 
     nops(0x80010000)

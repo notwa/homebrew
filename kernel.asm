@@ -1,37 +1,6 @@
 // not really a kernel,
 // just handling some low-level stuff like interrupts.
 
-macro KDumpString(name) {
-    // does not include error/console-checking!
-    // note: this first instruction must be okay to be in a delay slot.
-    la      a2, {name}
-    jal     Drive64WriteDirect
-    lli     a3, {name}X - {name}
-}
-
-macro KMaybeDumpString(str) {
-    lw      t1, K_CONSOLE_AVAILABLE(k0)
-    beqz    t1,+
-    KDumpString({str})
-+
-}
-
-macro KString(name, str) {
-    align(16)
-{name}:
-    db {str}, 0
-    align(16)
-{name}X:
-}
-
-macro KStringLine(name, str) {
-    align(16)
-{name}:
-    db {str}, 10, 0
-    align(16)
-{name}X:
-}
-
 Start:
     mtc0    r0, CP0_Cause // clear cause
     lui     gp, K_BASE
