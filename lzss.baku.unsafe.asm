@@ -99,7 +99,7 @@ LzCopy:
     addiu   t9, 1
     subu    t9, t2, t9
 
-    // pre-emptively move psuedo-position ahead (don't need it for the loop)
+    // preemptively move pseudo-position ahead (don't need it for the loop)
     addu    t7, t8
     andi    t7, t7, 0x3FF
 
