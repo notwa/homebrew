@@ -6,7 +6,6 @@ Drive64Write:
     // v0: error code (0 is OK)
 
     // TODO: a0 should be double-word aligned if used directly with DMA
-
     // assert a0 (RAM address) is word-aligned
     andi    t9, a0, 3
     bnezl   t9, Drive64WriteExit
@@ -27,19 +26,19 @@ Drive64Write:
     andi    t6, a0, 0xF
     addu    t7, a0, a1 // stop flushing around here
     subu    t6, a0, t6 // align a0 to data line
-    subiu   t7, t7, 1 // turn inclusive end-point into exclusive instead
 -
-    cache   1, 0(t6) // peter says: "Index Writeback Invalidate"
+    cache   1, 0(t6) // data cache Index Writeback Invalidate
+    addiu   t6, 0x10 // (delay slot) += data line size
     sltu    at, t6, t7
     bnez    at,-
-    addiu   t6, 0x10 // (delay slot) += data line size
+    nop
 
     // AND off the DRAM address
     li      t9, 0x007FFFFF // __osPiRawStartDma uses 0x1FFFFFFF?
     and     t1, a0, t9
 
     // cart address
-    move    t2, a2
+    or      t2, a2, r0
 
     // set length (needs to be decremented due to DMA quirk)
     subiu   t3, a3, 1
@@ -91,15 +90,20 @@ DumpAndWrite:
     // v0: error code (0 is OK)
     subiu   sp, sp, 0x20
     sw      ra, 0x10(sp)
-    // TODO: i think i can just use the a0,a1,a2,a3 slots here?
+    // TODO: can i just use the a0,a1,a2,a3 slots here?
     sw      s0, 0x14(sp)
     sw      s1, 0x18(sp)
 
     or      s0, a2, r0
     jal     xxd
     or      s1, a3, r0
+    // v0 passthru
 
     bnez    v0, DumpAndWriteExit
+
+    lui     t0, K_BASE // delay slot
+    lw      t1, K_64DRIVE_MAGIC(t0)
+    beqz    t1, DumpAndWriteExit
 
     ori     a0, s0, r0 // delay slot
     jal     Drive64Write

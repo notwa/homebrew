@@ -39,7 +39,7 @@ macro CI_WAIT() {
     lw      t0, CI_STATUS(t9)
     srl     t0, t0, 12 // first 12 bits are reserved, so ignore them
     bnez    t0,-
-    nop // delay slot
+    nop
 }
 
 macro CI_USB_WRITE_WAIT() {
@@ -48,5 +48,5 @@ macro CI_USB_WRITE_WAIT() {
     lw      t0, CI_USB_COMMAND_STATUS(t9)
     srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
     bnez    t0,-
-    nop // delay slot
+    nop
 }

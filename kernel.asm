@@ -2,6 +2,7 @@
 // just handling some low-level stuff like interrupts.
 
 Start:
+    mtc0    r0, CP0_Cause // clear cause
     lui     k0, K_BASE
 
     // copy our interrupt handlers into place.
@@ -12,28 +13,49 @@ Start:
     ld      t3, 0(t1)
     ld      t4, 8(t1)
     addiu   t1, t1, 0x10
-    ld      t3, 0(t0)
+    sd      t3, 0(t0)
     sd      t4, 8(t0)
-    addiu   t0, t0, 0x10
+    cache   0x19, 0(t0) // tell data cache to write itself out
+    cache   0x10, 0(t0) // tell instruction cache it needs to reload
+    // an instruction cache line is 2 rows, and a data cache line is 1 row, so
+    // i'm hoping just poking at the start of each row is enough to flush them.
     bne     t1, t2,-
-    cache   1, 0(t0) // not sure if this is necessary, but it doesn't hurt.
+    addiu   t0, t0, 0x10
 
     // enable SI and PI interrupts.
     lui     a0, PIF_BASE
     lli     t0, 8
     sw      t0, PIF_RAM+0x3C(a0)
 
+    // enable CPU interrupts.
+    mfc0    t1, CP0_Status
+    ori     t1, t1, CP0_STATUS_IM_ALL
+    mtc0    t1, CP0_Status
+
+    // enable even more interrupts.
+    lui     t2, MI_BASE
+    ori     t2, t2, MI_INTR_MASK
+    lli     t0, 0xAAA // LSB to MSB: SP, SI, AI, VI, PI, DP
+    // by the way, use 0x555 to disable
+    sw      t0, 0(t2)
+
+    // it looks like i should be initializing PI_BSD_DOM1_* from
+    // the ROM header at this point, but i don't know what even does does.
+
     // SP defaults to RSP instruction memory: 0xA4001FF0
     // we can do better than that.
     lui     sp, K_STACK_INIT_BASE
     // SP should always be 8-byte aligned
     // so that SD and LD instructions don't fail on it.
-    // we also need 4 empty words for storing the 32-bit values of a0,a1,a2,a3
+    // we also need 4 empty words for storing
+    // the 32-bit values of the callee's arguments.
     subiu   sp, sp, 0x10
 
     // TODO: just wipe a portion of RAM?
+    //       or just DMA in the IH and our defaults from ROM...
     sw      r0, K_64DRIVE_MAGIC(k0)
     sw      r0, K_REASON(k0)
+    sw      r0, K_IN_MAIN(k0)
 
 Drive64Init:
     lui     t9, CI_BASE
@@ -62,9 +84,24 @@ Drive64Confirmed:
 
 Drive64Done:
 
-    // clear internal exception/interrupt value
-    ori     k1, r0, r0
+    // delay to empty pipeline?
+    nop
+    nop
+    nop
+    nop
+    nop
 
+    // try out an interrupt:
+    //sw      r0, 0(r0)
+    mfc0    t1, CP0_Status
+    ori     t1, 2
+    mtc0    t1, CP0_Status
+    la      t0, WipeRegisters
+    mtc0    t0, CP0_EPC
+    j       InterruptHandler
+    nop
+
+WipeRegisters:
     // load up most registers with a dummy value for debugging
     lui     at, 0xCAFE
     ori     at, r0, 0xBABE
@@ -106,8 +143,8 @@ Drive64Done:
     j       Main
     nop
 
-align(0x10)
-_InterruptStart: // for copying purposes
+align(0x10) // align to row for cache-poking purposes
+_InterruptStart: // label for copying purposes
 pushvar base
 
 // note that we jump to the handler by jr instead of j
@@ -140,7 +177,7 @@ InterruptOther:
 
 nops(0x80000200)
 pullvar base
-_InterruptEnd: // for copying purposes
+_InterruptEnd: // label for copying purposes
 
 InterruptHandler:
     lui     k0, K_BASE
@@ -149,9 +186,9 @@ InterruptHandler:
     sd      at, K_DUMP+0x08(k0)
 
     // disable interrupts, clear exception and error level bits:
-    mfc0    at, CP0_Status
-    sw      at, K_STATUS(k0) // TODO: restored later
-    addiu   at, r0, 0xFFFC
+    mfc0    k1, CP0_Status
+    addiu   at, r0, ~CP0_STATUS_IE
+    sw      k1, K_STATUS(k0)
     and     k1, k1, at
     mtc0    k1, CP0_Status
 
@@ -159,7 +196,7 @@ InterruptHandler:
     sw      k1, K_CAUSE(k0)
 
     // TODO: option to only store clobbered registers
-    // TODO: option to dump COP1 registers too
+    // TODO: option to dump COP1 registers too (remember to check Status[FR])
 
     sd      r0, K_DUMP+0x00(k0) // intentional (it'd be weird if
                                 // r0 showed as nonzero in memory dumps)
@@ -199,30 +236,75 @@ InterruptHandler:
     sd      t0, K_DUMP+0x100(k0)
     sd      t1, K_DUMP+0x108(k0)
 
+    mfc0    k1, CP0_EPC // TODO: check that this is valid?
+    sw      k1, K_EPC(k0)
+
+    mfc0    k1, CP0_ErrorPC // TODO: check that this is valid?
+    sw      k1, K_ERRORPC(k0)
+
+    mfc0    k1, CP0_BadVAddr
+    sw      k1, K_BADVADDR(k0)
+
+if K_DEBUG {
+
+    // prevent recursive interrupts if IHMain somehow causes an interrupt
+    lw      t1, K_IN_MAIN(k0)
+    bnez    t1, IHExit
+    lli     t0, 1
+    sw      t0, K_IN_MAIN(k0)
+
     // be wary, this is a tiny temporary stack!
     ori     sp, k0, K_STACK
 
 IHMain: // free to modify any GPR from here to IHExit
-    la      a2, IHString
+macro KDumpString(str) {
+    lw      t1, K_64DRIVE_MAGIC(k0)
+    beqz    t1,+
+    la      a2, {str}
     jal     Drive64WriteDirect
-    lli     a3, 0x20 //IHString.size
+    lli     a3, 0x20 // str.size
++
+}
 
-    ori     a0, k0, K_DUMP
-    lli     a1, 0x100
+    KDumpString(KNewline)
+    KDumpString(KString0)
+
+    ori     a0, k0, K_DUMP + 0x80 * 0
+    lli     a1, 0x80
     ori     a2, k0, K_XXD
     jal     DumpAndWrite
-    lli     a3, 0x400
+    lli     a3, 0x80 * 4
 
-    ori     a0, k0, K_DUMP
-    addiu   a0, a0, 0x100
-    lli     a1, 0x100
+    KDumpString(KNewline)
+
+    ori     a0, k0, K_DUMP + 0x80 * 1
+    lli     a1, 0x80
     ori     a2, k0, K_XXD
     jal     DumpAndWrite
-    lli     a3, 0x400
+    lli     a3, 0x80 * 4
+
+    KDumpString(KNewline)
+
+    // currently just 0x10 in size: LO and HI registers.
+    ori     a0, k0, K_DUMP + 0x80 * 2
+    lli     a1, 0x10
+    ori     a2, k0, K_XXD
+    jal     DumpAndWrite
+    lli     a3, 0x10 * 4
+
+    KDumpString(KNewline)
+    KDumpString(KString1)
+
+    ori     a0, k0, K_DUMP + 0x80 * 4
+    lli     a1, 0x80
+    ori     a2, k0, K_XXD
+    jal     DumpAndWrite
+    lli     a3, 0x80 * 4
 
 IHExit:
+    sw      r0, K_IN_MAIN(k0)
 
-    jal     Drive64Write
+}
 
     lui     k0, K_BASE
     ld      t0, K_DUMP+0x100(k0)
@@ -261,13 +343,13 @@ IHExit:
     ld      ra, K_DUMP+0xF8(k0)
 
     lw      k1, K_CAUSE(k0)
-    andi    k1, k1, 0x2000 // check if this was a trap exception
+    xori    k1, k1, 13 << 2 // check if this was a trap exception
+    bnez    k1, ReturnFromInterrupt
     mfc0    k0, CP0_EPC
-    beqz    k1, ReturnFromInterrupt
-    sw      k0, K_EPC(k0)
 
 ReturnFromTrap:
-    addiu   k0, k0, 4
+    addiu   k0, k0, 4 // TODO: this probably fails with branch delays?
+    mtc0    k0, CP0_EPC
 
 ReturnFromInterrupt:
     // restore interrupts
@@ -275,16 +357,33 @@ ReturnFromInterrupt:
     ori     k1, k1, 1
     mtc0    k1, CP0_Status
 
-    // wait, shouldn't this be ERET?
-    rfe
-    jr      k0
-    or      k1, r0, r0
+    // eret pseudo-code:
+    //if status & 4 then
+    //  jump to ErrorPC
+    //  clear status & 4
+    //elseif status & 2 then
+    //  jump to EPC
+    //  clear status & 2
+    //else
+    //  raise new exception???
+    //end
+    eret
+    // no branch delay for eret
 
 include "debug.asm"
 
 align(4)
-IHString:
-    db " ~~~ Interrupt Handled ~~~ ", 0
+KString0:
+    db " ~~ Interrupt Handled ~~", 10, 0
+
+align(4)
+KString1:
+    db "    Interrupt States:", 10, 0
+
+align(4)
+KNewline:
+    db 10, 0, 0, 0
+    dw 0, 0, 0
 
 align(4)
     nops((K_BASE << 16) + 0x10000)

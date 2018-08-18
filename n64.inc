@@ -139,6 +139,28 @@ constant CP0_TagHi(29) // reserved
 constant CP0_ErrorPC(30)
 constant CP0_Reserved_7(31)
 
+constant CP0_STATUS_IE($0001)  // Interrupt Enable
+constant CP0_STATUS_EXL($0002) // Exception Level
+constant CP0_STATUS_ERL($0004) // Error Level
+constant CP0_STATUS_IM0($0100) // Interrupt Mask 0 (Software)
+constant CP0_STATUS_IM1($0200) // Interrupt Mask 1 (Software)
+constant CP0_STATUS_IM2($0400) // Interrupt Mask 2 (External)
+constant CP0_STATUS_IM3($0800) // Interrupt Mask 3 (External)
+constant CP0_STATUS_IM4($1000) // Interrupt Mask 4 (External)
+constant CP0_STATUS_IM5($2000) // Interrupt Mask 5 (External)
+constant CP0_STATUS_IM6($4000) // Interrupt Mask 6 (External)
+constant CP0_STATUS_IM7($8000) // Interrupt Mask 7 (External)
+constant CP0_STATUS_IM_ALL($FF01) // enable all interrupts
+
+constant CP0_CAUSE_IP0($0100) // Interrupt Pending 0 (Software)
+constant CP0_CAUSE_IP1($0200) // Interrupt Pending 1 (Software)
+constant CP0_CAUSE_IP2($0400) // Interrupt Pending 2 (External)
+constant CP0_CAUSE_IP3($0800) // Interrupt Pending 3 (External)
+constant CP0_CAUSE_IP4($1000) // Interrupt Pending 4 (External)
+constant CP0_CAUSE_IP5($2000) // Interrupt Pending 5 (External)
+constant CP0_CAUSE_IP6($4000) // Interrupt Pending 6 (External)
+constant CP0_CAUSE_IP7($8000) // Interrupt Pending 7 (External)
+
 // Memory Map
 constant RDRAM($A000) // $00000000..$003FFFFF RDRAM Memory 4MB ($00000000..$007FFFFF 8MB With Expansion Pak)
 

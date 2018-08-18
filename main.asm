@@ -37,30 +37,14 @@ include "lz.asm"
 
     mfc0    t0, CP0_Count
     sw      t0, BLAH_COUNTS+8(s0)
-    lui     t0, K_BASE
-    lw      t1, K_64DRIVE_MAGIC(t0)
-    beqz    t1, InitVideo
-    nop // delay slot
-
-//  jal     Drive64TestWrite
-//  nop // delay slot
 
     lui     a0, BLAH_BASE
     lli     a1, 0x20
     ori     a2, a0, BLAH_XXD
+    jal     DumpAndWrite
     lli     a3, 0x20 * 4
-    jal     xxd
-    nop // delay slot
 
-    lui     a0, BLAH_BASE       // write address
-    ori     a0, a0, BLAH_XXD    // (RAM gets copied to SDRAM by routine)
-    lli     a1, 0x20 * 4
-    jal     Drive64Write
-    nop // delay slot
-
-InitVideo: // currently 80001190 (this comment is likely out of date)
-    // A4000FC0
-
+InitVideo:
     jal     LoadRSPBoot
     nop
 
