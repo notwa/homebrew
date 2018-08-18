@@ -51,7 +51,7 @@ constant SP_COP_COMMAND_BUSY(13)    // 0x04100014
 constant SP_COP_PIPE_BUSY(14)       // 0x04100018
 constant SP_COP_TMEM_BUSY(15)       // 0x0410001C
 
-output "F3DZEX2.boot.bin", create
+output "bin/F3DZEX2.boot.bin", create
 fill 0xD0
 
 origin 0x00000000
@@ -126,7 +126,7 @@ label_1054:
     nop
     nop
 
-output "F3DZEX2.bin", create
+output "bin/F3DZEX2.bin", create
 fill 0xF80
 
 origin 0x00000000

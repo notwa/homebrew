@@ -1,9 +1,9 @@
 // built on the N64 ROM template by krom
 arch n64.cpu
 endian msb
-include "n64.inc"
-include "n64_gfx.inc"
-include "64drive.inc"
+include "inc/n64.inc"
+include "inc/n64_gfx.inc"
+include "inc/64drive.inc"
 
 output "test.z64", create
 fill 1052672 // Set ROM Size
@@ -12,11 +12,11 @@ origin 0x00000000
 base 0x80000000
 
 include "header.asm"
-insert "6102.bin"
+insert "bin/6102.bin"
 // after inserting the header and bootrom,
 // origin should be at 0x1000.
 
-include "main.inc"
+include "inc/main.inc"
 
 include "kernel.asm"
 
@@ -149,8 +149,8 @@ PushRSPTask:
     jr      ra
     nop
 
-align(16); insert F3DZEX_BOOT, "F3DZEX2.boot.bin"
-align(16); insert F3DZEX_DMEM, "F3DZEX2.data.bin"
-align(16); insert F3DZEX_IMEM, "F3DZEX2.bin"
-align(16); insert FONT, "dwarf.1bpp"
-align(16); insert LZ, "Image.lz"
+align(16); insert F3DZEX_BOOT, "bin/F3DZEX2.boot.bin"
+align(16); insert F3DZEX_DMEM, "bin/F3DZEX2.data.bin"
+align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
+align(16); insert FONT, "res/dwarf.1bpp"
+align(16); insert LZ, "res/Image.lz"
