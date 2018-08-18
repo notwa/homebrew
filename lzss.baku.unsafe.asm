@@ -1,3 +1,13 @@
+// a decompressor for the variant of LZSS used by Bomberman 64.
+// a matching compressor is available here:
+// https://github.com/notwa/baku/blob/master/compressor.c
+
+// this unsafe variant assumes that:
+//  * the 0x400 bytes before the destination are readable and null
+//  * the input data ends exactly where it is expected to
+//  * the input data writes exactly as many bytes as expected
+// the performance gain over the safe variant is around 38%.
+
 LzDecomp:
     // a0: pointer to compressed data (must be RDRAM, cart is unsupported)
     // a1: compressed size

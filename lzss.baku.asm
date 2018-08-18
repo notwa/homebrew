@@ -1,3 +1,7 @@
+// a decompressor for the variant of LZSS used by Bomberman 64.
+// a matching compressor is available here:
+// https://github.com/notwa/baku/blob/master/compressor.c
+
 LzDecomp:
     // a0: pointer to compressed data (must be RDRAM, cart is unsupported)
     // a1: compressed size
