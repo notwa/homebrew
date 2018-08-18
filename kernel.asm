@@ -17,8 +17,14 @@ macro KMaybeDumpString(str) {
 }
 
 macro KString(name, str) {
-    // appends trailing newline and null-terminator.
-    // must be shorter than 0x10000 after padding.
+    align(16)
+{name}:
+    db {str}, 0
+    align(16)
+{name}X:
+}
+
+macro KStringLine(name, str) {
     align(16)
 {name}:
     db {str}, 10, 0
@@ -28,7 +34,7 @@ macro KString(name, str) {
 
 Start:
     mtc0    r0, CP0_Cause // clear cause
-    lui     k0, K_BASE
+    lui     gp, K_BASE
 
     // copy our interrupt handlers into place.
     lui     t0, 0x8000
@@ -78,10 +84,10 @@ Start:
 
     // TODO: just wipe a portion of RAM?
     //       or just DMA in the IH and our defaults from ROM...
-    sw      r0, K_64DRIVE_MAGIC(k0)
-    sw      r0, K_REASON(k0)
-    sw      r0, K_IN_MAIN(k0)
-    sw      r0, K_CONSOLE_AVAILABLE(k0)
+    sw      r0, K_64DRIVE_MAGIC(gp)
+    sw      r0, K_REASON(gp)
+    sw      r0, K_IN_MAIN(gp)
+    sw      r0, K_CONSOLE_AVAILABLE(gp)
 
 Drive64Init:
     lui     t9, CI_BASE
@@ -99,8 +105,8 @@ Drive64TryExtended:
     nop
 
 Drive64Confirmed:
-    sw      t2, K_64DRIVE_MAGIC(k0)
-    sw      t9, K_CI_BASE(k0)
+    sw      t2, K_64DRIVE_MAGIC(gp)
+    sw      t9, K_CI_BASE(gp)
 
     // enable writing to cartROM (SDRAM) for USB writing later
     lli     t1, 0xF0
@@ -112,10 +118,9 @@ Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
     KDumpString(KConsoleConfirmed)
-    lui     k0, K_BASE // we need to reload this if dumping threw an interrupt
     lli     t0, 1
     beqzl   v0, Drive64Done
-    sw      t0, K_CONSOLE_AVAILABLE(k0)
+    sw      t0, K_CONSOLE_AVAILABLE(gp)
 
 Drive64Done:
 
@@ -327,6 +332,8 @@ IHMain: // free to modify any GPR from here to IHExit
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
+    KMaybeDumpString(KNewline)
+
 IHExit:
     sw      r0, K_IN_MAIN(k0)
 
@@ -398,10 +405,10 @@ ReturnFromInterrupt:
 
 include "debug.asm"
 
-KString(KString0, " ~~ Interrupt Handled ~~")
-KString(KString1, "    Interrupt States:")
 KString(KNewline, 10)
-KString(KConsoleConfirmed, "USB debug console detected")
+KStringLine(KConsoleConfirmed, "USB debug console detected")
+KStringLine(KString0, " ~~ Interrupt Handled ~~")
+KStringLine(KString1, "    Interrupt States:")
 
 align(4)
     nops((K_BASE << 16) + 0x10000)
