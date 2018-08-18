@@ -49,7 +49,9 @@ Drive64Write:
     sw      t3, PI_RD_LEN(t5)  // "read" from DRAM to cart
 //  PI_WAIT() // if we always wait before doing operations, this shouldn't be necessary
 
-Drive64WriteDirect: // TODO: rewrite so this takes a0, a1 instead of a2, a3
+Drive64WriteDirect: // TODO: rewrite so this takes a0,a1 instead of a2,a3
+    lli     v0, 0
+
     lui     at, 0x0100      // set printf channel
     or      a3, a3, at
     lli     t1, 0x08        // WRITE mode
@@ -61,14 +63,17 @@ Drive64WriteDirect: // TODO: rewrite so this takes a0, a1 instead of a2, a3
     lui     t9, K_BASE
     lw      t9, K_CI_BASE(t9)
 
-    CI_USB_WRITE_WAIT() // clobbers t0, requires t9
+    CI_USB_WRITE_WAIT(0x10000) // clobbers t0,v0, requires t9
+    bnez    v0, Drive64WriteExit
+    nop
+
     sw      a2, CI_USB_PARAM_RESULT_0(t9)
     PI_WAIT() // yes, these waits seem to be necessary
     sw      a3, CI_USB_PARAM_RESULT_1(t9)
     PI_WAIT()
     sw      t1, CI_USB_COMMAND_STATUS(t9)
-// if we always wait before doing operations, this shouldn't be necessary:
-//  CI_USB_WRITE_WAIT()
+
+    CI_USB_WRITE_WAIT(0x10000) // clobbers t0,v0, requires t9
 
 Drive64WriteExit:
     jr      ra
@@ -102,7 +107,7 @@ DumpAndWrite:
     bnez    v0, DumpAndWriteExit
 
     lui     t0, K_BASE // delay slot
-    lw      t1, K_64DRIVE_MAGIC(t0)
+    lw      t1, K_CONSOLE_AVAILABLE(t0)
     beqz    t1, DumpAndWriteExit
 
     ori     a0, s0, r0 // delay slot

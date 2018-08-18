@@ -82,6 +82,17 @@ Drive64Confirmed:
     sw      t1, CI_COMMAND(t9)
     CI_WAIT() // clobbers t0, requires t9
 
+Drive64CheckConsole:
+    // NOTE: we only check at boot, so disconnecting the console
+    //       while running will cause a ton of lag (timeouts) until reset.
+    sw      r0, K_CONSOLE_AVAILABLE(k0)
+    la      a2, KConsoleConfirmed
+    jal     Drive64WriteDirect
+    lli     a3, KConsoleConfirmedX - KConsoleConfirmed
+    lli     t0, 1
+    beqzl   v0, Drive64Done
+    sw      t0, K_CONSOLE_AVAILABLE(k0)
+
 Drive64Done:
 
     // delay to empty pipeline?
@@ -258,7 +269,7 @@ if K_DEBUG {
 
 IHMain: // free to modify any GPR from here to IHExit
 macro KDumpString(str) {
-    lw      t1, K_64DRIVE_MAGIC(k0)
+    lw      t1, K_CONSOLE_AVAILABLE(k0)
     beqz    t1,+
     la      a2, {str}
     jal     Drive64WriteDirect
@@ -372,18 +383,24 @@ ReturnFromInterrupt:
 
 include "debug.asm"
 
-align(4)
+align(8)
 KString0:
     db " ~~ Interrupt Handled ~~", 10, 0
 
-align(4)
+align(8)
 KString1:
     db "    Interrupt States:", 10, 0
 
-align(4)
+align(8)
 KNewline:
     db 10, 0, 0, 0
     dw 0, 0, 0
+
+align(8)
+KConsoleConfirmed:
+    db "USB debug console detected", 10, 0
+align(16)
+KConsoleConfirmedX:
 
 align(4)
     nops((K_BASE << 16) + 0x10000)

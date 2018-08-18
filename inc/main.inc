@@ -21,6 +21,7 @@ constant K_BADVADDR(0x0618)
 
 constant K_64DRIVE_MAGIC(0x0700)
 constant K_CI_BASE(0x0704)
+constant K_CONSOLE_AVAILABLE(0x0708)
 
 constant K_STACK(0x0C00 - 0x10)
 constant K_XXD(0x0C00) // size: 0x400 (any larger and you overwrite kernel code)

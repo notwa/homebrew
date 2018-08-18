@@ -42,11 +42,30 @@ macro CI_WAIT() {
     nop
 }
 
-macro CI_USB_WRITE_WAIT() {
+macro CI_USB_WRITE_WAIT(timeout) {
     PI_WAIT()
--
-    lw      t0, CI_USB_COMMAND_STATUS(t9)
-    srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
-    bnez    t0,-
-    nop
+
+    if {timeout} > 0 {
+        li      v0, {timeout}
+    -
+        lw      t0, CI_USB_COMMAND_STATUS(t9)
+        beqz    v0,+ // die
+        srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
+        bnez    t0,-
+        subiu   v0, v0, 1
+        b       ++ // exit normally
+        or      v0, r0, r0
+    +
+        li      t0, 0xF
+        sw      t0, CI_USB_COMMAND_STATUS(t9) // force disarm
+        lli     v0, 0xDEAD // return error code
+    +
+
+    } else {
+    -
+        lw      t0, CI_USB_COMMAND_STATUS(t9)
+        srl     t0, t0, 4 // shift out ARM status, leaving WRITE status
+        bnez    t0,-
+        nop
+    }
 }
