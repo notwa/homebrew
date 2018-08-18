@@ -1,6 +1,31 @@
 // not really a kernel,
 // just handling some low-level stuff like interrupts.
 
+macro KDumpString(name) {
+    // does not include error/console-checking!
+    // note: this first instruction must be okay to be in a delay slot.
+    la      a2, {name}
+    jal     Drive64WriteDirect
+    lli     a3, {name}X - {name}
+}
+
+macro KMaybeDumpString(str) {
+    lw      t1, K_CONSOLE_AVAILABLE(k0)
+    beqz    t1,+
+    KDumpString({str})
++
+}
+
+macro KString(name, str) {
+    // appends trailing newline and null-termination.
+    // must be shorter than 0x10000 after padding.
+    align(16)
+{name}:
+    db {str}, 10, 0
+    align(16)
+{name}X:
+}
+
 Start:
     mtc0    r0, CP0_Cause // clear cause
     lui     k0, K_BASE
@@ -86,9 +111,7 @@ Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
     sw      r0, K_CONSOLE_AVAILABLE(k0)
-    la      a2, KConsoleConfirmed
-    jal     Drive64WriteDirect
-    lli     a3, KConsoleConfirmedX - KConsoleConfirmed
+    KDumpString(KConsoleConfirmed)
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(k0)
@@ -268,17 +291,8 @@ if K_DEBUG {
     ori     sp, k0, K_STACK
 
 IHMain: // free to modify any GPR from here to IHExit
-macro KDumpString(str) {
-    lw      t1, K_CONSOLE_AVAILABLE(k0)
-    beqz    t1,+
-    la      a2, {str}
-    jal     Drive64WriteDirect
-    lli     a3, 0x20 // str.size
-+
-}
-
-    KDumpString(KNewline)
-    KDumpString(KString0)
+    KMaybeDumpString(KNewline)
+    KMaybeDumpString(KString0)
 
     ori     a0, k0, K_DUMP + 0x80 * 0
     lli     a1, 0x80
@@ -286,7 +300,7 @@ macro KDumpString(str) {
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KDumpString(KNewline)
+    KMaybeDumpString(KNewline)
 
     ori     a0, k0, K_DUMP + 0x80 * 1
     lli     a1, 0x80
@@ -294,7 +308,7 @@ macro KDumpString(str) {
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KDumpString(KNewline)
+    KMaybeDumpString(KNewline)
 
     // currently just 0x10 in size: LO and HI registers.
     ori     a0, k0, K_DUMP + 0x80 * 2
@@ -303,8 +317,8 @@ macro KDumpString(str) {
     jal     DumpAndWrite
     lli     a3, 0x10 * 4
 
-    KDumpString(KNewline)
-    KDumpString(KString1)
+    KMaybeDumpString(KNewline)
+    KMaybeDumpString(KString1)
 
     ori     a0, k0, K_DUMP + 0x80 * 4
     lli     a1, 0x80
@@ -383,24 +397,10 @@ ReturnFromInterrupt:
 
 include "debug.asm"
 
-align(8)
-KString0:
-    db " ~~ Interrupt Handled ~~", 10, 0
-
-align(8)
-KString1:
-    db "    Interrupt States:", 10, 0
-
-align(8)
-KNewline:
-    db 10, 0, 0, 0
-    dw 0, 0, 0
-
-align(8)
-KConsoleConfirmed:
-    db "USB debug console detected", 10, 0
-align(16)
-KConsoleConfirmedX:
+KString(KString0, " ~~ Interrupt Handled ~~")
+KString(KString1, "    Interrupt States:")
+KString(KNewline, 10)
+KString(KConsoleConfirmed, "USB debug console detected")
 
 align(4)
     nops((K_BASE << 16) + 0x10000)
