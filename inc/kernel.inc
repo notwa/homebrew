@@ -43,7 +43,7 @@ macro KMaybeDumpString(str) {
 +
 }
 
-macro KString(name, str) {
+macro KS(name, str) {
     align(16)
 {name}:
     db {str}, 0
@@ -51,7 +51,7 @@ macro KString(name, str) {
 {name}X:
 }
 
-macro KStringLine(name, str) {
+macro KSL(name, str) {
     align(16)
 {name}:
     db {str}, 10, 0

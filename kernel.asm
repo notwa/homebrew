@@ -48,8 +48,10 @@ Start:
     // SP should always be 8-byte aligned
     // so that SD and LD instructions don't fail on it.
     // we also need 4 empty words for storing
-    // the 32-bit values of the callee's arguments.
+    // the 32-bit values of the callee's argument registers.
     subiu   sp, sp, 0x10
+    sd      r0, 0(sp)
+    sd      r0, 8(sp)
 
     // TODO: just wipe a portion of RAM?
     //       or just DMA in the IH and our defaults from ROM...
@@ -86,7 +88,7 @@ Drive64Confirmed:
 Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
-    KDumpString(KConsoleConfirmed)
+    KDumpString(KSConsoleConfirmed)
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(gp)
@@ -100,8 +102,9 @@ Drive64Done:
     nop
     nop
 
-//  // try out an interrupt:
-//  //sw      r0, 0(r0)
+    // try out an interrupt:
+//  sw      r0, 0(r0)
+//  nop
 //  mfc0    t1, CP0_Status
 //  ori     t1, 2
 //  mtc0    t1, CP0_Status
@@ -194,7 +197,7 @@ InterruptHandler:
 
     sd      at, K_DUMP+0x08(k0)
 
-    // disable interrupts, clear exception and error level bits:
+    // disable interrupts
     mfc0    k1, CP0_Status
     addiu   at, r0, ~CP0_STATUS_IE
     sw      k1, K_STATUS(k0)
@@ -266,8 +269,8 @@ if K_DEBUG {
     ori     sp, k0, K_STACK
 
 IHMain: // free to modify any GPR from here to IHExit
-    KMaybeDumpString(KNewline)
-    KMaybeDumpString(KString0)
+    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KSHandling)
 
     ori     a0, k0, K_DUMP + 0x80 * 0
     lli     a1, 0x80
@@ -275,7 +278,7 @@ IHMain: // free to modify any GPR from here to IHExit
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KNewline)
+    KMaybeDumpString(KSNewline)
 
     ori     a0, k0, K_DUMP + 0x80 * 1
     lli     a1, 0x80
@@ -283,7 +286,7 @@ IHMain: // free to modify any GPR from here to IHExit
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KNewline)
+    KMaybeDumpString(KSNewline)
 
     // currently just 0x10 in size: LO and HI registers.
     ori     a0, k0, K_DUMP + 0x80 * 2
@@ -292,8 +295,8 @@ IHMain: // free to modify any GPR from here to IHExit
     jal     DumpAndWrite
     lli     a3, 0x10 * 4
 
-    KMaybeDumpString(KNewline)
-    KMaybeDumpString(KString1)
+    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KSStates)
 
     ori     a0, k0, K_DUMP + 0x80 * 4
     lli     a1, 0x80
@@ -301,7 +304,19 @@ IHMain: // free to modify any GPR from here to IHExit
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KNewline)
+    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KSCode)
+
+    // switch-case on the cause code:
+    // conveniently, the ExcCode in Cause is already shifted left by 2.
+    lw      t4, K_CAUSE(k0)
+    la      t3, KCodes
+    andi    t4, CP0_CAUSE_CODE
+    addu    t3, t4
+    lw      t4, 0(t3)
+    jr      t4
+    nop
+KCodeDone:
 
 IHExit:
     sw      r0, K_IN_MAIN(k0)
@@ -374,10 +389,87 @@ ReturnFromInterrupt:
 
 include "debug.asm"
 
-KString(KNewline, 10)
-KStringLine(KConsoleConfirmed, "USB debug console detected")
-KStringLine(KString0, " ~~ Interrupt Handled ~~")
-KStringLine(KString1, "    Interrupt States:")
+KCode0:; KMaybeDumpString(KSCode0); j   KCodeDone; nop
+KCode1:; KMaybeDumpString(KSCode1); j   KCodeDone; nop
+KCode2:; KMaybeDumpString(KSCode2); j   KCodeDone; nop
+KCode3:; KMaybeDumpString(KSCode3); j   KCodeDone; nop
+KCode4:; KMaybeDumpString(KSCode4); j   KCodeDone; nop
+KCode5:; KMaybeDumpString(KSCode5); j   KCodeDone; nop
+KCode6:; KMaybeDumpString(KSCode6); j   KCodeDone; nop
+KCode7:; KMaybeDumpString(KSCode7); j   KCodeDone; nop
+KCode8:; KMaybeDumpString(KSCode8); j   KCodeDone; nop
+KCode9:; KMaybeDumpString(KSCode9); j   KCodeDone; nop
+KCode10:; KMaybeDumpString(KSCode10); j   KCodeDone; nop
+KCode11:; KMaybeDumpString(KSCode11); j   KCodeDone; nop
+KCode12:; KMaybeDumpString(KSCode12); j   KCodeDone; nop
+KCode13:; KMaybeDumpString(KSCode13); j   KCodeDone; nop
+KCode14:; KMaybeDumpString(KSCode14); j   KCodeDone; nop
+KCode15:; KMaybeDumpString(KSCode15); j   KCodeDone; nop
+KCode16:; KMaybeDumpString(KSCode16); j   KCodeDone; nop
+KCode17:; KMaybeDumpString(KSCode17); j   KCodeDone; nop
+KCode18:; KMaybeDumpString(KSCode18); j   KCodeDone; nop
+KCode19:; KMaybeDumpString(KSCode19); j   KCodeDone; nop
+KCode20:; KMaybeDumpString(KSCode20); j   KCodeDone; nop
+KCode21:; KMaybeDumpString(KSCode21); j   KCodeDone; nop
+KCode22:; KMaybeDumpString(KSCode22); j   KCodeDone; nop
+KCode23:; KMaybeDumpString(KSCode23); j   KCodeDone; nop
+KCode24:; KMaybeDumpString(KSCode24); j   KCodeDone; nop
+KCode25:; KMaybeDumpString(KSCode25); j   KCodeDone; nop
+KCode26:; KMaybeDumpString(KSCode26); j   KCodeDone; nop
+KCode27:; KMaybeDumpString(KSCode27); j   KCodeDone; nop
+KCode28:; KMaybeDumpString(KSCode28); j   KCodeDone; nop
+KCode29:; KMaybeDumpString(KSCode29); j   KCodeDone; nop
+KCode30:; KMaybeDumpString(KSCode30); j   KCodeDone; nop
+KCode31:; KMaybeDumpString(KSCode31); j   KCodeDone; nop
+
+KCodes:
+dw      KCode0, KCode1, KCode2, KCode3
+dw      KCode4, KCode5, KCode6, KCode7
+dw      KCode8, KCode9, KCode10, KCode11
+dw      KCode12, KCode13, KCode14, KCode15
+dw      KCode16, KCode17, KCode18, KCode19
+dw      KCode20, KCode21, KCode22, KCode23
+dw      KCode24, KCode25, KCode26, KCode27
+dw      KCode28, KCode29, KCode30, KCode31
+
+KS(KSNewline, 10)
+KSL(KSConsoleConfirmed, "USB debug console detected")
+KSL(KSHandling, " ~~ Handling Interrupt ~~")
+KSL(KSStates, "    Interrupt States:")
+
+KS(KSCode, "    Interrupt Type: ")
+KSL(KSCode0, "Regular Interrupt")
+KSL(KSCode1, "TLB Modification Exception")
+KSL(KSCode2, "TLB Exception (Load/Fetch)")
+KSL(KSCode3, "TLB Exception (Store)")
+KSL(KSCode4, "Address Error Exception (Load/Fetch)")
+KSL(KSCode5, "Address Error Exception (Store)")
+KSL(KSCode6, "Bus Error Exception (Fetch)")
+KSL(KSCode7, "Bus Error Exception (Load/Store)")
+KSL(KSCode8, "SysCall Exception")
+KSL(KSCode9, "Breakpoint Exception")
+KSL(KSCode10, "Reserved Instruction Exception")
+KSL(KSCode11, "Coprocessor Unusable Exception")
+KSL(KSCode12, "Arithmetic Overflow Exception")
+KSL(KSCode13, "Trap Exception")
+KSL(KSCode14, "RESERVED 14")
+KSL(KSCode15, "Floating Point Exception")
+KSL(KSCode16, "RESERVED 16")
+KSL(KSCode17, "RESERVED 17")
+KSL(KSCode18, "RESERVED 18")
+KSL(KSCode19, "RESERVED 19")
+KSL(KSCode20, "RESERVED 20")
+KSL(KSCode21, "RESERVED 21")
+KSL(KSCode22, "RESERVED 22")
+KSL(KSCode23, "Watch")
+KSL(KSCode24, "RESERVED 24")
+KSL(KSCode25, "RESERVED 25")
+KSL(KSCode26, "RESERVED 26")
+KSL(KSCode27, "RESERVED 27")
+KSL(KSCode28, "RESERVED 28")
+KSL(KSCode29, "RESERVED 29")
+KSL(KSCode30, "RESERVED 30")
+KSL(KSCode31, "RESERVED 31")
 
 align(4)
     nops((K_BASE << 16) + 0x10000)
