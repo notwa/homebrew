@@ -125,7 +125,6 @@ LzCopyLoop:
     bne     t0, t1, LzNextCode
     nop
 
-    b       LzExit
     lli     v0, 0
 
 LzExit:
