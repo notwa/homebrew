@@ -22,6 +22,7 @@ you will need to compile
 and [z64crc](https://github.com/notwa/mm/blob/master/z64crc.c)
 (to be included in this repo later). then, run:
 ```
+bass F3DZEX.asm  # only needs to be done once
 bass main.asm
 z64crc test.z64
 ```
