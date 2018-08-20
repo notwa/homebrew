@@ -95,6 +95,26 @@ constant SP_SET_SG6($00400000) //   Set Signal 6
 constant SP_CLR_SG7($00800000) // Clear Signal 7
 constant SP_SET_SG7($01000000) //   Set Signal 7
 
+// Task Struct:
+constant TASK_START(0xFC0)
+// Fields:
+constant TASK_TYPE(0xFC0)
+constant TASK_FLAGS(0xFC4)
+constant TASK_UCODE_BOOT(0xFC8)
+constant TASK_UCODE_BOOT_SIZE(0xFCC)
+constant TASK_UCODE(0xFD0)
+constant TASK_UCODE_SIZE(0xFD4)
+constant TASK_UCODE_DATA(0xFD8)
+constant TASK_UCODE_DATA_SIZE(0xFDC)
+constant TASK_DRAM_STACK(0xFE0)
+constant TASK_DRAM_STACK_SIZE(0xFE4)
+constant TASK_OUTPUT_BUFF(0xFE8)
+constant TASK_OUTPUT_BUFF_SIZE(0xFEC)
+constant TASK_DATA_PTR(0xFF0)
+constant TASK_DATA_SIZE(0xFF4)
+constant TASK_YIELD_DATA_PTR(0xFF8)
+constant TASK_YIELD_DATA_SIZE(0xFFC)
+
 output "bin/F3DZEX2.boot.bin", create
 fill 0xD0
 
@@ -102,10 +122,10 @@ origin 0x00000000
 base 0x04001000
 
     j       label_1054
-    addi    at, r0, 0x0FC0 // Task data, tells us where the main program is
+    addi    at, r0, TASK_START
 
 label_1008:
-    lw      v0, 0x10(at) // TASK_UCODE
+    lw      v0, TASK_UCODE-TASK_START(at)
     addi    v1, r0, 0x0F7F // copy 0xF80 bytes
     addi    a3, r0, 0x1080 // to 0xA4001080
     mtc0    a3, SP_COP_MEM_ADDR
@@ -137,7 +157,7 @@ label_1040:
     nop
 
 label_1054:
-    lw      v0, 0x04(at) // load TASK_FLAGS
+    lw      v0, TASK_FLAGS-TASK_START(at)
     andi    v0, v0, 2 // check flag 1
     beqz    v0,+
     nop
@@ -150,8 +170,8 @@ label_1054:
     bgtz    v0,func_103C
     nop
 +
-    lw      v0, 0x18(at) // load TASK_UCODE_DATA
-    lw      v1, 0x1C(at) // load TASK_UCODE_DATA_SIZE
+    lw      v0, TASK_UCODE_DATA-TASK_START(at)
+    lw      v1, TASK_UCODE_DATA_SIZE-TASK_START(at)
     subi    v1, v1, 1 // subtract 1 for DMA quirk
 -
     mfc0    fp, SP_COP_DMA_FULL
@@ -186,15 +206,15 @@ func_1088:
     vadd    vec1,vec0,vec0 // multiply vector 0 by 2
     addi    s6, r0, 0xD00
     vsub    vec1,vec0,vec31[e8]
-    lw      t3, 0xF0(r0)
-    lw      t4, 0xFC4(r0)
+    lw      t3, 0x0F0(r0) // TASK_DRAM_STACK gets written here?
+    lw      t4, TASK_FLAGS(r0)
     addi    at, r0, SP_CLR_SG1 | SP_CLR_SG2
     beqz    t3,+
     mtc0    at, SP_COP_STATUS
 
-    andi    t4, t4, 1
+    andi    t4, t4, 1 // check if flag 0 is set
     beqz    t4,label_1130
-    sw      r0, 0xFC4(r0)
+    sw      r0, TASK_FLAGS(r0)
 
     j       func_1168 & 0x1FFF
     lw      k0, 0xBF8(r0)
@@ -205,12 +225,12 @@ func_1088:
     bnez    t3,+
     mfc0    v0, SP_COP_COMMAND_END
 
-    lw      v1, 0xFE8(r0)
+    lw      v1, TASK_OUTPUT_BUFF(r0)
     sub     t3, v1, v0
     bgtz    t3,+
     mfc0    at, SP_COP_COMMAND_CURRENT
 
-    lw      a0, 0xFEC(r0)
+    lw      a0, TASK_OUTPUT_BUFF_SIZE(r0)
     beqz    at,+
     sub     t3,at,a0
 
@@ -227,18 +247,18 @@ func_1088:
     addi    t3, r0, 1
 
     mtc0    t3, SP_COP_RDP_STATUS
-    lw      v0, 0xFEC(r0)
+    lw      v0, TASK_OUTPUT_BUFF_SIZE(r0)
     mtc0    v0, SP_COP_COMMAND_START
     mtc0    v0, SP_COP_COMMAND_END
 +
-    sw      v0, 0xF0(r0)
-    lw      t3, 0xF4(r0)
+    sw      v0, 0x0F0(r0)
+    lw      t3, 0x0F4(r0)
     bnez    t3, label_1130
-    lw      t3, 0xFE0(r0)
+    lw      t3, TASK_DRAM_STACK(r0)
 
-    sw      t3, 0xF4(r0)
+    sw      t3, 0x0F4(r0)
 label_1130:
-    lw      at, 0xFD0(r0)
+    lw      at, TASK_UCODE(r0)
     lw      v0, 0x2E0(r0)
     lw      v1, 0x2E8(r0)
     lw      a0, 0x410(r0)
@@ -251,7 +271,7 @@ label_1130:
     add     a1, a1, at
     sw      a0, 0x410(r0)
     sw      a1, 0x418(r0)
-    lw      k0, 0xFF0(r0)
+    lw      k0, TASK_DATA_PTR(r0)
 func_1168:
     addi    t3, r0, 0x2E8
     nop
@@ -259,11 +279,11 @@ func_1168:
     ori     t4, ra, 0
 
 -
-    addi    s3, r0, 0xA7
+    addi    s3, r0, 0xA7 // DMA length: 0xA8
     ori     t8, k0, 0
 
-    jal     func_1FD8 & 0x1FFF
-    addiu   s4, r0, 0x0920
+    jal     func_1FD8 & 0x1FFF // load in the DList from TASK_DATA_PTR?
+    addiu   s4, r0, 0x0920 // DMA destination: DMEM+$920
 
     addiu   k0, k0, 0x00A8
     addi    k1, r0, 0xFF58
@@ -290,22 +310,22 @@ func_1194:
     j       func_1FD8 & 0x1FFF
     addi    ra, r0, 0x1190
 
-    lw      t3, 0x01EC(r0)
+    lw      t3, 0x1EC(r0)
     and     t3, t3, t9
     or      t3, t3, t8
     j       func_1194 & 0x1FFF
-    sw      t3, 0x01EC(r0)
+    sw      t3, 0x1EC(r0)
 
 label_11EC:
-    lbu     at, 0x00DE(r0)
+    lbu     at, 0x0DE(r0)
     beqz    at, label_1FAC
     addi    at, at, 0xFFFC
 
     j       label_1020 & 0x1FFF
     lw      k0, 0x0138(at)
 
-    ldv     vec29[e0], 0xD0(r0)
-    lw      t9, 0x00D8(r0)
+    ldv     vec29[e0], 0x0D0(r0)
+    lw      t9, 0x0D8(r0)
     addi    s7, s7, SP_COP_COMMAND_START
     sdv     vec29[e0], 0x3F8(s7)
 func_1210:
@@ -323,13 +343,13 @@ func_1224:
     srl     t8, t8, 8
     jr      ra
     add     t8, t8, t3
-    sw      t9, 0x00C8(r0)
+    sw      t9, 0x0C8(r0)
     j       func_1210 & 0x1FFF
-    sw      t8, 0x00CC(r0)
+    sw      t8, 0x0CC(r0)
 
-    sw      t9, 0x00C0(r0)
+    sw      t9, 0x0C0(r0)
     j       func_1210 & 0x1FFF
-    sw      t8, 0x00C4(r0)
+    sw      t8, 0x0C4(r0)
 
 label_1258:
     addi    ra, r0, 0x1194
@@ -339,10 +359,10 @@ label_125C:
 -
     mfc0    t4, SP_COP_DMA_BUSY
 
-    lw      t8, 0x00F0(r0)
+    lw      t8, 0x0F0(r0)
     addiu   s3, t3, 0x0158
     bnez    t4,-
-    lw      t4, 0x0FEC(r0)
+    lw      t4, TASK_OUTPUT_BUFF_SIZE(r0)
 
     mtc0    t8, SP_COP_COMMAND_END
     add     t3, t8, s3
@@ -353,7 +373,7 @@ label_125C:
 
     andi    t3, t3, 0x0400
     bnez    t3,-
-    lw      t8, 0x0FE8(r0)
+    lw      t8, TASK_OUTPUT_BUFF(r0)
 -
     mfc0    t3, SP_COP_COMMAND_CURRENT
     beq     t3, t8,-
@@ -371,7 +391,7 @@ label_125C:
 
 +
     add     t3, t8, s3
-    sw      t3, 0x00F0(r0)
+    sw      t3, 0x0F0(r0)
     addi    s3, s3, 0xFFFF
     addi    s4, s6, 0xDEA8
     xori    s6, s6, 0x0208
@@ -390,7 +410,7 @@ label_12E4:
     sh      v0, 0x03CC(s2)
     sh      v1, 0x03CE(s2)
     sh      r0, 0x03D0(s2)
-    lw      sp, 0x03CC(r0)
+    lw      sp, 0x3CC(r0)
 label_1308:
     lw      t1, 0x03F8(a1)
     lw      s0, 0x0024(v1)
@@ -517,7 +537,7 @@ label_14A8:
     lhu     v1, 0x03CE(s5)
     bnez    a1, label_1308
     addi    a1, a1, 0xFFFC
-    sw      r0, 0x03CC(r0)
+    sw      r0, 0x3CC(r0)
 
 -
     lhu     at, 0x03CA(s2)
@@ -533,7 +553,7 @@ label_14A8:
 
 +
     jr      fp
-    sw      sp, 0x03CC(r0)
+    sw      sp, 0x3CC(r0)
 
     nops(0x4001780)
 
@@ -545,12 +565,12 @@ label_14A8:
     jal     func_1FD8 & 0x1FFF
     addi    s3, at, 0xFFFF
 
-    lhu     a1, 0x01EC(r0)
+    lhu     a1, 0x1EC(r0)
     srl     at, at, 3
     sub     t7, t9, at
     lhu     t7, 0x0380(t7)
     ori     t6, s4, 0x0
-    lbu     t0, 0x01D9(r0)
+    lbu     t0, 0x1D9(r0)
     andi    a2, a1, 0x2
     bnez    a2, label_12D8
     andi    a3, a1, 0x1
@@ -558,7 +578,7 @@ label_14A8:
     bnez    t0,+
     sll     a3, a3, 3
 
-    sb      t9, 0x01D9(r0)
+    sb      t9, 0x1D9(r0)
     addi    s5, r0, 0x0040
     addi    s4, r0, 0x0
     jal     func_1088 & 0x1FFF
@@ -767,10 +787,10 @@ func_1A7C:
     vlt     vec13,vec2,vec4[e9]
     vmrg    vec14,vec6,vec4[e0]
     bnez    t3, label_1FD4
-    lbu     t3, 0x01EE(r0)
+    lbu     t3, 0x1EE(r0)
 
     vmudh   vec29,vec10,vec12[e9]
-    lw      t4, 0x03CC(r0)
+    lw      t4, 0x3CC(r0)
     vmadh   vec29,vec12,vec11[e9]
     or      a1, a1, a2
     vge     vec2,vec2,vec4[e9]
@@ -800,7 +820,7 @@ func_1A7C:
     vsub    vec8,vec10,vec14[e0]
     mfc2    v1,vec10[e12]
     vsub    vec11,vec14,vec2[e0]
-    lw      a2, 0x01EC(r0)
+    lw      a2, 0x1EC(r0)
     vsub    vec12,vec14,vec10[e0]
     llv     vec13[e0], 0x20(at)
     vsub    vec15,vec10,vec2[e0]
@@ -844,7 +864,7 @@ func_1BC0:
     vrcph   vec22[e11],vec8[e9]
     lw      t0, 0x0020(v1)
     vmudl   vec18,vec18,vec30[e11]
-    lbu     t1, 0x01E7(r0)
+    lbu     t1, 0x1E7(r0)
     vmudl   vec19,vec19,vec30[e11]
     sub     t3, a1, a3
     vmudl   vec21,vec21,vec30[e11]
@@ -868,7 +888,7 @@ func_1BC0:
     vmudm   vec29,vec25,vec20[e0]
     dw      0x48058880
     vmadl   vec29,vec15,vec20[e0]
-    lbu     a3, 0x01E6(r0)
+    lbu     a3, 0x1E6(r0)
     vmadn   vec20,vec15,vec22[e0]
     lsv     vec19[e14], 0x1C(v0)
     vmadh   vec15,vec25,vec22[e0]
@@ -1054,7 +1074,7 @@ func_1BC0:
     lh      t9, 6(t9)
     sub     v0, t9, t8
     bgez    v0, func_1194
-    lw      t8, 0x00D8(r0)
+    lw      t8, 0x0D8(r0)
     j       label_1008 & 0x1FFF
     lbu     at, 0x09C1(k1)
     j       label_1040 & 0x1FFF
