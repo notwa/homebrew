@@ -234,6 +234,50 @@ constant SP_PC_BASE($A408) // $04080000..$04080007 SP PC Base Register
 constant SP_PC($00)        // $04080000..$04080003 SP: PC Register
 constant SP_IBIST_REG($04) // $04080004..$04080007 SP: IMEM BIST Register
 
+// SP_STATUS Read Flags:
+constant RSP_HLT($0001) // Halt
+constant RSP_BRK($0002) // Break
+constant RSP_BSY($0004) // DMA Busy
+constant RSP_FUL($0008) // DMA Full
+constant RSP_IOF($0010) // IO Full
+constant RSP_STP($0020) // Single Step
+constant RSP_IOB($0040) // Interrupt On Break
+constant RSP_SG0($0080) // Signal 0 Set
+constant RSP_SG1($0100) // Signal 1 Set
+constant RSP_SG2($0200) // Signal 2 Set
+constant RSP_SG3($0400) // Signal 3 Set
+constant RSP_SG4($0800) // Signal 4 Set
+constant RSP_SG5($1000) // Signal 5 Set
+constant RSP_SG6($2000) // Signal 6 Set
+constant RSP_SG7($4000) // Signal 7 Set
+
+// SP_STATUS Write Flags:
+constant CLR_HLT($00000001) // Clear Halt
+constant SET_HLT($00000002) //   Set Halt
+constant CLR_BRK($00000004) // Clear Broke
+constant CLR_INT($00000008) // Clear Interrupt
+constant SET_INT($00000010) //   Set Interrupt
+constant CLR_STP($00000020) // Clear Single Step
+constant SET_STP($00000040) //   Set Single Step
+constant CLR_IOB($00000080) // Clear Interrupt On Break
+constant SET_IOB($00000100) //   Set Interrupt On Break
+constant CLR_SG0($00000200) // Clear Signal 0
+constant SET_SG0($00000400) //   Set Signal 0
+constant CLR_SG1($00000800) // Clear Signal 1
+constant SET_SG1($00001000) //   Set Signal 1
+constant CLR_SG2($00002000) // Clear Signal 2
+constant SET_SG2($00004000) //   Set Signal 2
+constant CLR_SG3($00008000) // Clear Signal 3
+constant SET_SG3($00010000) //   Set Signal 3
+constant CLR_SG4($00020000) // Clear Signal 4
+constant SET_SG4($00040000) //   Set Signal 4
+constant CLR_SG5($00080000) // Clear Signal 5
+constant SET_SG5($00100000) //   Set Signal 5
+constant CLR_SG6($00200000) // Clear Signal 6
+constant SET_SG6($00400000) //   Set Signal 6
+constant CLR_SG7($00800000) // Clear Signal 7
+constant SET_SG7($01000000) //   Set Signal 7
+
 constant DPC_BASE($A410)   // $04100000..$0410001F DP Command (DPC) Base Register
 constant DPC_START($00)    // $04100000..$04100003 DPC: CMD DMA Start Register
 constant DPC_END($04)      // $04100004..$04100007 DPC: CMD DMA End Register
@@ -255,6 +299,23 @@ constant MI_INIT_MODE($00) // $04300000..$04300003 MI: Init Mode Register
 constant MI_VERSION($04)   // $04300004..$04300007 MI: Version Register
 constant MI_INTR($08)      // $04300008..$0430000B MI: Interrupt Register
 constant MI_INTR_MASK($0C) // $0430000C..$0430000F MI: Interrupt Mask Register
+
+constant MI_INTR_SP($01)
+constant MI_INTR_SI($02)
+constant MI_INTR_AI($04)
+constant MI_INTR_VI($08)
+constant MI_INTR_PI($10)
+constant MI_INTR_DP($20)
+constant MI_INTR_ALL($3F)
+
+// TODO: SET and CLR rather than just MASK
+constant MI_INTR_MASK_SP($002)
+constant MI_INTR_MASK_SI($008)
+constant MI_INTR_MASK_AI($020)
+constant MI_INTR_MASK_VI($080)
+constant MI_INTR_MASK_PI($200)
+constant MI_INTR_MASK_DP($800)
+constant MI_INTR_MASK_ALL($AAA)
 
 constant VI_BASE($A440)         // $04400000..$04400037 Video Interface (VI) Base Register
 constant VI_STATUS($00)         // $04400000..$04400003 VI: Status/Control Register

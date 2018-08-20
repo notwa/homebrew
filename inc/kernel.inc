@@ -29,18 +29,22 @@ constant K_INT_CACHE_ERROR(3)
 constant K_INT_OTHER(4)
 
 macro KDumpString(name) {
+if K_DEBUG {
     // does not include error/console-checking!
     // note: this first instruction must be okay to be in a delay slot.
     la      a2, {name}
     jal     Drive64WriteDirect
     lli     a3, {name}X - {name}
 }
+}
 
 macro KMaybeDumpString(str) {
+if K_DEBUG {
     lw      t1, K_CONSOLE_AVAILABLE(k0)
     beqz    t1,+
     KDumpString({str})
 +
+}
 }
 
 macro KS(name, str) {
@@ -58,4 +62,3 @@ macro KSL(name, str) {
     align(16)
 {name}X:
 }
-
