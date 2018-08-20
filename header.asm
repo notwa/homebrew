@@ -2,10 +2,10 @@
 // N64 Header
 //============
 // PI_BSB_DOM1
-  db $80 // Initial PI_BSB_DOM1_LAT_REG Value
-  db $37 // Initial PI_BSB_DOM1_PGS_REG Value
-  db $12 // Initial PI_BSB_DOM1_PWD_REG Value
-  db $40 // Initial PI_BSB_DOM1_PGS_REG Value
+  db $80
+  db $37
+  db $12
+  db $40
 
 // CLOCK RATE
   dw $000F // Initial Clock Rate
