@@ -287,6 +287,7 @@ func_1168:
 
     addiu   k0, k0, 0x00A8
     addi    k1, r0, 0xFF58
+label_1190:
     jal     func_1FC8 & 0x1FFF
 func_1194:
     mfc0    at, SP_COP_STATUS
@@ -308,7 +309,7 @@ func_1194:
     andi    s3, t9, 0x0FF8
     sra     s4, s4, 2
     j       func_1FD8 & 0x1FFF
-    addi    ra, r0, 0x1190
+    addi    ra, r0, label_1190
 
     lw      t3, 0x1EC(r0)
     and     t3, t3, t9
@@ -334,7 +335,7 @@ func_1210:
     j       label_1258 & 0x1FFF
     addi    s7, s7, SP_COP_COMMAND_START
 
-    addi    ra, r0, 0x1210
+    addi    ra, r0, func_1210
 func_1224:
     srl     t3, t8, 22
     andi    t3, t3, 0x003C
@@ -352,7 +353,7 @@ func_1224:
     sw      t8, 0x0C4(r0)
 
 label_1258:
-    addi    ra, r0, 0x1194
+    addi    ra, r0, func_1194
 label_125C:
     sub     t3, s7, s6
     blez    t3, label_1FD4
@@ -750,7 +751,7 @@ func_19F4:
     jal     func_1A4C & 0x1FFF
     sw      t8, 0x4(s7)
 
-    addi    ra, r0, 0x1194
+    addi    ra, r0, func_1194
     sw      t9, 0x4(s7)
 func_1A4C:
     lpv     vec2[e0], 0x0(s7)
