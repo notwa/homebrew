@@ -126,7 +126,7 @@ func_103C:
     mfc0    t0, SP_COP_STATUS
 label_1040:
     andi    t0, t0, 1<<7 // check flag 7: signal 0 set
-    bnez    t1,+ // branch if signal 0 is set
+    bnez    t0,+ // branch if signal 0 is set
     nop
     jr      ra
 +
