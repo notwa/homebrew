@@ -51,6 +51,50 @@ constant SP_COP_COMMAND_BUSY(13)    // 0x04100014
 constant SP_COP_PIPE_BUSY(14)       // 0x04100018
 constant SP_COP_TMEM_BUSY(15)       // 0x0410001C
 
+// SP_COP_STATUS Read Flags:
+constant SP_HLT($0001) // Halt
+constant SP_BRK($0002) // Break
+constant SP_BSY($0004) // DMA Busy
+constant SP_FUL($0008) // DMA Full
+constant SP_IOF($0010) // IO Full
+constant SP_STP($0020) // Single Step
+constant SP_IOB($0040) // Interrupt On Break
+constant SP_SG0($0080) // Signal 0 Set
+constant SP_SG1($0100) // Signal 1 Set
+constant SP_SG2($0200) // Signal 2 Set
+constant SP_SG3($0400) // Signal 3 Set
+constant SP_SG4($0800) // Signal 4 Set
+constant SP_SG5($1000) // Signal 5 Set
+constant SP_SG6($2000) // Signal 6 Set
+constant SP_SG7($4000) // Signal 7 Set
+
+// SP_COP_STATUS Write Flags:
+constant SP_CLR_HLT($00000001) // Clear Halt
+constant SP_SET_HLT($00000002) //   Set Halt
+constant SP_CLR_BRK($00000004) // Clear Broke
+constant SP_CLR_INT($00000008) // Clear Interrupt
+constant SP_SET_INT($00000010) //   Set Interrupt
+constant SP_CLR_STP($00000020) // Clear Single Step
+constant SP_SET_STP($00000040) //   Set Single Step
+constant SP_CLR_IOB($00000080) // Clear Interrupt On Break
+constant SP_SET_IOB($00000100) //   Set Interrupt On Break
+constant SP_CLR_SG0($00000200) // Clear Signal 0
+constant SP_SET_SG0($00000400) //   Set Signal 0
+constant SP_CLR_SG1($00000800) // Clear Signal 1
+constant SP_SET_SG1($00001000) //   Set Signal 1
+constant SP_CLR_SG2($00002000) // Clear Signal 2
+constant SP_SET_SG2($00004000) //   Set Signal 2
+constant SP_CLR_SG3($00008000) // Clear Signal 3
+constant SP_SET_SG3($00010000) //   Set Signal 3
+constant SP_CLR_SG4($00020000) // Clear Signal 4
+constant SP_SET_SG4($00040000) //   Set Signal 4
+constant SP_CLR_SG5($00080000) // Clear Signal 5
+constant SP_SET_SG5($00100000) //   Set Signal 5
+constant SP_CLR_SG6($00200000) // Clear Signal 6
+constant SP_SET_SG6($00400000) //   Set Signal 6
+constant SP_CLR_SG7($00800000) // Clear Signal 7
+constant SP_SET_SG7($01000000) //   Set Signal 7
+
 output "bin/F3DZEX2.boot.bin", create
 fill 0xD0
 
@@ -87,7 +131,7 @@ label_1040:
     jr      ra
 +
     mtc0    r0, SP_COP_SEMAPHORE
-    ori     t0, r0, 1<<9|1<<12|1<<14 // clear signal 0, set signal 1, set signal 2
+    ori     t0, r0, SP_CLR_SG0 | SP_SET_SG1 | SP_SET_SG2
     mtc0    t0, SP_COP_STATUS
     break   0
     nop
@@ -144,7 +188,7 @@ func_1088:
     vsub    vec1,vec0,vec31[e8]
     lw      t3, 0xF0(r0)
     lw      t4, 0xFC4(r0)
-    addi    at, r0, 0x2800
+    addi    at, r0, SP_CLR_SG1 | SP_CLR_SG2
     beqz    t3,+
     mtc0    at, SP_COP_STATUS
 
@@ -228,7 +272,7 @@ func_1194:
     mfc0    at, SP_COP_STATUS
     lw      t9, 0x09C8(k1)
     beqz    k1,-
-    andi    at, at, 0x0080
+    andi    at, at, SP_SG0
 
     sra     t4, t9, 24
     sll     t3, t4, 1
