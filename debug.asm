@@ -121,3 +121,50 @@ DumpAndWriteExit:
     lw      s1, 0x18(sp)
     jr      ra
     addiu   sp, sp, 0x20
+
+PokeDataCache:
+    lui     a0, 0x8000
+    ori     a1, a0, 8 * 1024 // cache size
+-
+    cache   1, 0x00(a0)
+    cache   1, 0x10(a0)
+    cache   1, 0x20(a0)
+    cache   1, 0x30(a0)
+    cache   1, 0x40(a0)
+    cache   1, 0x50(a0)
+    cache   1, 0x60(a0)
+    cache   1, 0x70(a0)
+    addiu   a0, 0x80
+    bne     a0, a1,-
+    nop
+    jr      ra
+    nop
+
+PokeInstrCache:
+    lui     a0, 0x8000
+    ori     a1, a0, 16 * 1024 // cache size
+-
+    cache   0, 0x00(a0)
+    cache   0, 0x20(a0)
+    cache   0, 0x40(a0)
+    cache   0, 0x60(a0)
+    cache   0, 0x80(a0)
+    cache   0, 0xA0(a0)
+    cache   0, 0xC0(a0)
+    cache   0, 0xE0(a0)
+    addiu   a0, 0x100
+    bne     a0, a1,-
+    nop
+    jr      ra
+    nop
+
+PokeCaches:
+    subiu   sp, 0x18
+    sw      ra, 0x10(sp)
+    jal     PokeDataCache
+    nop
+    jal     PokeInstrCache
+    nop
+    lw      ra, 0x10(sp)
+    jr      ra
+    addiu   sp, 0x18
