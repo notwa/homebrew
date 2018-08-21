@@ -8,9 +8,9 @@ constant ADDR_MASK(0x1FFFFFFF)
 constant BLAH_BASE(0x803F)
 constant BLAH_COUNTS(0x0010)
 constant BLAH_SP_TASK(0x0040)
-constant BLAH_DLIST_JUMPER(0x0080)
-constant BLAH_XXD(0x0100)
+constant BLAH_XXD(0x0080)
 constant BLAH_DLIST(0x1000)
+constant BLAH_DLIST_JUMPER(BLAH_DLIST - 0xA8)
 
 constant VIDEO_C_BUFFER(0x80100000)
 constant VIDEO_C_BUFFER_SIZE(640 * 480 * 4)
@@ -24,6 +24,9 @@ constant VIDEO_YIELD(VIDEO_STACK + VIDEO_STACK_SIZE)
 constant VIDEO_YIELD_SIZE(0xC00)
 
 macro nops(new_pc) {
+    if (pc() > {new_pc}) {
+        error "PC is already past the point specified"
+    }
     while (pc() < {new_pc}) {
         nop
     }
