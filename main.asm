@@ -16,8 +16,9 @@ base 0x80000000
 
 include "header.asm"
 insert "bin/6102.bin"
-// after inserting the header and bootrom,
-// origin should be at 0x1000.
+if origin() != 0x1000 {
+    error "bad header or bootcode; combined sized should be exactly 0x1000"
+}
 
 include "kernel.asm"
 
