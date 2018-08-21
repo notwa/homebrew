@@ -1,8 +1,8 @@
 // by krom, expanded and reorganized by notwa
 
 include "n64_cpu.inc"
-include "n64_cop0.inc"
-include "n64_cop1.inc"
+include "n64_cp0.inc"
+include "n64_cp1.inc"
 include "n64_map.inc"
 include "n64_sp.inc"
 include "n64_dp.inc"
