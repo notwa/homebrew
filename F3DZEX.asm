@@ -1122,3 +1122,154 @@ func_1FD8:
 +
     jr      ra
     mtc0    s3, SP_COP_WR_LEN
+
+// this gets loaded by func_1FB4 from DMEM+$2E0
+base 0x04001000
+
+    sub     t3, s7, s6
+    addiu   t4, t3, 0x0157
+    bgezal  t4, label_1264
+    nop
+    jal     func_1FC8 & 0x1FFF
+    lw      t8, 0x0F0(r0)
+    bltz    at, label_1084
+    mtc0    t8, SP_COP_COMMAND_END
+    bnez    at, label_1060
+    add     k0, k0, k1
+    lw      t8, 0x09C4(k1)
+    sw      k0, 0xFF0(r0)
+    sw      t8, 0xFD0(r0)
+    addiu   s4, r0, 0x1080
+    jal     func_1FD8 & 0x1FFF
+    addi    s3, r0, 0x0F47
+    lw      t8, 0x0D8(r0)
+    addiu   s4, r0, 0x0180
+    andi    s3, t9, 0x0FFF
+    add     t8, t8, s4
+    jal     func_1FD8 & 0x1FFF
+    sub     s3, s3, s4
+    j       func_1FC8 & 0x1FFF
+    addi    ra, r0, label_1084
+
+label_1060:
+    lw      t3, 0xFD0(r0)
+    sw      k0, 0xBF8(r0)
+    sw      t3, 0xBFC(r0)
+    addi    t4, r0, 0x5000
+    lw      t8, 0xFF8(r0)
+    addi    s4, r0, 0x8000
+    addi    s3, r0, 0x0BFF
+    j       func_1FD8 & 0x1FFF
+    addi    ra, r0, func_1088
+
+    addi    t4, r0, 0x4000
+    mtc0    t4, SP_COP_STATUS
+    break   0x00000
+    nop
+    nop
+
+// this gets loaded by func_1FB4 from DMEM+$2E8
+base 0x04001000
+
+    lbu     at, 0x0DE(r0)
+    sll     v0, t9, 15
+    jal     func_1224 & 0x1FFF
+    add     v1, k0, k1
+    bltz    v0, label_1178
+    ori     k0, t8, 0x0000
+    sw      v1, 0x0138(at)
+    addi    at, at, 0x0004
+    j       label_1178 & 0x1FFF
+    sb      at, 0x0DE(r0)
+
+    addi    t3, r0, 0x1140
+    sw      t9, 0xF0A4(t3)
+    j       label_1194 & 0x1FFF
+    sw      t8, 0xF0A8(t3)
+
+    srl     v0, t9, 16
+    lhu     at, 0x27FE(v0)
+    add     at, at, t9
+    j       label_1194 & 0x1FFF
+    sw      t8, 0x0000(at)
+
+    lw      t3, 0x0F4(r0)
+    lw      v0, 0xFE0(r0)
+    sub     t8, t3, t8
+    sub     at, t8, v0
+    bgez    at, label_1068
+    nop
+    ori     t8, v0, 0x0000
+label_1068:
+    beq     t8, t3, label_1194
+    sw      t8, 0x0F4(r0)
+    j       label_1124 & 0x1FFF
+    sw      r0, 0x1D9(r0)
+
+    lhu     s3, 0x02F2(at)
+    jal     func_1FC8 & 0x1FFF
+    lhu     s5, 0x02F2(at)
+    addi    ra, r0, label_1194
+    addi    t4, s4, 0x0018
+label_108C:
+    vmadn   vec9,vec0,vec0[e8]
+    addi    t3, s4, 0x0008
+    vmadh   vec8,vec0,vec0[e8]
+    addi    s5, s5, 0xFFE0
+    vmudh   vec29,vec0,vec0[e8]
+label_10A0:
+    ldv     vec5[e0], 0x40(s5)
+    ldv     vec5[e8], 0x40(s5)
+    lqv     vec3[e0], 0x20(s4)
+    ldv     vec4[e0], 0x20(s5)
+    ldv     vec4[e8], 0x20(s5)
+    lqv     vec2[e0], 0x0(s4)
+    vmadl   vec29,vec5,vec3[e4]
+    addi    s4, s4, 0x0002
+    vmadm   vec29,vec4,vec3[e4]
+    addi    s5, s5, 0x0008
+    vmadn   vec7,vec5,vec2[e4]
+    bne     s4, t3, label_10A0
+    vmadh   vec6,vec4,vec2[e4]
+    bne     s4, t4, label_108C
+    addi    s4, s4, 0x0008
+    sqv     vec9[e0], 0x20(s3)
+    sqv     vec8[e0], 0x0(s3)
+    sqv     vec7[e0], 0x30(s3)
+    jr      ra
+    sqv     vec6[e0], 0x10(s3)
+
+    andi    t3, t9, 0x0005
+    bnez    t3, label_1118
+    andi    v0, t9, 0x0002
+    lw      t8, 0x0F4(r0)
+    addi    s4, r0, 0xE000
+    jal     func_1FD8 & 0x1FFF
+    addi    s3, r0, 0x003F
+    addi    t8, t8, 0x0040
+    sw      t8, 0x0F4(r0)
+    lw      t8, 0x09C4(k1)
+label_1118:
+    add     t4, t4, v0
+    sw      r0, 0x1D9(r0)
+    jal     func_1224 & 0x1FFF
+label_1124:
+    andi    at, t9, 0x00FE
+    lbu     s3, 0x09C1(k1)
+    lhu     s4, 0x02F0(at)
+    srl     v0, t9, 5
+    lhu     ra, 0x0336(t4)
+    j       func_1FD8 & 0x1FFF
+    add     s4, s4, v0
+    lw      v1, 0xEF8C(t3)
+    lui     v0, 0x8000
+    srav    v0, v0, t9
+    srl     at, t9, 8
+    srlv    v0, v0, at
+    nor     v0, v0, r0
+    and     v1, v1, v0
+    or      v1, v1, t8
+    sw      v1, 0xEF8C(t3)
+    lw      t9, 0x0C8(r0)
+    j       label_1210 & 0x1FFF
+    lw      t8, 0x0CC(r0)
