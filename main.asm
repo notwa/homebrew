@@ -2,8 +2,8 @@
 arch n64.cpu
 endian msb
 
+include "inc/util.inc"
 include "inc/n64.inc"
-include "inc/n64_gfx.inc"
 include "inc/64drive.inc"
 include "inc/main.inc"
 include "inc/kernel.inc"
@@ -20,32 +20,6 @@ insert "bin/6102.bin"
 // origin should be at 0x1000.
 
 include "kernel.asm"
-
-macro EnableInt() {
-    lli     t0, 0xAAA
-    lli     t1, 0xFF01
-    lui     a0, MI_BASE
-    sw      t0, MI_INTR_MASK(a0)
-    mtc0    t1, CP0_Status
-}
-
-macro DisableInt() {
-    lli     t0, 0x555
-    lli     t1, 0x0001
-    lui     a0, MI_BASE
-    sw      t0, MI_INTR_MASK(a0)
-    mtc0    t1, CP0_Status
-}
-
-macro SP_BUSY_WAIT() {
-    lui     a0, SP_BASE
--
-    lw      t0, SP_STATUS(a0)
-    andi    t0, 0x1C
-    sltu    t0, r0, t0 // TODO: rewrite this
-    bnez    t0,-
-    nop
-}
 
 Main:
     lui     t0, K_BASE

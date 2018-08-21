@@ -44,7 +44,7 @@ if {dpos} >= 0x8000 {
     // sets alpha component to 8, everything else to 0
     WriteDL(0xF9000000, 0x00000008)
 
-    // sets near-far plane clipping? maybe?
+    // sets near- far-plane clipping? maybe?
     // G_MOVEWORD, sets G_MW_CLIP+$0004
     WriteDL(0xDB040004, 2)
     // G_MOVEWORD, sets G_MW_CLIP+$000C
