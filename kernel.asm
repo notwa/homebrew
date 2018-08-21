@@ -17,8 +17,8 @@ Start:
     sd      t4, 8(t0)
     cache   0x19, 0(t0) // tell data cache to write itself out
     cache   0x10, 0(t0) // tell instruction cache it needs to reload
-    // an instruction cache line is 2 rows, and a data cache line is 1 row, so
-    // i'm hoping just poking at the start of each row is enough to flush them.
+    // an instruction cache line is 2 rows, and a data cache line is 1 row,
+    // so poking at the start of each row is enough to flush them both.
     bne     t1, t2,-
     addiu   t0, t0, 0x10
 
@@ -35,9 +35,7 @@ Start:
     // enable even more interrupts.
     lui     t2, MI_BASE
     ori     t2, t2, MI_INTR_MASK
-//  lli     t0, MI_INTR_MASK_ALL
-    // i don't have code to handle all the interrupts. in the meantime...
-    lli     t0, MI_INTR_MASK_SP
+    lli     t0, MI_INTR_MASK_ALL
     sw      t0, 0(t2)
 
     // set BSD DOM1 stuff, whatever that is.
@@ -334,7 +332,7 @@ if K_DEBUG {
     KMaybeDumpString(KSNewline)
     KMaybeDumpString(KSStates)
 
-    ori     a0, k0, K_DUMP + 0x80 * 4
+    ori     a0, k0, K_REASON
     lli     a1, 0x80
     ori     a2, k0, K_XXD
     jal     DumpAndWrite
@@ -424,17 +422,13 @@ ReturnFromInterrupt:
     eret
     // no branch delay for eret
 
-include "debug.asm"
-
 KCode0:
     KMaybeDumpString(KSCode0)
 
-    lui     a0, MI_BASE
-    lw      t0, MI_INTR(a0)
-    lw      t1, MI_INTR_MASK(a0)
-    and     s0, t0, t1 // if we don't care about an interrupt, get rid of it
-
 KMILoop:
+    lui     a0, MI_BASE
+    lw      s0, MI_INTR(a0)
+
     beqz    s0,+
 
     andi    t3, s0, MI_INTR_SP // delay slot
@@ -457,9 +451,6 @@ KMILoop:
     nop
 +
 
-    // can't do this apparently:
-//  lui     a0, MI_BASE
-//  sw      s0, MI_INTR(a0)
     j       KCodeDone
     nop
 
@@ -467,40 +458,60 @@ KMILoop:
 KMISP:
     KMaybeDumpString(KSMISP)
 
+    lli     t0, CLR_SG3 | CLR_INT // delay slot
     lui     a1, SP_BASE
-    lw      t1, SP_STATUS(a1)
-
-    andi    t2, t1, RSP_BRK
-    beqz    t2,+
-    li      t0, CLR_SG3 | CLR_INT // delay slot
     sw      t0, SP_STATUS(a1)
-+
+
+    // then check andi t1, SG1 | SG2 ?
 
     j       KMILoop
     andi    s0, ~MI_INTR_SP
 
 KMISI:
     KMaybeDumpString(KSMISI)
+
+    lui     a1, SI_BASE
+    sw      r0, SI_STATUS(a1)
+
     j       KMILoop
     andi    s0, ~MI_INTR_SI
 
 KMIAI:
     KMaybeDumpString(KSMIAI)
+
+    lli     t0, 0x01
+    lui     a1, AI_BASE
+    sw      t0, AI_STATUS(a1)
+
     j       KMILoop
     andi    s0, ~MI_INTR_AI
 
 KMIVI:
     KMaybeDumpString(KSMIVI)
+
+    lui     a1, VI_BASE
+    sw      r0, VI_V_CURRENT_LINE(a1)
+
     j       KMILoop
     andi    s0, ~MI_INTR_VI
 
 KMIPI:
     KMaybeDumpString(KSMIPI)
+
+    lli     t0, 0x02
+    lui     a1, PI_BASE
+    sw      t0, PI_STATUS(a1)
+
     j       KMILoop
     andi    s0, ~MI_INTR_PI
 
 KMIDP:
     KMaybeDumpString(KSMIDP)
+
+    lli     t0, 0x800
+    lui     a1, MI_BASE
+    sw      t0, MI_INIT_MODE(a1)
+
     j       KMILoop
     andi    s0, ~MI_INTR_DP
 
@@ -545,6 +556,8 @@ dw      KCode16, KCode17, KCode18, KCode19
 dw      KCode20, KCode21, KCode22, KCode23
 dw      KCode24, KCode25, KCode26, KCode27
 dw      KCode28, KCode29, KCode30, KCode31
+
+include "debug.asm"
 
 if K_DEBUG {
 KS(KSNewline, 10)
