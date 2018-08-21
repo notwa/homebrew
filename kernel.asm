@@ -108,7 +108,7 @@ Drive64Confirmed:
 Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
-    KDumpString(KSConsoleConfirmed)
+    KDumpString(KS_ConsoleConfirmed)
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(gp)
@@ -198,13 +198,13 @@ pushvar base
 // which depends on the higher bits that j cannot change.
 
 base 0x80000000
-InterruptTBLRefill:
+Interrupt_TBL_Refill:
     la      k0, InterruptHandler
     jr      k0
     lli     k1, K_INT_TLB_REFILL
 
     nops(0x80000080)
-InterruptXTLBRefill:
+Interrupt_XTLB_Refill:
     la      k0, InterruptHandler
     jr      k0
     lli     k1, K_INT_XTLB_REFILL
@@ -291,20 +291,20 @@ InterruptHandler:
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
-    // prevent recursive interrupts if IHMain somehow causes an interrupt
+    // prevent recursive interrupts if IH_Main somehow causes an interrupt
 //  lw      t1, K_IN_MAIN(k0)
-//  bnez    t1, IHExit // TODO: reimplement properly
+//  bnez    t1, IH_Exit // TODO: reimplement properly
     lli     t0, 1
     sw      t0, K_IN_MAIN(k0)
 
     // be wary, this is a tiny temporary stack!
     ori     sp, k0, K_STACK
 
-IHMain: // free to modify any GPR from here to IHExit
+IH_Main: // free to modify any GPR from here to IH_Exit
 
 if K_DEBUG {
-    KMaybeDumpString(KSNewline)
-    KMaybeDumpString(KSHandling)
+    KMaybeDumpString(KS_Newline)
+    KMaybeDumpString(KS_Handling)
 
     ori     a0, k0, K_DUMP + 0x80 * 0
     lli     a1, 0x80
@@ -312,7 +312,7 @@ if K_DEBUG {
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KS_Newline)
 
     ori     a0, k0, K_DUMP + 0x80 * 1
     lli     a1, 0x80
@@ -320,7 +320,7 @@ if K_DEBUG {
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KS_Newline)
 
     // currently just 0x10 in size: LO and HI registers.
     ori     a0, k0, K_DUMP + 0x80 * 2
@@ -329,8 +329,8 @@ if K_DEBUG {
     jal     DumpAndWrite
     lli     a3, 0x10 * 4
 
-    KMaybeDumpString(KSNewline)
-    KMaybeDumpString(KSStates)
+    KMaybeDumpString(KS_Newline)
+    KMaybeDumpString(KS_States)
 
     ori     a0, k0, K_REASON
     lli     a1, 0x80
@@ -338,8 +338,8 @@ if K_DEBUG {
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
-    KMaybeDumpString(KSNewline)
-    KMaybeDumpString(KSCode)
+    KMaybeDumpString(KS_Newline)
+    KMaybeDumpString(KS_Code)
 }
 
     // switch-case on the cause code:
@@ -352,9 +352,9 @@ if K_DEBUG {
     jr      t4
     nop
 KCodeDone:
-    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KS_Newline)
 
-IHExit:
+IH_Exit:
     sw      r0, K_IN_MAIN(k0)
 
     lui     k0, K_BASE
@@ -423,40 +423,39 @@ ReturnFromInterrupt:
     // no branch delay for eret
 
 KCode0:
-    KMaybeDumpString(KSCode0)
+    KMaybeDumpString(KS_Code0)
 
-KMILoop:
+K_MI_Loop:
     lui     a0, MI_BASE
     lw      s0, MI_INTR(a0)
 
     beqz    s0,+
 
     andi    t3, s0, MI_INTR_SP // delay slot
-    bnez    t3, KMISP
+    bnez    t3, K_MI_SP
 
     andi    t4, s0, MI_INTR_SI // delay slot
-    bnez    t4, KMISI
+    bnez    t4, K_MI_SI
 
     andi    t3, s0, MI_INTR_AI // delay slot
-    bnez    t3, KMIAI
+    bnez    t3, K_MI_AI
 
     andi    t4, s0, MI_INTR_VI // delay slot
-    bnez    t4, KMIVI
+    bnez    t4, K_MI_VI
 
     andi    t3, s0, MI_INTR_PI // delay slot
-    bnez    t3, KMIPI
+    bnez    t3, K_MI_PI
 
     andi    t4, s0, MI_INTR_DP // delay slot
-    bnez    t4, KMIDP
+    bnez    t4, K_MI_DP
     nop
 +
 
     j       KCodeDone
     nop
 
-// FIXME: camelcase sucks
-KMISP:
-    KMaybeDumpString(KSMISP)
+K_MI_SP:
+    KMaybeDumpString(KS_MI_SP)
 
     lli     t0, CLR_SG3 | CLR_INT // delay slot
     lui     a1, SP_BASE
@@ -464,88 +463,88 @@ KMISP:
 
     // then check andi t1, SG1 | SG2 ?
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_SP
 
-KMISI:
-    KMaybeDumpString(KSMISI)
+K_MI_SI:
+    KMaybeDumpString(KS_MI_SI)
 
     lui     a1, SI_BASE
     sw      r0, SI_STATUS(a1)
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_SI
 
-KMIAI:
-    KMaybeDumpString(KSMIAI)
+K_MI_AI:
+    KMaybeDumpString(KS_MI_AI)
 
     lli     t0, 0x01
     lui     a1, AI_BASE
     sw      t0, AI_STATUS(a1)
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_AI
 
-KMIVI:
-    KMaybeDumpString(KSMIVI)
+K_MI_VI:
+    KMaybeDumpString(KS_MI_VI)
 
     lui     a1, VI_BASE
     sw      r0, VI_V_CURRENT_LINE(a1)
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_VI
 
-KMIPI:
-    KMaybeDumpString(KSMIPI)
+K_MI_PI:
+    KMaybeDumpString(KS_MI_PI)
 
     lli     t0, 0x02
     lui     a1, PI_BASE
     sw      t0, PI_STATUS(a1)
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_PI
 
-KMIDP:
-    KMaybeDumpString(KSMIDP)
+K_MI_DP:
+    KMaybeDumpString(KS_MI_DP)
 
     lli     t0, 0x800
     lui     a1, MI_BASE
     sw      t0, MI_INIT_MODE(a1)
 
-    j       KMILoop
+    j       K_MI_Loop
     andi    s0, ~MI_INTR_DP
 
-KCode1:; KMaybeDumpString(KSCode1); j   KCodeDone; nop
-KCode2:; KMaybeDumpString(KSCode2); j   KCodeDone; nop
-KCode3:; KMaybeDumpString(KSCode3); j   KCodeDone; nop
-KCode4:; KMaybeDumpString(KSCode4); j   KCodeDone; nop
-KCode5:; KMaybeDumpString(KSCode5); j   KCodeDone; nop
-KCode6:; KMaybeDumpString(KSCode6); j   KCodeDone; nop
-KCode7:; KMaybeDumpString(KSCode7); j   KCodeDone; nop
-KCode8:; KMaybeDumpString(KSCode8); j   KCodeDone; nop
-KCode9:; KMaybeDumpString(KSCode9); j   KCodeDone; nop
-KCode10:; KMaybeDumpString(KSCode10); j   KCodeDone; nop
-KCode11:; KMaybeDumpString(KSCode11); j   KCodeDone; nop
-KCode12:; KMaybeDumpString(KSCode12); j   KCodeDone; nop
-KCode13:; KMaybeDumpString(KSCode13); j   KCodeDone; nop
-KCode14:; KMaybeDumpString(KSCode14); j   KCodeDone; nop
-KCode15:; KMaybeDumpString(KSCode15); j   KCodeDone; nop
-KCode16:; KMaybeDumpString(KSCode16); j   KCodeDone; nop
-KCode17:; KMaybeDumpString(KSCode17); j   KCodeDone; nop
-KCode18:; KMaybeDumpString(KSCode18); j   KCodeDone; nop
-KCode19:; KMaybeDumpString(KSCode19); j   KCodeDone; nop
-KCode20:; KMaybeDumpString(KSCode20); j   KCodeDone; nop
-KCode21:; KMaybeDumpString(KSCode21); j   KCodeDone; nop
-KCode22:; KMaybeDumpString(KSCode22); j   KCodeDone; nop
-KCode23:; KMaybeDumpString(KSCode23); j   KCodeDone; nop
-KCode24:; KMaybeDumpString(KSCode24); j   KCodeDone; nop
-KCode25:; KMaybeDumpString(KSCode25); j   KCodeDone; nop
-KCode26:; KMaybeDumpString(KSCode26); j   KCodeDone; nop
-KCode27:; KMaybeDumpString(KSCode27); j   KCodeDone; nop
-KCode28:; KMaybeDumpString(KSCode28); j   KCodeDone; nop
-KCode29:; KMaybeDumpString(KSCode29); j   KCodeDone; nop
-KCode30:; KMaybeDumpString(KSCode30); j   KCodeDone; nop
-KCode31:; KMaybeDumpString(KSCode31); j   KCodeDone; nop
+KCode1:; KMaybeDumpString(KS_Code1); j   KCodeDone; nop
+KCode2:; KMaybeDumpString(KS_Code2); j   KCodeDone; nop
+KCode3:; KMaybeDumpString(KS_Code3); j   KCodeDone; nop
+KCode4:; KMaybeDumpString(KS_Code4); j   KCodeDone; nop
+KCode5:; KMaybeDumpString(KS_Code5); j   KCodeDone; nop
+KCode6:; KMaybeDumpString(KS_Code6); j   KCodeDone; nop
+KCode7:; KMaybeDumpString(KS_Code7); j   KCodeDone; nop
+KCode8:; KMaybeDumpString(KS_Code8); j   KCodeDone; nop
+KCode9:; KMaybeDumpString(KS_Code9); j   KCodeDone; nop
+KCode10:; KMaybeDumpString(KS_Code10); j   KCodeDone; nop
+KCode11:; KMaybeDumpString(KS_Code11); j   KCodeDone; nop
+KCode12:; KMaybeDumpString(KS_Code12); j   KCodeDone; nop
+KCode13:; KMaybeDumpString(KS_Code13); j   KCodeDone; nop
+KCode14:; KMaybeDumpString(KS_Code14); j   KCodeDone; nop
+KCode15:; KMaybeDumpString(KS_Code15); j   KCodeDone; nop
+KCode16:; KMaybeDumpString(KS_Code16); j   KCodeDone; nop
+KCode17:; KMaybeDumpString(KS_Code17); j   KCodeDone; nop
+KCode18:; KMaybeDumpString(KS_Code18); j   KCodeDone; nop
+KCode19:; KMaybeDumpString(KS_Code19); j   KCodeDone; nop
+KCode20:; KMaybeDumpString(KS_Code20); j   KCodeDone; nop
+KCode21:; KMaybeDumpString(KS_Code21); j   KCodeDone; nop
+KCode22:; KMaybeDumpString(KS_Code22); j   KCodeDone; nop
+KCode23:; KMaybeDumpString(KS_Code23); j   KCodeDone; nop
+KCode24:; KMaybeDumpString(KS_Code24); j   KCodeDone; nop
+KCode25:; KMaybeDumpString(KS_Code25); j   KCodeDone; nop
+KCode26:; KMaybeDumpString(KS_Code26); j   KCodeDone; nop
+KCode27:; KMaybeDumpString(KS_Code27); j   KCodeDone; nop
+KCode28:; KMaybeDumpString(KS_Code28); j   KCodeDone; nop
+KCode29:; KMaybeDumpString(KS_Code29); j   KCodeDone; nop
+KCode30:; KMaybeDumpString(KS_Code30); j   KCodeDone; nop
+KCode31:; KMaybeDumpString(KS_Code31); j   KCodeDone; nop
 
 KCodes:
 dw      KCode0, KCode1, KCode2, KCode3
@@ -560,51 +559,51 @@ dw      KCode28, KCode29, KCode30, KCode31
 include "debug.asm"
 
 if K_DEBUG {
-KS(KSNewline, 10)
-KSL(KSConsoleConfirmed, "USB debug console detected")
-KSL(KSHandling, " ~~ Handling Interrupt ~~")
-KSL(KSStates, "    Interrupt States:")
+KS(KS_Newline, 10)
+KSL(KS_ConsoleConfirmed, "USB debug console detected")
+KSL(KS_Handling, " ~~ Handling Interrupt ~~")
+KSL(KS_States, "    Interrupt States:")
 
-KS(KSCode, "    Interrupt Type: ")
-KSL(KSCode0, "Regular Interrupt")
-KSL(KSCode1, "TLB Modification Exception")
-KSL(KSCode2, "TLB Exception (Load/Fetch)")
-KSL(KSCode3, "TLB Exception (Store)")
-KSL(KSCode4, "Address Error Exception (Load/Fetch)")
-KSL(KSCode5, "Address Error Exception (Store)")
-KSL(KSCode6, "Bus Error Exception (Fetch)")
-KSL(KSCode7, "Bus Error Exception (Load/Store)")
-KSL(KSCode8, "SysCall Exception")
-KSL(KSCode9, "Breakpoint Exception")
-KSL(KSCode10, "Reserved Instruction Exception")
-KSL(KSCode11, "Coprocessor Unusable Exception")
-KSL(KSCode12, "Arithmetic Overflow Exception")
-KSL(KSCode13, "Trap Exception")
-KSL(KSCode14, "RESERVED 14")
-KSL(KSCode15, "Floating Point Exception")
-KSL(KSCode16, "RESERVED 16")
-KSL(KSCode17, "RESERVED 17")
-KSL(KSCode18, "RESERVED 18")
-KSL(KSCode19, "RESERVED 19")
-KSL(KSCode20, "RESERVED 20")
-KSL(KSCode21, "RESERVED 21")
-KSL(KSCode22, "RESERVED 22")
-KSL(KSCode23, "Watch")
-KSL(KSCode24, "RESERVED 24")
-KSL(KSCode25, "RESERVED 25")
-KSL(KSCode26, "RESERVED 26")
-KSL(KSCode27, "RESERVED 27")
-KSL(KSCode28, "RESERVED 28")
-KSL(KSCode29, "RESERVED 29")
-KSL(KSCode30, "RESERVED 30")
-KSL(KSCode31, "RESERVED 31")
+KS(KS_Code, "    Interrupt Type: ")
+KSL(KS_Code0, "Regular Interrupt")
+KSL(KS_Code1, "TLB Modification Exception")
+KSL(KS_Code2, "TLB Exception (Load/Fetch)")
+KSL(KS_Code3, "TLB Exception (Store)")
+KSL(KS_Code4, "Address Error Exception (Load/Fetch)")
+KSL(KS_Code5, "Address Error Exception (Store)")
+KSL(KS_Code6, "Bus Error Exception (Fetch)")
+KSL(KS_Code7, "Bus Error Exception (Load/Store)")
+KSL(KS_Code8, "SysCall Exception")
+KSL(KS_Code9, "Breakpoint Exception")
+KSL(KS_Code10, "Reserved Instruction Exception")
+KSL(KS_Code11, "Coprocessor Unusable Exception")
+KSL(KS_Code12, "Arithmetic Overflow Exception")
+KSL(KS_Code13, "Trap Exception")
+KSL(KS_Code14, "RESERVED 14")
+KSL(KS_Code15, "Floating Point Exception")
+KSL(KS_Code16, "RESERVED 16")
+KSL(KS_Code17, "RESERVED 17")
+KSL(KS_Code18, "RESERVED 18")
+KSL(KS_Code19, "RESERVED 19")
+KSL(KS_Code20, "RESERVED 20")
+KSL(KS_Code21, "RESERVED 21")
+KSL(KS_Code22, "RESERVED 22")
+KSL(KS_Code23, "Watch")
+KSL(KS_Code24, "RESERVED 24")
+KSL(KS_Code25, "RESERVED 25")
+KSL(KS_Code26, "RESERVED 26")
+KSL(KS_Code27, "RESERVED 27")
+KSL(KS_Code28, "RESERVED 28")
+KSL(KS_Code29, "RESERVED 29")
+KSL(KS_Code30, "RESERVED 30")
+KSL(KS_Code31, "RESERVED 31")
 
-KSL(KSMISP, "    Signal Processor Interrupt")
-KSL(KSMISI, "    Serial Interface Interrupt")
-KSL(KSMIAI, "    Audio Interface Interrupt")
-KSL(KSMIVI, "    Video Interface Interrupt")
-KSL(KSMIPI, "    Peripheral Interface Interrupt")
-KSL(KSMIDP, "    Display Processor Interrupt")
+KSL(KS_MI_SP, "    Signal Processor Interrupt")
+KSL(KS_MI_SI, "    Serial Interface Interrupt")
+KSL(KS_MI_AI, "    Audio Interface Interrupt")
+KSL(KS_MI_VI, "    Video Interface Interrupt")
+KSL(KS_MI_PI, "    Peripheral Interface Interrupt")
+KSL(KS_MI_DP, "    Display Processor Interrupt")
 }
 
 align(4)

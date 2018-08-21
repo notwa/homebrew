@@ -37,7 +37,7 @@ Main:
     lw      a3, -4(a0) // load uncompressed size from the file itself
     li      a1, LZ_BAKU.size - 4
     li      a2, VIDEO_C_BUFFER
-    jal     LzDecomp
+//  jal     LzDecomp
     nop
 
     mfc0    t0, CP0_Count
@@ -56,7 +56,7 @@ Main:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
-    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KS_Newline)
 
 InitVideo:
     jal     SetupScreen
@@ -119,7 +119,7 @@ Start3D:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x40 * 4
-    KMaybeDumpString(KSNewline)
+    KMaybeDumpString(KS_Newline)
 
     SP_BUSY_WAIT()
 
