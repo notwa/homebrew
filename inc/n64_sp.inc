@@ -17,48 +17,48 @@ constant SP_PC($00)        // $04080000..$04080003 SP: PC Register
 constant SP_IBIST_REG($04) // $04080004..$04080007 SP: IMEM BIST Register
 
 // SP_STATUS Read Flags:
-constant RSP_HLT($0001) // Halt
-constant RSP_BRK($0002) // Break
-constant RSP_BSY($0004) // DMA Busy
-constant RSP_FUL($0008) // DMA Full
-constant RSP_IOF($0010) // IO Full
-constant RSP_STP($0020) // Single Step
-constant RSP_IOB($0040) // Interrupt On Break
-constant RSP_SG0($0080) // Signal 0 Set
-constant RSP_SG1($0100) // Signal 1 Set
-constant RSP_SG2($0200) // Signal 2 Set
-constant RSP_SG3($0400) // Signal 3 Set
-constant RSP_SG4($0800) // Signal 4 Set
-constant RSP_SG5($1000) // Signal 5 Set
-constant RSP_SG6($2000) // Signal 6 Set
-constant RSP_SG7($4000) // Signal 7 Set
+constant SP_HLT($0001) // Halt
+constant SP_BRK($0002) // Break
+constant SP_BSY($0004) // DMA Busy
+constant SP_FUL($0008) // DMA Full
+constant SP_IOF($0010) // IO Full
+constant SP_STP($0020) // Single Step
+constant SP_IOB($0040) // Interrupt On Break
+constant SP_SG0($0080) // Signal 0 Set
+constant SP_SG1($0100) // Signal 1 Set
+constant SP_SG2($0200) // Signal 2 Set
+constant SP_SG3($0400) // Signal 3 Set
+constant SP_SG4($0800) // Signal 4 Set
+constant SP_SG5($1000) // Signal 5 Set
+constant SP_SG6($2000) // Signal 6 Set
+constant SP_SG7($4000) // Signal 7 Set
 
 // SP_STATUS Write Flags:
-constant CLR_HLT($00000001) // Clear Halt
-constant SET_HLT($00000002) //   Set Halt
-constant CLR_BRK($00000004) // Clear Broke
-constant CLR_INT($00000008) // Clear Interrupt
-constant SET_INT($00000010) //   Set Interrupt
-constant CLR_STP($00000020) // Clear Single Step
-constant SET_STP($00000040) //   Set Single Step
-constant CLR_IOB($00000080) // Clear Interrupt On Break
-constant SET_IOB($00000100) //   Set Interrupt On Break
-constant CLR_SG0($00000200) // Clear Signal 0
-constant SET_SG0($00000400) //   Set Signal 0
-constant CLR_SG1($00000800) // Clear Signal 1
-constant SET_SG1($00001000) //   Set Signal 1
-constant CLR_SG2($00002000) // Clear Signal 2
-constant SET_SG2($00004000) //   Set Signal 2
-constant CLR_SG3($00008000) // Clear Signal 3
-constant SET_SG3($00010000) //   Set Signal 3
-constant CLR_SG4($00020000) // Clear Signal 4
-constant SET_SG4($00040000) //   Set Signal 4
-constant CLR_SG5($00080000) // Clear Signal 5
-constant SET_SG5($00100000) //   Set Signal 5
-constant CLR_SG6($00200000) // Clear Signal 6
-constant SET_SG6($00400000) //   Set Signal 6
-constant CLR_SG7($00800000) // Clear Signal 7
-constant SET_SG7($01000000) //   Set Signal 7
+constant SP_HLT_CLR($00000001) // Clear Halt
+constant SP_HLT_SET($00000002) //   Set Halt
+constant SP_BRK_CLR($00000004) // Clear Broke
+constant SP_INT_CLR($00000008) // Clear Interrupt
+constant SP_INT_SET($00000010) //   Set Interrupt
+constant SP_STP_CLR($00000020) // Clear Single Step
+constant SP_STP_SET($00000040) //   Set Single Step
+constant SP_IOB_CLR($00000080) // Clear Interrupt On Break
+constant SP_IOB_SET($00000100) //   Set Interrupt On Break
+constant SP_SG0_CLR($00000200) // Clear Signal 0
+constant SP_SG0_SET($00000400) //   Set Signal 0
+constant SP_SG1_CLR($00000800) // Clear Signal 1
+constant SP_SG1_SET($00001000) //   Set Signal 1
+constant SP_SG2_CLR($00002000) // Clear Signal 2
+constant SP_SG2_SET($00004000) //   Set Signal 2
+constant SP_SG3_CLR($00008000) // Clear Signal 3
+constant SP_SG3_SET($00010000) //   Set Signal 3
+constant SP_SG4_CLR($00020000) // Clear Signal 4
+constant SP_SG4_SET($00040000) //   Set Signal 4
+constant SP_SG5_CLR($00080000) // Clear Signal 5
+constant SP_SG5_SET($00100000) //   Set Signal 5
+constant SP_SG6_CLR($00200000) // Clear Signal 6
+constant SP_SG6_SET($00400000) //   Set Signal 6
+constant SP_SG7_CLR($00800000) // Clear Signal 7
+constant SP_SG7_SET($01000000) //   Set Signal 7
 
 macro SP_DMA_WAIT() { // from CPU
     lui     t5, SP_BASE

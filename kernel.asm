@@ -457,7 +457,7 @@ K_MI_Loop:
 K_MI_SP:
     KMaybeDumpString(KS_MI_SP)
 
-    lli     t0, CLR_SG3 | CLR_INT // delay slot
+    lli     t0, SP_SG3_CLR | SP_INT_CLR // delay slot
     lui     a1, SP_BASE
     sw      t0, SP_STATUS(a1)
 

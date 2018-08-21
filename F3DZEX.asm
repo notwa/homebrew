@@ -33,67 +33,67 @@ macro nops(new_pc) {
 
 // when we're in the RSP, the registers accessible by mtc0/mfc0
 // are the ones associated with the RSP. they are memory-mapped as well.
-constant SP_COP_MEM_ADDR(0)         // 0x04040000
-constant SP_COP_DRAM_ADDR(1)        // 0x04040004
-constant SP_COP_RD_LEN(2)           // 0x04040008
-constant SP_COP_WR_LEN(3)           // 0x0404000C
-constant SP_COP_STATUS(4)           // 0x04040010
-constant SP_COP_DMA_FULL(5)         // 0x04040014
-constant SP_COP_DMA_BUSY(6)         // 0x04040018
-constant SP_COP_SEMAPHORE(7)        // 0x0404001C
+constant MEM_ADDR(0)         // 0x04040000
+constant DRAM_ADDR(1)        // 0x04040004
+constant RD_LEN(2)           // 0x04040008
+constant WR_LEN(3)           // 0x0404000C
+constant STATUS(4)           // 0x04040010
+constant DMA_FULL(5)         // 0x04040014
+constant DMA_BUSY(6)         // 0x04040018
+constant SEMAPHORE(7)        // 0x0404001C
 // RDP registers:
-constant SP_COP_COMMAND_START(8)    // 0x04100000
-constant SP_COP_COMMAND_END(9)      // 0x04100004
-constant SP_COP_COMMAND_CURRENT(10) // 0x04100008
-constant SP_COP_RDP_STATUS(11)      // 0x0410000C
-constant SP_COP_COUNT(12)           // 0x04100010
-constant SP_COP_COMMAND_BUSY(13)    // 0x04100014
-constant SP_COP_PIPE_BUSY(14)       // 0x04100018
-constant SP_COP_TMEM_BUSY(15)       // 0x0410001C
+constant COMMAND_START(8)    // 0x04100000
+constant COMMAND_END(9)      // 0x04100004
+constant COMMAND_CURRENT(10) // 0x04100008
+constant RDP_STATUS(11)      // 0x0410000C
+constant COUNT(12)           // 0x04100010
+constant COMMAND_BUSY(13)    // 0x04100014
+constant PIPE_BUSY(14)       // 0x04100018
+constant TMEM_BUSY(15)       // 0x0410001C
 
-// SP_COP_STATUS Read Flags:
-constant SP_HLT($0001) // Halt
-constant SP_BRK($0002) // Break
-constant SP_BSY($0004) // DMA Busy
-constant SP_FUL($0008) // DMA Full
-constant SP_IOF($0010) // IO Full
-constant SP_STP($0020) // Single Step
-constant SP_IOB($0040) // Interrupt On Break
-constant SP_SG0($0080) // Signal 0 Set
-constant SP_SG1($0100) // Signal 1 Set
-constant SP_SG2($0200) // Signal 2 Set
-constant SP_SG3($0400) // Signal 3 Set
-constant SP_SG4($0800) // Signal 4 Set
-constant SP_SG5($1000) // Signal 5 Set
-constant SP_SG6($2000) // Signal 6 Set
-constant SP_SG7($4000) // Signal 7 Set
+// STATUS Read Flags:
+constant HLT($0001) // Halt
+constant BRK($0002) // Break
+constant BSY($0004) // DMA Busy
+constant FUL($0008) // DMA Full
+constant IOF($0010) // IO Full
+constant STP($0020) // Single Step
+constant IOB($0040) // Interrupt On Break
+constant SG0($0080) // Signal 0 Set
+constant SG1($0100) // Signal 1 Set
+constant SG2($0200) // Signal 2 Set
+constant SG3($0400) // Signal 3 Set
+constant SG4($0800) // Signal 4 Set
+constant SG5($1000) // Signal 5 Set
+constant SG6($2000) // Signal 6 Set
+constant SG7($4000) // Signal 7 Set
 
-// SP_COP_STATUS Write Flags:
-constant SP_CLR_HLT($00000001) // Clear Halt
-constant SP_SET_HLT($00000002) //   Set Halt
-constant SP_CLR_BRK($00000004) // Clear Broke
-constant SP_CLR_INT($00000008) // Clear Interrupt
-constant SP_SET_INT($00000010) //   Set Interrupt
-constant SP_CLR_STP($00000020) // Clear Single Step
-constant SP_SET_STP($00000040) //   Set Single Step
-constant SP_CLR_IOB($00000080) // Clear Interrupt On Break
-constant SP_SET_IOB($00000100) //   Set Interrupt On Break
-constant SP_CLR_SG0($00000200) // Clear Signal 0
-constant SP_SET_SG0($00000400) //   Set Signal 0
-constant SP_CLR_SG1($00000800) // Clear Signal 1
-constant SP_SET_SG1($00001000) //   Set Signal 1
-constant SP_CLR_SG2($00002000) // Clear Signal 2
-constant SP_SET_SG2($00004000) //   Set Signal 2
-constant SP_CLR_SG3($00008000) // Clear Signal 3
-constant SP_SET_SG3($00010000) //   Set Signal 3
-constant SP_CLR_SG4($00020000) // Clear Signal 4
-constant SP_SET_SG4($00040000) //   Set Signal 4
-constant SP_CLR_SG5($00080000) // Clear Signal 5
-constant SP_SET_SG5($00100000) //   Set Signal 5
-constant SP_CLR_SG6($00200000) // Clear Signal 6
-constant SP_SET_SG6($00400000) //   Set Signal 6
-constant SP_CLR_SG7($00800000) // Clear Signal 7
-constant SP_SET_SG7($01000000) //   Set Signal 7
+// STATUS Write Flags:
+constant HLT_CLR($00000001) // Clear Halt
+constant HLT_SET($00000002) //   Set Halt
+constant BRK_CLR($00000004) // Clear Broke
+constant INT_CLR($00000008) // Clear Interrupt
+constant INT_SET($00000010) //   Set Interrupt
+constant STP_CLR($00000020) // Clear Single Step
+constant STP_SET($00000040) //   Set Single Step
+constant IOB_CLR($00000080) // Clear Interrupt On Break
+constant IOB_SET($00000100) //   Set Interrupt On Break
+constant SG0_CLR($00000200) // Clear Signal 0
+constant SG0_SET($00000400) //   Set Signal 0
+constant SG1_CLR($00000800) // Clear Signal 1
+constant SG1_SET($00001000) //   Set Signal 1
+constant SG2_CLR($00002000) // Clear Signal 2
+constant SG2_SET($00004000) //   Set Signal 2
+constant SG3_CLR($00008000) // Clear Signal 3
+constant SG3_SET($00010000) //   Set Signal 3
+constant SG4_CLR($00020000) // Clear Signal 4
+constant SG4_SET($00040000) //   Set Signal 4
+constant SG5_CLR($00080000) // Clear Signal 5
+constant SG5_SET($00100000) //   Set Signal 5
+constant SG6_CLR($00200000) // Clear Signal 6
+constant SG6_SET($00400000) //   Set Signal 6
+constant SG7_CLR($00800000) // Clear Signal 7
+constant SG7_SET($01000000) //   Set Signal 7
 
 // Task Struct:
 constant TASK_START(0xFC0)
@@ -128,31 +128,31 @@ label_1008:
     lw      v0, TASK_UCODE-TASK_START(at)
     addi    v1, r0, 0x0F7F // copy 0xF80 bytes
     addi    a3, r0, 0x1080 // to 0xA4001080
-    mtc0    a3, SP_COP_MEM_ADDR
-    mtc0    v0, SP_COP_DRAM_ADDR
-    mtc0    v1, SP_COP_RD_LEN // start the DMA
+    mtc0    a3, MEM_ADDR
+    mtc0    v0, DRAM_ADDR
+    mtc0    v1, RD_LEN // start the DMA
 
 label_1020:
 -
-    mfc0    a0, SP_COP_DMA_BUSY // wait until it finishes
+    mfc0    a0, DMA_BUSY // wait until it finishes
     bnez    a0,-
     nop
     jal     func_103C // check error status
     nop
     jr      a3 // jump to the new code we just loaded
-    mtc0    r0, SP_COP_SEMAPHORE
+    mtc0    r0, SEMAPHORE
 
 func_103C:
-    mfc0    t0, SP_COP_STATUS
+    mfc0    t0, STATUS
 label_1040:
     andi    t0, t0, 1<<7 // check flag 7: signal 0 set
     bnez    t0,+ // branch if signal 0 is set
     nop
     jr      ra
 +
-    mtc0    r0, SP_COP_SEMAPHORE
-    ori     t0, r0, SP_CLR_SG0 | SP_SET_SG1 | SP_SET_SG2
-    mtc0    t0, SP_COP_STATUS
+    mtc0    r0, SEMAPHORE
+    ori     t0, r0, SG0_CLR | SG1_SET | SG2_SET
+    mtc0    t0, STATUS
     break   0
     nop
 
@@ -163,7 +163,7 @@ label_1054:
     nop
     jal     func_103C
     nop
-    mfc0    v0, SP_COP_RDP_STATUS
+    mfc0    v0, RDP_STATUS
 
 // note: this marks 0x80, meaning everything below gets overwritten later.
     andi    v0, v0, 0x0100
@@ -174,14 +174,14 @@ label_1054:
     lw      v1, TASK_UCODE_DATA_SIZE-TASK_START(at)
     subi    v1, v1, 1 // subtract 1 for DMA quirk
 -
-    mfc0    fp, SP_COP_DMA_FULL
+    mfc0    fp, DMA_FULL
     bnez    fp,- // wait until the last DMA is finished?
     nop
-    mtc0    r0, SP_COP_MEM_ADDR // target: A4000000 (DMEM)
-    mtc0    v0, SP_COP_DRAM_ADDR
-    mtc0    v1, SP_COP_RD_LEN // start the DMA
+    mtc0    r0, MEM_ADDR // target: A4000000 (DMEM)
+    mtc0    v0, DRAM_ADDR
+    mtc0    v1, RD_LEN // start the DMA
 -
-    mfc0    a0, SP_COP_DMA_BUSY // wait until it finishes
+    mfc0    a0, DMA_BUSY // wait until it finishes
     bnez    a0,-
     nop
     jal     func_103C // check error status
@@ -209,9 +209,9 @@ func_1088:
     vsub    vec1,vec0,vec31[e8]
     lw      t3, 0x0F0(r0) // TASK_DRAM_STACK gets written here?
     lw      t4, TASK_FLAGS(r0)
-    addi    at, r0, SP_CLR_SG1 | SP_CLR_SG2
+    addi    at, r0, SG1_CLR | SG2_CLR
     beqz    t3,+
-    mtc0    at, SP_COP_STATUS
+    mtc0    at, STATUS
 
     andi    t4, t4, 1 // check if flag 0 is set
     beqz    t4,label_1130
@@ -221,15 +221,15 @@ func_1088:
     lw      k0, 0xBF8(r0)
 
 +
-    mfc0    t3, SP_COP_RDP_STATUS
+    mfc0    t3, RDP_STATUS
     andi    t3, t3, 1
     bnez    t3,+
-    mfc0    v0, SP_COP_COMMAND_END
+    mfc0    v0, COMMAND_END
 
     lw      v1, TASK_OUTPUT_BUFF(r0)
     sub     t3, v1, v0
     bgtz    t3,+
-    mfc0    at, SP_COP_COMMAND_CURRENT
+    mfc0    at, COMMAND_CURRENT
 
     lw      a0, TASK_OUTPUT_BUFF_SIZE(r0)
     beqz    at,+
@@ -241,16 +241,16 @@ func_1088:
     bne     at, v0,++
 +
 -
-    mfc0    t3, SP_COP_RDP_STATUS
+    mfc0    t3, RDP_STATUS
 
     andi    t3, t3, 0x0400
     bnez    t3,-
     addi    t3, r0, 1
 
-    mtc0    t3, SP_COP_RDP_STATUS
+    mtc0    t3, RDP_STATUS
     lw      v0, TASK_OUTPUT_BUFF_SIZE(r0)
-    mtc0    v0, SP_COP_COMMAND_START
-    mtc0    v0, SP_COP_COMMAND_END
+    mtc0    v0, COMMAND_START
+    mtc0    v0, COMMAND_END
 +
     sw      v0, 0x0F0(r0)
     lw      t3, 0x0F4(r0)
@@ -293,11 +293,11 @@ label_1188:
 label_1190:
     jal     func_1FC8
 label_1194:
-    mfc0    at, SP_COP_STATUS
+    mfc0    at, STATUS
     lw      t9, 0x09C8(k1)
     beqz    k1,label_1178
 label_11A0:
-    andi    at, at, SP_SG0
+    andi    at, at, SG0
 
 label_11A4:
     sra     t4, t9, 24
@@ -307,7 +307,7 @@ label_11A4:
     lw      t8, 0x09CC(k1)
 
     jr      t3
-    addiu   k1, k1, SP_COP_COMMAND_START
+    addiu   k1, k1, COMMAND_START
     jal     func_1224
     lh      s4, 0x09C1(k1)
 
@@ -332,13 +332,13 @@ label_11EC:
 
     ldv     vec29[e0], 0x0D0(r0)
     lw      t9, 0x0D8(r0)
-    addi    s7, s7, SP_COP_COMMAND_START
+    addi    s7, s7, COMMAND_START
     sdv     vec29[e0], 0x3F8(s7)
 label_1210:
     sw      t8, 0x4(s7)
     sw      t9, 0x0(s7)
     j       label_1258
-    addi    s7, s7, SP_COP_COMMAND_START
+    addi    s7, s7, COMMAND_START
 
     addi    ra, r0, label_1210
 func_1224:
@@ -363,32 +363,32 @@ label_125C:
     sub     t3, s7, s6
     blez    t3, label_1FD4
 label_1264:
-    mfc0    t4, SP_COP_DMA_BUSY
+    mfc0    t4, DMA_BUSY
 
     lw      t8, 0x0F0(r0)
     addiu   s3, t3, 0x0158
     bnez    t4,label_1264
     lw      t4, TASK_OUTPUT_BUFF_SIZE(r0)
 
-    mtc0    t8, SP_COP_COMMAND_END
+    mtc0    t8, COMMAND_END
     add     t3, t8, s3
     sub     t4, t4, t3
     bgez    t4,+
 -
-    mfc0    t3, SP_COP_RDP_STATUS
+    mfc0    t3, RDP_STATUS
 
     andi    t3, t3, 0x0400
     bnez    t3,-
     lw      t8, TASK_OUTPUT_BUFF(r0)
 -
-    mfc0    t3, SP_COP_COMMAND_CURRENT
+    mfc0    t3, COMMAND_CURRENT
     beq     t3, t8,-
     nop
 
-    mtc0    t8, SP_COP_COMMAND_START
+    mtc0    t8, COMMAND_START
 +
 -
-    mfc0    t3, SP_COP_COMMAND_CURRENT
+    mfc0    t3, COMMAND_CURRENT
     sub     t3, t3, t8
     blez    t3,+
 
@@ -1103,25 +1103,25 @@ func_1FB4:
     lhu     s4, 0x6(t3)
     ori     ra, t4, 0x0
 func_1FC8:
-    mfc0    t3, SP_COP_DMA_BUSY
+    mfc0    t3, DMA_BUSY
 -
     bnez    t3,-
-    mfc0    t3, SP_COP_DMA_BUSY
+    mfc0    t3, DMA_BUSY
 label_1FD4:
     jr      ra
 func_1FD8:
-    mfc0    t3, SP_COP_DMA_FULL
+    mfc0    t3, DMA_FULL
 -
     bnez    t3,-
-    mfc0    t3, SP_COP_DMA_FULL
-    mtc0    s4, SP_COP_MEM_ADDR
+    mfc0    t3, DMA_FULL
+    mtc0    s4, MEM_ADDR
     bltz    s4,+
-    mtc0    t8, SP_COP_DRAM_ADDR
+    mtc0    t8, DRAM_ADDR
     jr      ra
-    mtc0    s3, SP_COP_RD_LEN
+    mtc0    s3, RD_LEN
 +
     jr      ra
-    mtc0    s3, SP_COP_WR_LEN
+    mtc0    s3, WR_LEN
 
 // this gets loaded by func_1FB4 from DMEM+$2E0
 base 0x1000
@@ -1133,7 +1133,7 @@ base 0x1000
     jal     func_1FC8
     lw      t8, 0x0F0(r0)
     bltz    at, label_1084
-    mtc0    t8, SP_COP_COMMAND_END
+    mtc0    t8, COMMAND_END
     bnez    at, label_1060
     add     k0, k0, k1
     lw      t8, 0x09C4(k1)
@@ -1163,7 +1163,7 @@ label_1060:
     addi    ra, r0, func_1088
 
     addi    t4, r0, 0x4000
-    mtc0    t4, SP_COP_STATUS
+    mtc0    t4, STATUS
     break   0x00000
     nop
     nop

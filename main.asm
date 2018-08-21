@@ -91,7 +91,7 @@ Start3D:
 
     // stuff i'm borrowing from zelda:
     lui     a0, SP_BASE
-    lli     t0, CLR_SG2 | CLR_SG1 | CLR_SG0 | SET_IOB
+    lli     t0, SP_SG2_CLR | SP_SG1_CLR | SP_SG0_CLR | SP_IOB_SET
     sw      t0, SP_STATUS(a0)
 
     // wait
@@ -130,7 +130,7 @@ Start3D:
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
     lui     a0, SP_BASE
-    lli     t0, SET_IOB | CLR_STP | CLR_BRK | CLR_HLT
+    lli     t0, SP_IOB_SET | SP_STP_CLR | SP_BRK_CLR | SP_HLT_CLR
     sw      t0, SP_STATUS(a0)
     nop
 
