@@ -199,6 +199,7 @@ base 0x04001080
 // be careful here, the "v" prefix in n64-rsp.arch is tricky
 
     vxor    vec0,vec0,vec0 // clear vector 0
+label_1084:
     lqv     vec31[e0], 0x1B0(r0) // read some? data from DMEM+1B0
 func_1088:
     lqv     vec30[e0], 0x1C0(r0) // read the next row, too
@@ -216,7 +217,7 @@ func_1088:
     beqz    t4,label_1130
     sw      r0, TASK_FLAGS(r0)
 
-    j       func_1168 & 0x1FFF
+    j       label_1168 & 0x1FFF
     lw      k0, 0xBF8(r0)
 
 +
@@ -267,34 +268,38 @@ label_1130:
     add     v1, v1, at
     sw      v0, 0x2E0(r0)
     sw      v1, 0x2E8(r0)
+func_1154:
     add     a0, a0, at
     add     a1, a1, at
     sw      a0, 0x410(r0)
     sw      a1, 0x418(r0)
     lw      k0, TASK_DATA_PTR(r0)
-func_1168:
+label_1168:
     addi    t3, r0, 0x2E8
     nop
     jal     func_1FB4 & 0x1FFF
     ori     t4, ra, 0
 
--
+label_1178:
     addi    s3, r0, 0xA7 // DMA length: 0xA8
     ori     t8, k0, 0
 
     jal     func_1FD8 & 0x1FFF // load in the DList from TASK_DATA_PTR?
     addiu   s4, r0, 0x0920 // DMA destination: DMEM+$920
 
+label_1188:
     addiu   k0, k0, 0x00A8
     addi    k1, r0, 0xFF58
 label_1190:
     jal     func_1FC8 & 0x1FFF
-func_1194:
+label_1194:
     mfc0    at, SP_COP_STATUS
     lw      t9, 0x09C8(k1)
-    beqz    k1,-
+    beqz    k1,label_1178
+label_11A0:
     andi    at, at, SP_SG0
 
+label_11A4:
     sra     t4, t9, 24
     sll     t3, t4, 1
     lhu     t3, 0x036E(t3)
@@ -314,7 +319,7 @@ func_1194:
     lw      t3, 0x1EC(r0)
     and     t3, t3, t9
     or      t3, t3, t8
-    j       func_1194 & 0x1FFF
+    j       label_1194 & 0x1FFF
     sw      t3, 0x1EC(r0)
 
 label_11EC:
@@ -329,13 +334,13 @@ label_11EC:
     lw      t9, 0x0D8(r0)
     addi    s7, s7, SP_COP_COMMAND_START
     sdv     vec29[e0], 0x3F8(s7)
-func_1210:
+label_1210:
     sw      t8, 0x4(s7)
     sw      t9, 0x0(s7)
     j       label_1258 & 0x1FFF
     addi    s7, s7, SP_COP_COMMAND_START
 
-    addi    ra, r0, func_1210
+    addi    ra, r0, label_1210
 func_1224:
     srl     t3, t8, 22
     andi    t3, t3, 0x003C
@@ -345,24 +350,24 @@ func_1224:
     jr      ra
     add     t8, t8, t3
     sw      t9, 0x0C8(r0)
-    j       func_1210 & 0x1FFF
+    j       label_1210 & 0x1FFF
     sw      t8, 0x0CC(r0)
 
     sw      t9, 0x0C0(r0)
-    j       func_1210 & 0x1FFF
+    j       label_1210 & 0x1FFF
     sw      t8, 0x0C4(r0)
 
 label_1258:
-    addi    ra, r0, func_1194
+    addi    ra, r0, label_1194
 label_125C:
     sub     t3, s7, s6
     blez    t3, label_1FD4
--
+label_1264:
     mfc0    t4, SP_COP_DMA_BUSY
 
     lw      t8, 0x0F0(r0)
     addiu   s3, t3, 0x0158
-    bnez    t4,-
+    bnez    t4,label_1264
     lw      t4, TASK_OUTPUT_BUFF_SIZE(r0)
 
     mtc0    t8, SP_COP_COMMAND_END
@@ -398,10 +403,12 @@ label_125C:
     xori    s6, s6, 0x0208
     j       func_1FD8 & 0x1FFF
     addi    s7, s6, 0xFEA8
+
 label_12D8:
     addi    t3, r0, 0x0410
     j       func_1FB4 & 0x1FFF
-    addi    t4, r0, 0x12D8
+    addi    t4, r0, label_12D8
+
 label_12E4:
     ori     fp, ra, 0x0
     addiu   a1, r0, 0x0014
@@ -419,7 +426,7 @@ label_1308:
     addi    s1, s2, 0xFFFA
     xori    s2, s2, 0x001C
     addi    s5, s2, 0xFFFA
-func_1320:
+label_1320:
     lhu     v0, 0x03D0(s1)
     addi    s1, s1, 0x2
     beqz    v0, label_14A8
@@ -524,11 +531,11 @@ label_1478:
     addi    s5, s5, 0x2
 
 label_1494:
-    bnez    s0, func_1320
+    bnez    s0, label_1320
     ori     v1, v0, 0x0
 
     sh      v1, 0x03D0(s5)
-    j       func_1320 & 0x1FFF
+    j       label_1320 & 0x1FFF
     addi    s5, s5, 0x2
 
 label_14A8:
@@ -722,11 +729,11 @@ label_182C:
     ssv     vec26[e12], 0xF6(t0)
     ssv     vec26[e4], 0xCE(t7)
     ssv     vec3[e12], 0xF4(t0)
-    beqz    a3, func_1194
+    beqz    a3, label_1194
     ssv     vec3[e4], 0xCC(t7)
 
     sbv     vec27[e15], 0x6B(t0)
-    j       func_1194 & 0x1FFF
+    j       label_1194 & 0x1FFF
     sbv     vec27[e7], 0x43(t7)
 
 func_19F4:
@@ -748,10 +755,11 @@ func_19F4:
     vmov    vec16[e9],vec21[e9]
     jr      ra
     addi    t0, s7, 0x0050
+
     jal     func_1A4C & 0x1FFF
     sw      t8, 0x4(s7)
 
-    addi    ra, r0, func_1194
+    addi    ra, r0, label_1194
     sw      t9, 0x4(s7)
 func_1A4C:
     lpv     vec2[e0], 0x0(s7)
@@ -841,7 +849,7 @@ func_1A7C:
     lpv     vec21[e0], 0x10(v1)
     vrcph   vec22[e8],vec17[e9]
     vrcpl   vec23[e9],vec16[e9]
-    j       func_1BC0 & 0x1FFF
+    j       label_1BC0 & 0x1FFF
     vrcph   vec24[e9],vec0[e8]
 
 +
@@ -856,7 +864,7 @@ func_1A7C:
     lpv     vec21[e0], 0x10(a0)
     vmov    vec15[e10],vec6[e8]
     lbv     vec21[e6], 0x13(v1)
-func_1BC0:
+label_1BC0:
     vrcp    vec20[e10],vec6[e9]
     vrcph   vec22[e10],vec6[e9]
     lw      a1, 0x0020(at)
@@ -887,7 +895,7 @@ func_1BC0:
     vsub    vec26,vec0,vec0[e0]
     llv     vec27[e0], 0x10(s7)
     vmudm   vec29,vec25,vec20[e0]
-    dw      0x48058880
+    mfc2    a1,vec17[e1]
     vmadl   vec29,vec15,vec20[e0]
     lbu     a3, 0x1E6(r0)
     vmadn   vec20,vec15,vec22[e0]
@@ -1065,7 +1073,7 @@ func_1BC0:
     lw      t3, 0x24(t9)
 -
     and     at, at, t3
-    beqz    at, func_1194
+    beqz    at, label_1194
     lw      t3, 0x4C(t9)
     bne     t9, t8,-
     addiu   t9, t9, 0x0028
@@ -1074,18 +1082,20 @@ func_1BC0:
 
     lh      t9, 6(t9)
     sub     v0, t9, t8
-    bgez    v0, func_1194
+    bgez    v0, label_1194
     lw      t8, 0x0D8(r0)
     j       label_1008 & 0x1FFF
     lbu     at, 0x09C1(k1)
+
     j       label_1040 & 0x1FFF
     lhu     t9, 0x0380(t9)
 
     nops(0x4001FAC)
 
 label_1FAC:
-    addi    t4, r0, 0x1000
-    addi    t3, r0, 0x02E0
+    // deref DMEM+$2E0 to load instructions and jump to them
+    addi    t4, r0, 0x1000 // IMEM+$0
+    addi    t3, r0, 0x2E0
 func_1FB4:
     lw      t8, 0x0(t3)
     lhu     s3, 0x4(t3)
