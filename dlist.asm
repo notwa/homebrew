@@ -38,7 +38,7 @@ if {dpos} >= 0x8000 {
     WriteDL(0xD9000000, 0x00220405)
 
     // G_SETSCISSOR     coordinate order: (top, left), (right, bottom)
-    WriteDL(0xED000000 | (0 << 14) | (0 << 2), (320 << 14) | (240 << 2))
+    WriteDL(0xED000000 | (0 << 14) | (0 << 2), (640 << 14) | (480 << 2))
 
     // G_SETBLENDCOLOR
     // sets alpha component to 8, everything else to 0
