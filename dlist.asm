@@ -54,14 +54,14 @@ if {dpos} >= 0x8000 {
     // G_MOVEWORD, sets G_MW_CLIP+$001C
     WriteDL(0xDB04001C, 0x10000 - 2)
 
-    // G_SETCIMG, set our color buffer (fmt 0, bit size %10, width)
-    WriteDL(0xFF100000 | (640 - 1), VIDEO_C_BUFFER)
+    // G_SETCIMG, set our color buffer (fmt 0, bit size %11, width)
+    WriteDL(0xFF180000 | (640 - 1), VIDEO_C_BUFFER)
 
-    // G_SETZIMG, set our z buffer (fmt 0, bit size %00, width)
+    // G_SETZIMG, set our z buffer
     WriteDL(0xFE000000, VIDEO_Z_BUFFER)
 
     // G_SETFILLCOLOR
-    WriteDL(0xF7000000, 0xFFFFFFFF)
+    WriteDL(0xF7000000, 0x007FFFFF)
 
     // G_FILLRECT       coordinate order: (right, bottom), (top, left)
     // note that the coordinates are all inclusive!
