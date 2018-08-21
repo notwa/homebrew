@@ -118,8 +118,8 @@ constant TASK_YIELD_DATA_SIZE(0xFFC)
 output "bin/F3DZEX2.boot.bin", create
 fill 0xD0
 
-origin 0x00000000
-base 0x04001000
+origin 0x0000
+base 0x1000
 
     j       label_1054
     addi    at, r0, TASK_START
@@ -193,8 +193,8 @@ label_1054:
 output "bin/F3DZEX2.bin", create
 fill 0xF80
 
-origin 0x00000000
-base 0x04001080
+origin 0x0000
+base 0x1080
 
 // be careful here, the "v" prefix in n64-rsp.arch is tricky
 
@@ -217,7 +217,7 @@ func_1088:
     beqz    t4,label_1130
     sw      r0, TASK_FLAGS(r0)
 
-    j       label_1168 & 0x1FFF
+    j       label_1168
     lw      k0, 0xBF8(r0)
 
 +
@@ -277,21 +277,21 @@ func_1154:
 label_1168:
     addi    t3, r0, 0x2E8
     nop
-    jal     func_1FB4 & 0x1FFF
+    jal     func_1FB4
     ori     t4, ra, 0
 
 label_1178:
     addi    s3, r0, 0xA7 // DMA length: 0xA8
     ori     t8, k0, 0
 
-    jal     func_1FD8 & 0x1FFF // load in the DList from TASK_DATA_PTR?
+    jal     func_1FD8 // load in the DList from TASK_DATA_PTR?
     addiu   s4, r0, 0x0920 // DMA destination: DMEM+$920
 
 label_1188:
     addiu   k0, k0, 0x00A8
     addi    k1, r0, 0xFF58
 label_1190:
-    jal     func_1FC8 & 0x1FFF
+    jal     func_1FC8
 label_1194:
     mfc0    at, SP_COP_STATUS
     lw      t9, 0x09C8(k1)
@@ -308,18 +308,18 @@ label_11A4:
 
     jr      t3
     addiu   k1, k1, SP_COP_COMMAND_START
-    jal     func_1224 & 0x1FFF
+    jal     func_1224
     lh      s4, 0x09C1(k1)
 
     andi    s3, t9, 0x0FF8
     sra     s4, s4, 2
-    j       func_1FD8 & 0x1FFF
+    j       func_1FD8
     addi    ra, r0, label_1190
 
     lw      t3, 0x1EC(r0)
     and     t3, t3, t9
     or      t3, t3, t8
-    j       label_1194 & 0x1FFF
+    j       label_1194
     sw      t3, 0x1EC(r0)
 
 label_11EC:
@@ -327,7 +327,7 @@ label_11EC:
     beqz    at, label_1FAC
     addi    at, at, 0xFFFC
 
-    j       label_1020 & 0x1FFF
+    j       label_1020
     lw      k0, 0x0138(at)
 
     ldv     vec29[e0], 0x0D0(r0)
@@ -337,7 +337,7 @@ label_11EC:
 label_1210:
     sw      t8, 0x4(s7)
     sw      t9, 0x0(s7)
-    j       label_1258 & 0x1FFF
+    j       label_1258
     addi    s7, s7, SP_COP_COMMAND_START
 
     addi    ra, r0, label_1210
@@ -350,11 +350,11 @@ func_1224:
     jr      ra
     add     t8, t8, t3
     sw      t9, 0x0C8(r0)
-    j       label_1210 & 0x1FFF
+    j       label_1210
     sw      t8, 0x0CC(r0)
 
     sw      t9, 0x0C0(r0)
-    j       label_1210 & 0x1FFF
+    j       label_1210
     sw      t8, 0x0C4(r0)
 
 label_1258:
@@ -401,12 +401,12 @@ label_1264:
     addi    s3, s3, 0xFFFF
     addi    s4, s6, 0xDEA8
     xori    s6, s6, 0x0208
-    j       func_1FD8 & 0x1FFF
+    j       func_1FD8
     addi    s7, s6, 0xFEA8
 
 label_12D8:
     addi    t3, r0, 0x0410
-    j       func_1FB4 & 0x1FFF
+    j       func_1FB4
     addi    t4, r0, label_12D8
 
 label_12E4:
@@ -518,7 +518,7 @@ label_13D8:
     addi    a3, r0, 0x0
     addi    at, r0, 0x2
     sh      t7, 0x03D0(s5)
-    j       func_19F4 & 0x1FFF
+    j       func_19F4
     addi    ra, r0, 0x9870
 
 label_1478:
@@ -535,7 +535,7 @@ label_1494:
     ori     v1, v0, 0x0
 
     sh      v1, 0x03D0(s5)
-    j       label_1320 & 0x1FFF
+    j       label_1320
     addi    s5, s5, 0x2
 
 label_14A8:
@@ -554,7 +554,7 @@ label_14A8:
     mtc2    at,vec2[e10]
     vor     vec3,vec0,vec31[e13]
     mtc2    v0,vec4[e12]
-    jal     func_1A7C & 0x1FFF
+    jal     func_1A7C
     mtc2    v1,vec2[e14]
     bne     s5, s2,-
     addi    s2, s2, 0x2
@@ -563,14 +563,14 @@ label_14A8:
     jr      fp
     sw      sp, 0x3CC(r0)
 
-    nops(0x4001780)
+    nops(0x1780)
 
     lhu     s4, 0x0380(t9)
-    jal     func_1224 & 0x1FFF
+    jal     func_1224
     lhu     at, 0x09C1(k1)
 
     sub     s4, s4, at
-    jal     func_1FD8 & 0x1FFF
+    jal     func_1FD8
     addi    s3, at, 0xFFFF
 
     lhu     a1, 0x1EC(r0)
@@ -589,7 +589,7 @@ label_14A8:
     sb      t9, 0x1D9(r0)
     addi    s5, r0, 0x0040
     addi    s4, r0, 0x0
-    jal     func_1088 & 0x1FFF
+    jal     func_1088
     addi    s3, r0, 0x0080
 
 +
@@ -607,10 +607,10 @@ label_14A8:
     ldv     vec15[e0], 0xB8(r0)
     ldv     vec8[e8], 0x80(r0)
     ldv     vec10[e8], 0x90(r0)
-    jal     func_19F4 & 0x1FFF
+    jal     func_19F4
     ldv     vec12[e8], 0xA0(r0)
 
-    jal     func_1FC8 & 0x1FFF
+    jal     func_1FC8
     ldv     vec14[e8], 0xB0(r0)
 
     ldv     vec20[e0], 0x0(t6)
@@ -733,7 +733,7 @@ label_182C:
     ssv     vec3[e4], 0xCC(t7)
 
     sbv     vec27[e15], 0x6B(t0)
-    j       label_1194 & 0x1FFF
+    j       label_1194
     sbv     vec27[e7], 0x43(t7)
 
 func_19F4:
@@ -756,7 +756,7 @@ func_19F4:
     jr      ra
     addi    t0, s7, 0x0050
 
-    jal     func_1A4C & 0x1FFF
+    jal     func_1A4C
     sw      t8, 0x4(s7)
 
     addi    ra, r0, label_1194
@@ -849,7 +849,7 @@ func_1A7C:
     lpv     vec21[e0], 0x10(v1)
     vrcph   vec22[e8],vec17[e9]
     vrcpl   vec23[e9],vec16[e9]
-    j       label_1BC0 & 0x1FFF
+    j       label_1BC0
     vrcph   vec24[e9],vec0[e8]
 
 +
@@ -1057,14 +1057,14 @@ label_1BC0:
     ssv     vec6[e14], 0xFE(s7)
     ssv     vec7[e14], 0xFC(s7)
     ssv     vec5[e14], 0xF2(s7)
-    j       label_125C & 0x1FFF
+    j       label_125C
     ssv     vec18[e14], 0xF0(s7)
 
 +
     sdv     vec5[e0], 0x10(v0)
     sdv     vec18[e0], 0x0(v0)
     sdv     vec5[e8], 0x10(at)
-    j       label_125C & 0x1FFF
+    j       label_125C
     sdv     vec18[e8], 0x0(at)
 
     lhu     t9, 0x380(t9)
@@ -1077,20 +1077,20 @@ label_1BC0:
     lw      t3, 0x4C(t9)
     bne     t9, t8,-
     addiu   t9, t9, 0x0028
-    j       label_11EC & 0x1FFF
+    j       label_11EC
     lhu     t9, 0x380(t9)
 
     lh      t9, 6(t9)
     sub     v0, t9, t8
     bgez    v0, label_1194
     lw      t8, 0x0D8(r0)
-    j       label_1008 & 0x1FFF
+    j       label_1008
     lbu     at, 0x09C1(k1)
 
-    j       label_1040 & 0x1FFF
+    j       label_1040
     lhu     t9, 0x0380(t9)
 
-    nops(0x4001FAC)
+    nops(0x1FAC)
 
 label_1FAC:
     // deref DMEM+$2E0 to load instructions and jump to them
@@ -1099,7 +1099,7 @@ label_1FAC:
 func_1FB4:
     lw      t8, 0x0(t3)
     lhu     s3, 0x4(t3)
-    jal     func_1FD8 & 0x1FFF
+    jal     func_1FD8
     lhu     s4, 0x6(t3)
     ori     ra, t4, 0x0
 func_1FC8:
@@ -1124,13 +1124,13 @@ func_1FD8:
     mtc0    s3, SP_COP_WR_LEN
 
 // this gets loaded by func_1FB4 from DMEM+$2E0
-base 0x04001000
+base 0x1000
 
     sub     t3, s7, s6
     addiu   t4, t3, 0x0157
     bgezal  t4, label_1264
     nop
-    jal     func_1FC8 & 0x1FFF
+    jal     func_1FC8
     lw      t8, 0x0F0(r0)
     bltz    at, label_1084
     mtc0    t8, SP_COP_COMMAND_END
@@ -1140,15 +1140,15 @@ base 0x04001000
     sw      k0, 0xFF0(r0)
     sw      t8, 0xFD0(r0)
     addiu   s4, r0, 0x1080
-    jal     func_1FD8 & 0x1FFF
+    jal     func_1FD8
     addi    s3, r0, 0x0F47
     lw      t8, 0x0D8(r0)
     addiu   s4, r0, 0x0180
     andi    s3, t9, 0x0FFF
     add     t8, t8, s4
-    jal     func_1FD8 & 0x1FFF
+    jal     func_1FD8
     sub     s3, s3, s4
-    j       func_1FC8 & 0x1FFF
+    j       func_1FC8
     addi    ra, r0, label_1084
 
 label_1060:
@@ -1159,7 +1159,7 @@ label_1060:
     lw      t8, 0xFF8(r0)
     addi    s4, r0, 0x8000
     addi    s3, r0, 0x0BFF
-    j       func_1FD8 & 0x1FFF
+    j       func_1FD8
     addi    ra, r0, func_1088
 
     addi    t4, r0, 0x4000
@@ -1169,28 +1169,28 @@ label_1060:
     nop
 
 // this gets loaded by func_1FB4 from DMEM+$2E8
-base 0x04001000
+base 0x1000
 
     lbu     at, 0x0DE(r0)
     sll     v0, t9, 15
-    jal     func_1224 & 0x1FFF
+    jal     func_1224
     add     v1, k0, k1
     bltz    v0, label_1178
     ori     k0, t8, 0x0000
     sw      v1, 0x0138(at)
     addi    at, at, 0x0004
-    j       label_1178 & 0x1FFF
+    j       label_1178
     sb      at, 0x0DE(r0)
 
     addi    t3, r0, 0x1140
     sw      t9, 0xF0A4(t3)
-    j       label_1194 & 0x1FFF
+    j       label_1194
     sw      t8, 0xF0A8(t3)
 
     srl     v0, t9, 16
     lhu     at, 0x27FE(v0)
     add     at, at, t9
-    j       label_1194 & 0x1FFF
+    j       label_1194
     sw      t8, 0x0000(at)
 
     lw      t3, 0x0F4(r0)
@@ -1203,11 +1203,11 @@ base 0x04001000
 label_1068:
     beq     t8, t3, label_1194
     sw      t8, 0x0F4(r0)
-    j       label_1124 & 0x1FFF
+    j       label_1124
     sw      r0, 0x1D9(r0)
 
     lhu     s3, 0x02F2(at)
-    jal     func_1FC8 & 0x1FFF
+    jal     func_1FC8
     lhu     s5, 0x02F2(at)
     addi    ra, r0, label_1194
     addi    t4, s4, 0x0018
@@ -1244,7 +1244,7 @@ label_10A0:
     andi    v0, t9, 0x0002
     lw      t8, 0x0F4(r0)
     addi    s4, r0, 0xE000
-    jal     func_1FD8 & 0x1FFF
+    jal     func_1FD8
     addi    s3, r0, 0x003F
     addi    t8, t8, 0x0040
     sw      t8, 0x0F4(r0)
@@ -1252,14 +1252,14 @@ label_10A0:
 label_1118:
     add     t4, t4, v0
     sw      r0, 0x1D9(r0)
-    jal     func_1224 & 0x1FFF
+    jal     func_1224
 label_1124:
     andi    at, t9, 0x00FE
     lbu     s3, 0x09C1(k1)
     lhu     s4, 0x02F0(at)
     srl     v0, t9, 5
     lhu     ra, 0x0336(t4)
-    j       func_1FD8 & 0x1FFF
+    j       func_1FD8
     add     s4, s4, v0
     lw      v1, 0xEF8C(t3)
     lui     v0, 0x8000
@@ -1271,5 +1271,5 @@ label_1124:
     or      v1, v1, t8
     sw      v1, 0xEF8C(t3)
     lw      t9, 0x0C8(r0)
-    j       label_1210 & 0x1FFF
+    j       label_1210
     lw      t8, 0x0CC(r0)
