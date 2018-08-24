@@ -34,9 +34,8 @@ Start:
 
     // enable even more interrupts.
     lui     t2, MI_BASE
-    ori     t2, t2, MI_INTR_MASK
-    lli     t0, MI_INTR_MASK_ALL
-    sw      t0, 0(t2)
+    lli     t0, MI_INTR_MASK_ALL_SET
+    sw      t0, MI_INTR_MASK(t2)
 
     // set BSD DOM1 stuff, whatever that is.
     lui     v1, CART_DOM1_ADDR2

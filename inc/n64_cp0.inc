@@ -60,7 +60,7 @@ constant CP0_CAUSE_CE($30000000) // Coprocessor Error
 constant CP0_CAUSE_BD($80000000) // Branch Delay (not an exception, just info)
 
 // note that these constants are shifted left 2 into the Cause register,
-// so you must unshift the value from the register before comparing them.
+// so you must shift-right the value from the register before comparing them.
 constant CP0_CODE_INT(0)    // Interrupt
 constant CP0_CODE_MOD(1)    // TLB modification exception
 constant CP0_CODE_TLBL(2)   // TLB Exception (Load or instruction fetch)

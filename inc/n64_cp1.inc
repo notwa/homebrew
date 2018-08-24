@@ -32,3 +32,5 @@ constant f29(29)
 constant f30(30)
 constant f31(31)
 
+constant CP1_Revision(0)
+constant CP1_FCSR(31)

@@ -6,3 +6,13 @@ constant SI_PIF_ADDR_RD64B($04) // $04800004..$04800007 SI: Address Read 64B Reg
 constant SI_PIF_ADDR_WR64B($10) // $04800010..$04800013 SI: Address Write 64B Register
 //*RESERVED*($14)               // $04800014..$04800017 SI: Reserved Register
 constant SI_STATUS($18)         // $04800018..$0480001B SI: Status Register
+
+macro SI_WAIT() {
+    lui     a0, SI_BASE
+-
+    lw      t0, SI_STATUS(a0)
+    andi    t0, 0x0003
+    sltu    t0, r0, t0
+    bnez    t0,-
+    nop
+}
