@@ -294,45 +294,9 @@ InterruptHandler:
 
 ISR_Main: // free to modify any GPR from here to ISR_Exit
 
-if K_DEBUG {
     KMaybeDumpString(KS_Newline)
     KMaybeDumpString(KS_Handling)
-
-    ori     a0, k0, K_DUMP + 0x80 * 0
-    lli     a1, 0x80
-    ori     a2, k0, K_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x80 * 4
-
-    KMaybeDumpString(KS_Newline)
-
-    ori     a0, k0, K_DUMP + 0x80 * 1
-    lli     a1, 0x80
-    ori     a2, k0, K_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x80 * 4
-
-    KMaybeDumpString(KS_Newline)
-
-    // currently just 0x10 in size: LO and HI registers.
-    ori     a0, k0, K_DUMP + 0x80 * 2
-    lli     a1, 0x10
-    ori     a2, k0, K_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x10 * 4
-
-    KMaybeDumpString(KS_Newline)
-    KMaybeDumpString(KS_States)
-
-    ori     a0, k0, K_REASON
-    lli     a1, 0x80
-    ori     a2, k0, K_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x80 * 4
-
-    KMaybeDumpString(KS_Newline)
     KMaybeDumpString(KS_Code)
-}
 
     // switch-case on the cause code:
     // conveniently, the ExcCode in Cause is already shifted left by 2.
@@ -344,7 +308,38 @@ if K_DEBUG {
     jr      t4
     nop
 KCodeDone:
+
+if K_DEBUG {
+    ori     a0, k0, K_XXD
+    sd      r0, 0x1B8(a0)
+    sd      r0, 0x1C0(a0)
+    sd      r0, 0x1C8(a0)
+    sd      r0, 0x1D0(a0)
+    sd      r0, 0x1D8(a0)
+    sd      r0, 0x1E0(a0)
+    sd      r0, 0x1E8(a0)
+    sd      r0, 0x1F0(a0)
+    sd      r0, 0x1F8(a0)
+    jal     DumpRegisters
+    lli     a1, 0x200
+
     KMaybeDumpString(KS_Newline)
+
+    ori     a0, k0, K_XXD
+    jal     Drive64Write
+    lli     a1, 0x200
+
+    KMaybeDumpString(KS_Newline)
+    KMaybeDumpString(KS_States)
+
+    ori     a0, k0, K_REASON
+    lli     a1, 0x80
+    ori     a2, k0, K_XXD
+    jal     DumpAndWrite
+    lli     a3, 0x80 * 4
+
+    KMaybeDumpString(KS_Newline)
+}
 
 ISR_Exit:
     sw      r0, K_IN_ISR(k0)
