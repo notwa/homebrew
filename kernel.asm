@@ -2,7 +2,6 @@
 // just handling some low-level stuff like interrupts.
 
 Start:
-    mtc0    r0, CP0_Cause // clear cause
     lui     gp, K_BASE
 
     // copy our interrupt handlers into place.
@@ -22,10 +21,22 @@ Start:
     bne     t1, t2,-
     addiu   t0, t0, 0x10
 
-    // enable SI and PI interrupts.
+    // do whatever this does.
+    li      a0, 0x01000800
+    ctc1    a0, CP1_FCSR
+    //
+    lui     a0, 0x0490
+    mtc0    a0, CP0_WatchLo // is this just anti-gameshark BS?
+
+    // initialize the N64 so it doesn't immediately die.
+    SI_WAIT()
     lui     a0, PIF_BASE
-    lli     t0, 8
-    sw      t0, PIF_RAM+0x3C(a0)
+    lw      t1, PIF_RAM+0x3C(a0)
+    SI_WAIT()
+    // the stuff above probably isn't really necessary.
+    lli     t1, 8
+    lui     a0, PIF_BASE
+    sw      t1, PIF_RAM+0x3C(a0)
 
     // enable CPU interrupts.
     mfc0    t1, CP0_Status
@@ -73,10 +84,10 @@ Start:
     sd      r0, 8(sp)
 
     // TODO: just wipe a portion of RAM?
-    //       or just DMA in the IH and our defaults from ROM...
+    //       or just DMA in the ISR and our defaults from ROM...
     sw      r0, K_64DRIVE_MAGIC(gp)
     sw      r0, K_REASON(gp)
-    sw      r0, K_IN_MAIN(gp)
+    sw      r0, K_IN_ISR(gp)
     sw      r0, K_CONSOLE_AVAILABLE(gp)
 
 Drive64Init:
@@ -121,30 +132,13 @@ Drive64Done:
 -
 define x(0)
 while {x} < 0x100 {
+    // TODO: is sw faster than sd?
     sd      r0, {x}(t0)
 evaluate x({x} + 8)
 }
     addiu   t0, 0x100
     bne     t0, t1,-
     nop
-
-    // delay to empty pipeline
-    nop
-    nop
-    nop
-    nop
-    nop
-
-    // try out an interrupt:
-//  sw      r0, 0(r0)
-//  nop
-//  mfc0    t1, CP0_Status
-//  ori     t1, 2
-//  mtc0    t1, CP0_Status
-//  la      t0, WipeRegisters
-//  mtc0    t0, CP0_EPC
-//  j       InterruptHandler
-//  nop
 
 WipeRegisters:
     // load up most registers with a dummy value for debugging
@@ -240,8 +234,7 @@ InterruptHandler:
     mfc0    k1, CP0_Cause
     sw      k1, K_CAUSE(k0)
 
-    // TODO: option to only store clobbered registers
-    // TODO: option to dump COP1 registers too (remember to check Status[FR])
+    // TODO: dump COP1 registers too (remember to check Status[FR])
 
     sd      r0, K_DUMP+0x00(k0) // intentional (it'd be weird if
                                 // r0 showed as nonzero in memory dumps)
@@ -281,25 +274,25 @@ InterruptHandler:
     sd      t0, K_DUMP+0x100(k0)
     sd      t1, K_DUMP+0x108(k0)
 
-    mfc0    k1, CP0_EPC // TODO: check that this is valid?
+    mfc0    k1, CP0_EPC // TODO: check validity?
     sw      k1, K_EPC(k0)
 
-    mfc0    k1, CP0_ErrorPC // TODO: check that this is valid?
+    mfc0    k1, CP0_ErrorPC // TODO: check validity?
     sw      k1, K_ERRORPC(k0)
 
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
-    // prevent recursive interrupts if IH_Main somehow causes an interrupt
-//  lw      t1, K_IN_MAIN(k0)
-//  bnez    t1, IH_Exit // TODO: reimplement properly
+    // prevent recursive interrupts if ISR_Main somehow causes an interrupt
+//  lw      t1, K_IN_ISR(k0)
+//  bnez    t1, ISR_Exit // TODO: reimplement properly
     lli     t0, 1
-    sw      t0, K_IN_MAIN(k0)
+    sw      t0, K_IN_ISR(k0)
 
     // be wary, this is a tiny temporary stack!
     ori     sp, k0, K_STACK
 
-IH_Main: // free to modify any GPR from here to IH_Exit
+ISR_Main: // free to modify any GPR from here to ISR_Exit
 
 if K_DEBUG {
     KMaybeDumpString(KS_Newline)
@@ -353,8 +346,8 @@ if K_DEBUG {
 KCodeDone:
     KMaybeDumpString(KS_Newline)
 
-IH_Exit:
-    sw      r0, K_IN_MAIN(k0)
+ISR_Exit:
+    sw      r0, K_IN_ISR(k0)
 
     lui     k0, K_BASE
     ld      t0, K_DUMP+0x100(k0)
@@ -408,17 +401,7 @@ ReturnFromInterrupt:
     ori     k1, k1, 1
     mtc0    k1, CP0_Status
 
-    // eret pseudo-code:
-    //if status & 4 then
-    //  jump to ErrorPC
-    //  clear status & 4
-    //elseif status & 2 then
-    //  jump to EPC
-    //  clear status & 2
-    //else
-    //  raise new exception???
-    //end
-    eret
+    eret // jump to EPC or ErrorPC depending on Status
     // no branch delay for eret
 
 KCode0:

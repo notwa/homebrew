@@ -7,7 +7,7 @@ constant K_DUMP(0x0400) // we save registers and state here
 constant K_REASON(0x0600)
 constant K_CAUSE(0x0604)
 constant K_STATUS(0x0608)
-constant K_IN_MAIN(0x060C)
+constant K_IN_ISR(0x060C)
 constant K_EPC(0x0610)
 constant K_ERRORPC(0x0614)
 constant K_BADVADDR(0x0618)
