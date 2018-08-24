@@ -81,6 +81,9 @@ include "dlist.asm" // takes a0
     jal     DumpAndWrite
     lli     a3, 0x80 * 4
 
+    jal     SetupScreen
+    nop
+
 Start3D:
     DisableInt()
 
@@ -126,10 +129,19 @@ Start3D:
     EnableInt()
 
 MainLoop:
-    j MainLoop
+    lui     a0, K_BASE
+    lw      t0, K_HISTORY(a0)
+    andi    t0, 0x08
+    beqz    t0, MainLoop
+    nop
+
+    MaybeDumpString(SNewFrame)
+
+    j       Start3D
     nop
 
 KSL(SWaiting, "Waiting on RSP...")
+KSL(SNewFrame, "next frame")
 
 SetupScreen:
 if HICOLOR {
