@@ -77,7 +77,7 @@ macro SP_BUSY_WAIT() {
 -
     lw      t0, SP_STATUS(a0)
     andi    t0, 0x1C
-    sltu    t0, r0, t0 // TODO: rewrite this
+    sltu    t0, r0, t0
     bnez    t0,-
     nop
 }

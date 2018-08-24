@@ -1,4 +1,20 @@
 macro EnableInt() {
+    // careful not to touch unrelated flags here
+    mfc0    t0, CP0_Status
+    addiu   at, r0, CP0_STATUS_IE
+    or      t0, at
+    mtc0    t0, CP0_Status
+}
+
+macro DisableInt() {
+    // careful not to touch unrelated flags here
+    mfc0    t0, CP0_Status
+    addiu   at, r0, ~CP0_STATUS_IE
+    and     t0, at
+    mtc0    t0, CP0_Status
+}
+
+macro SetIntMask() {
     lli     t0, MI_INTR_MASK_ALL_SET
     lui     a0, MI_BASE
     sw      t0, MI_INTR_MASK(a0)
@@ -9,7 +25,7 @@ macro EnableInt() {
     mtc0    t1, CP0_Status
 }
 
-macro DisableInt() {
+macro ClearIntMask() {
     lli     t0, MI_INTR_MASK_ALL_CLR
     lui     a0, MI_BASE
     sw      t0, MI_INTR_MASK(a0)

@@ -40,7 +40,7 @@ Start:
 
     // enable CPU interrupts.
     mfc0    t1, CP0_Status
-    ori     t1, t1, CP0_STATUS_IM_ALL
+    ori     t1, t1, CP0_STATUS_IM_ALL | CP0_STATUS_IE
     mtc0    t1, CP0_Status
 
     // enable even more interrupts.
@@ -440,7 +440,7 @@ K_MI_SP:
     lui     a1, SP_BASE
     sw      t0, SP_STATUS(a1)
 
-    // then check andi t1, SG1 | SG2 ?
+    // then check andi t1, SP_SG1 | SP_SG2 ?
 
     lw      t0, K_HISTORY(k0)
     ori     t0, 0x01

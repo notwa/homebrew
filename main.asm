@@ -85,7 +85,7 @@ include "dlist.asm" // takes a0
     nop
 
 Start3D:
-    DisableInt()
+    ClearIntMask()
 
     // stuff i'm borrowing from zelda:
     lui     a0, SP_BASE
@@ -126,7 +126,7 @@ Start3D:
     sw      t0, SP_STATUS(a0)
     nop
 
-    EnableInt()
+    SetIntMask()
 
 MainLoop:
     lui     a0, K_BASE
