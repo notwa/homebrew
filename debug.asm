@@ -160,7 +160,7 @@ macro DumpReg(offset) {
     lli     s3, 0x0A // ascii newline
 
 define DR_i(0)
-while {DR_i} < 32 {
+while {DR_i} < 16 {
     DumpReg({DR_i} * 8)
     sb      s2, 0(a0)
     addiu   a0, 1
@@ -169,7 +169,7 @@ while {DR_i} < 32 {
     sb      s3, 0(a0)
     addiu   a0, 1
     subiu   s0, 16 * 4 - 4
-    evaluate DR_i({DR_i} + 2)
+    evaluate DR_i({DR_i} + 1)
 }
 
     // dump HI and LO separately
