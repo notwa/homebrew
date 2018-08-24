@@ -664,7 +664,7 @@ label_182C:
     vcl     vec29,vec23,vec23[e7]
     sub     t0, t7, t3
     vmudl   vec29,vec21,vec5[e0]
-    dw      0x484A0800 // TODO: unknown instruction. similar to mfc2/mtc2
+    cfc2    t2, 1
     vmadm   vec29,vec2,vec5[e0]
     sdv     vec23[e8], 0x3E0(t0)
     vmadn   vec21,vec21,vec4[e0]
@@ -694,7 +694,7 @@ label_182C:
     vmadh   vec2,vec2,vec31[e15]
     sll     t3, t2, 4
     vcl     vec29,vec23,vec7[e7]
-    dw      0x484A0800 // TODO: unknown instruction. similar to mfc2/mtc2
+    cfc2    t2, 1
     vmudl   vec29,vec23,vec5[e7]
     ssv     vec5[e14], 0xFA(t0)
     vmadm   vec29,vec24,vec5[e7]
