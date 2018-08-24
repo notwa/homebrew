@@ -54,13 +54,11 @@ constant VI_MPAL_CLOCK(48628316) // MPAL: Hz = 48.628316 MHz
 
 macro ScreenNTSC(width,height, status, origin) {
   lui a0,VI_BASE // A0 = VI Base Register ($A4400000)
-  li t0,{status}      // T0 = Status/Control
-  sw t0,VI_STATUS(a0) // Store Status/Control To VI Status Register ($A4400000)
   la t0,{origin}      // T0 = Origin (Frame Buffer Origin In Bytes)
   sw t0,VI_ORIGIN(a0) // Store Origin To VI Origin Register ($A4400004)
   lli t0,{width}      // T0 = Width (Frame Buffer Line Width In Pixels)
   sw t0,VI_WIDTH(a0)  // Store Width To VI Width Register ($A4400008)
-  lli t0,$200         // T0 = Vertical Interrupt (Interrupt When Current Half-Line $200)
+  lli t0,$2           // T0 = Vertical Interrupt (Interrupt When Current Half-Line $2)
   sw t0,VI_V_INTR(a0) // Store Vertical Interrupt To VI Interrupt Register ($A440000C)
   lli t0,0                    // T0 = Current Vertical Line (Current Half-Line, Sampled Once Per Line = 0)
   sw t0,VI_V_CURRENT_LINE(a0) // Store Current Vertical Line To VI Current Register ($A4400010)
@@ -82,6 +80,8 @@ macro ScreenNTSC(width,height, status, origin) {
   sw t0,VI_X_SCALE(a0)        // Store X-Scale To VI X Scale Register ($A4400030)
   lli t0,($100*({height}/60)) // T0 = Y-Scale (Vertical Subpixel Offset In 2.10 Format = 0, 1/Vertical Scale Up Factor In 2.10 Format)
   sw t0,VI_Y_SCALE(a0)        // Store Y-Scale To VI Y Scale Register ($A4400034)
+  li t0,{status}      // T0 = Status/Control
+  sw t0,VI_STATUS(a0) // Store Status/Control To VI Status Register ($A4400000)
 }
 
 macro ScreenPAL(width,height, status, origin) {
@@ -90,7 +90,7 @@ macro ScreenPAL(width,height, status, origin) {
   sw t0,VI_ORIGIN(a0) // Store Origin To VI Origin Register ($A4400004)
   lli t0,{width}      // T0 = Width (Frame Buffer Line Width In Pixels)
   sw t0,VI_WIDTH(a0)  // Store Width To VI Width Register ($A4400008)
-  lli t0,$200         // T0 = Vertical Interrupt (Interrupt When Current Half-Line $200)
+  lli t0,$2           // T0 = Vertical Interrupt (Interrupt When Current Half-Line $2)
 //lli t0,2
   sw t0,VI_V_INTR(a0) // Store Vertical Interrupt To VI Interrupt Register ($A440000C)
   lli t0,0            // T0 = Current Vertical Line (Current Half-Line, Sampled Once Per Line = 0)
