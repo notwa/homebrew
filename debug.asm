@@ -1,5 +1,3 @@
-// debug routines for the 64drive, not a real devcart!
-
 Drive64Write:
     // a0: RAM address to copy from
     // a1: length of data to copy in bytes

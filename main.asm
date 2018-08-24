@@ -24,9 +24,6 @@ include "kernel.asm"
 
 Main:
     lui     s0, BLAH_BASE
-    mfc0    t1, CP0_Status
-    sw      t1, 8(s0)
-
     nop; nop; nop; nop
     mfc0    t0, CP0_Count
     sw      t0, BLAH_COUNTS+0(s0)
@@ -145,9 +142,9 @@ KSL(SNewFrame, "next frame")
 
 SetupScreen:
 if HICOLOR {
-    ScreenNTSC(WIDTH, HEIGHT, BPP32|INTERLACE|AA_MODE_2|PIXEL_ADV_3, VIDEO_C_BUFFER | UNCACHED)
+    ScreenNTSC(WIDTH, HEIGHT, BPP32|INTERLACE|AA_MODE_2, VIDEO_C_BUFFER | UNCACHED)
 } else {
-    ScreenNTSC(WIDTH, HEIGHT, BPP16|AA_MODE_2|PIXEL_ADV_3, VIDEO_C_BUFFER | UNCACHED)
+    ScreenNTSC(WIDTH, HEIGHT, BPP16|AA_MODE_2, VIDEO_C_BUFFER | UNCACHED)
 }
     jr      ra
     nop
