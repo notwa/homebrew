@@ -595,12 +595,12 @@ KSL(KS_Code29, "RESERVED 29")
 KSL(KS_Code30, "RESERVED 30")
 KSL(KS_Code31, "RESERVED 31")
 
-KSL(KS_MI_SP, "    Signal Processor Interrupt")
-KSL(KS_MI_SI, "    Serial Interface Interrupt")
-KSL(KS_MI_AI, "    Audio Interface Interrupt")
-KSL(KS_MI_VI, "    Video Interface Interrupt")
-KSL(KS_MI_PI, "    Peripheral Interface Interrupt")
-KSL(KS_MI_DP, "    Display Processor Interrupt")
+KSL(KS_MI_SP, "  * Signal Processor Interrupt")
+KSL(KS_MI_SI, "  * Serial Interface Interrupt")
+KSL(KS_MI_AI, "  * Audio Interface Interrupt")
+KSL(KS_MI_VI, "  * Video Interface Interrupt")
+KSL(KS_MI_PI, "  * Peripheral Interface Interrupt")
+KSL(KS_MI_DP, "  * Display Processor Interrupt")
 }
 
 align(4)
