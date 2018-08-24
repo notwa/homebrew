@@ -283,6 +283,8 @@ InterruptHandler:
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
+    sw      r0, K_REASON+0x1C(k0)
+
     // prevent recursive interrupts if ISR_Main somehow causes an interrupt
 //  lw      t1, K_IN_ISR(k0)
 //  bnez    t1, ISR_Exit // TODO: reimplement properly
@@ -333,10 +335,10 @@ if K_DEBUG {
     KMaybeDumpString(KS_States)
 
     ori     a0, k0, K_REASON
-    lli     a1, 0x80
+    lli     a1, 0x20
     ori     a2, k0, K_XXD
     jal     DumpAndWrite
-    lli     a3, 0x80 * 4
+    lli     a3, 0x20 * 4
 
     KMaybeDumpString(KS_Newline)
 }
