@@ -23,8 +23,6 @@ if origin() != 0x1000 {
 include "kernel.asm"
 
 Main:
-    lui     t0, K_BASE
-
     lui     s0, BLAH_BASE
     mfc0    t1, CP0_Status
     sw      t1, 8(s0)
@@ -57,11 +55,7 @@ Main:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
-    KMaybeDumpString(KS_Newline)
-
-InitVideo:
-    jal     SetupScreen
-    nop
+//  KMaybeDumpString(KS_Newline)
 
 Test3D:
     // write the jump to our actual instructions
@@ -120,7 +114,7 @@ Start3D:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x40 * 4
-    KMaybeDumpString(KS_Newline)
+//  KMaybeDumpString(KS_Newline)
 
     SP_BUSY_WAIT()
 
@@ -135,24 +129,12 @@ Start3D:
     sw      t0, SP_STATUS(a0)
     nop
 
+    jal     SetupScreen
+    nop
+
     EnableInt()
 
 MainLoop:
-    // borrowing code from krom for now:
-    WaitScanline(0x1E0) // Wait For Scanline To Reach Vertical Blank
-    WaitScanline(0x1E2)
-    // WaitScanline sets a0
-
-    li      t0, 0x00000800 // Even Field
-    sw      t0, VI_Y_SCALE(a0)
-
-    WaitScanline(0x1E0) // Wait For Scanline To Reach Vertical Blank
-    WaitScanline(0x1E2)
-    // WaitScanline sets a0
-
-    li      t0, 0x02000800 // Odd Field
-    sw      t0, VI_Y_SCALE(a0)
-
     j MainLoop
     nop
 

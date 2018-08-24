@@ -40,7 +40,6 @@ if K_DEBUG {
 
 macro KMaybeDumpString(str) {
 if K_DEBUG {
-    lui     k0, K_BASE
     lw      t1, K_CONSOLE_AVAILABLE(k0)
     beqz    t1,+
     KDumpString({str})
