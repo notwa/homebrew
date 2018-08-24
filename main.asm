@@ -154,10 +154,14 @@ MainLoop:
     sw      t0, VI_Y_SCALE(a0)
 
     j MainLoop
-    nop // delay slot
+    nop
 
 SetupScreen:
-    ScreenNTSC(640, 480, BPP32|INTERLACE|AA_MODE_2, VIDEO_C_BUFFER | UNCACHED)
+if HICOLOR {
+    ScreenNTSC(WIDTH, HEIGHT, BPP32|INTERLACE|AA_MODE_2|PIXEL_ADV_3, VIDEO_C_BUFFER | UNCACHED)
+} else {
+    ScreenNTSC(WIDTH, HEIGHT, BPP16|AA_MODE_2|PIXEL_ADV_3, VIDEO_C_BUFFER | UNCACHED)
+}
     jr      ra
     nop
 
