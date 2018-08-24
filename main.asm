@@ -55,7 +55,7 @@ Main:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
-//  KMaybeDumpString(KS_Newline)
+    MaybeDumpString(KS_Newline)
 
 Test3D:
     // write the jump to our actual instructions
@@ -90,6 +90,7 @@ Start3D:
     sw      t0, SP_STATUS(a0)
 
     // wait
+    MaybeDumpString(SWaiting)
     lui     a0, SP_BASE
 -
     lw      t0, SP_STATUS(a0)
@@ -107,20 +108,13 @@ Start3D:
     jal     PushVideoTask
     ori     a0, a0, BLAH_SP_TASK
 
-    // take a peek at the Task data we wrote
-    lui     a0, BLAH_BASE
-    ori     a0, a0, BLAH_SP_TASK
-    lli     a1, 0x40
-    ori     a2, a0, BLAH_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x40 * 4
-//  KMaybeDumpString(KS_Newline)
-
+    MaybeDumpString(SWaiting)
     SP_BUSY_WAIT()
 
     jal     LoadRSPBoot
     nop
 
+    MaybeDumpString(SWaiting)
     SP_BUSY_WAIT()
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
@@ -129,14 +123,13 @@ Start3D:
     sw      t0, SP_STATUS(a0)
     nop
 
-    jal     SetupScreen
-    nop
-
     EnableInt()
 
 MainLoop:
     j MainLoop
     nop
+
+KSL(SWaiting, "Waiting on RSP...")
 
 SetupScreen:
 if HICOLOR {

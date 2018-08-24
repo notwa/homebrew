@@ -118,7 +118,7 @@ Drive64Confirmed:
 Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
-    KDumpString(KS_ConsoleConfirmed)
+    DumpString(KS_ConsoleConfirmed)
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(gp)
