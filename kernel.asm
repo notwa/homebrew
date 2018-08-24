@@ -118,7 +118,7 @@ Drive64Confirmed:
 Drive64CheckConsole:
     // NOTE: we only check at boot, so disconnecting the console
     //       while running will cause a ton of lag (timeouts) until reset.
-    DumpString(KS_ConsoleConfirmed)
+    _WriteString(KS_ConsoleConfirmed)
     lli     t0, 1
     beqzl   v0, Drive64Done
     sw      t0, K_CONSOLE_AVAILABLE(gp)
@@ -296,9 +296,9 @@ InterruptHandler:
 
 ISR_Main: // free to modify any GPR from here to ISR_Exit
 
-    KMaybeDumpString(KS_Newline)
-    KMaybeDumpString(KS_Handling)
-    KMaybeDumpString(KS_Code)
+    KWriteString(KS_Newline)
+    KWriteString(KS_Handling)
+    KWriteString(KS_Code)
 
     // switch-case on the cause code:
     // conveniently, the ExcCode in Cause is already shifted left by 2.
@@ -325,14 +325,14 @@ if K_DEBUG {
     jal     DumpRegisters
     lli     a1, 0x200
 
-    KMaybeDumpString(KS_Newline)
+    KWriteString(KS_Newline)
 
     ori     a0, k0, K_XXD
     jal     Drive64Write
     lli     a1, 0x200
 
-    KMaybeDumpString(KS_Newline)
-    KMaybeDumpString(KS_States)
+    KWriteString(KS_Newline)
+    KWriteString(KS_States)
 
     ori     a0, k0, K_REASON
     lli     a1, 0x20
@@ -340,7 +340,7 @@ if K_DEBUG {
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
 
-    KMaybeDumpString(KS_Newline)
+    KWriteString(KS_Newline)
 }
 
 ISR_Exit:
@@ -402,7 +402,7 @@ ReturnFromInterrupt:
     // no branch delay for eret
 
 KCode0:
-    KMaybeDumpString(KS_Code0)
+    KWriteString(KS_Code0)
 
 K_MI_Loop:
     lui     a0, MI_BASE
@@ -434,7 +434,7 @@ K_MI_Loop:
     nop
 
 K_MI_SP:
-    KMaybeDumpString(KS_MI_SP)
+    KWriteString(KS_MI_SP)
 
     lli     t0, SP_SG3_CLR | SP_INT_CLR // delay slot
     lui     a1, SP_BASE
@@ -449,7 +449,7 @@ K_MI_SP:
     andi    s0, ~MI_INTR_SP
 
 K_MI_SI:
-    KMaybeDumpString(KS_MI_SI)
+    KWriteString(KS_MI_SI)
 
     lui     a1, SI_BASE
     sw      r0, SI_STATUS(a1)
@@ -461,7 +461,7 @@ K_MI_SI:
     andi    s0, ~MI_INTR_SI
 
 K_MI_AI:
-    KMaybeDumpString(KS_MI_AI)
+    KWriteString(KS_MI_AI)
 
     lli     t0, 0x01
     lui     a1, AI_BASE
@@ -474,7 +474,7 @@ K_MI_AI:
     andi    s0, ~MI_INTR_AI
 
 K_MI_VI:
-    KMaybeDumpString(KS_MI_VI)
+    KWriteString(KS_MI_VI)
 
     lui     a1, VI_BASE
     sw      r0, VI_V_CURRENT_LINE(a1)
@@ -486,7 +486,7 @@ K_MI_VI:
     andi    s0, ~MI_INTR_VI
 
 K_MI_PI:
-    KMaybeDumpString(KS_MI_PI)
+    KWriteString(KS_MI_PI)
 
     lli     t0, 0x02
     lui     a1, PI_BASE
@@ -499,7 +499,7 @@ K_MI_PI:
     andi    s0, ~MI_INTR_PI
 
 K_MI_DP:
-    KMaybeDumpString(KS_MI_DP)
+    KWriteString(KS_MI_DP)
 
     lli     t0, 0x800
     lui     a1, MI_BASE
@@ -511,37 +511,37 @@ K_MI_DP:
     j       K_MI_Loop
     andi    s0, ~MI_INTR_DP
 
-KCode1:; KMaybeDumpString(KS_Code1); j   KCodeDone; nop
-KCode2:; KMaybeDumpString(KS_Code2); j   KCodeDone; nop
-KCode3:; KMaybeDumpString(KS_Code3); j   KCodeDone; nop
-KCode4:; KMaybeDumpString(KS_Code4); j   KCodeDone; nop
-KCode5:; KMaybeDumpString(KS_Code5); j   KCodeDone; nop
-KCode6:; KMaybeDumpString(KS_Code6); j   KCodeDone; nop
-KCode7:; KMaybeDumpString(KS_Code7); j   KCodeDone; nop
-KCode8:; KMaybeDumpString(KS_Code8); j   KCodeDone; nop
-KCode9:; KMaybeDumpString(KS_Code9); j   KCodeDone; nop
-KCode10:; KMaybeDumpString(KS_Code10); j   KCodeDone; nop
-KCode11:; KMaybeDumpString(KS_Code11); j   KCodeDone; nop
-KCode12:; KMaybeDumpString(KS_Code12); j   KCodeDone; nop
-KCode13:; KMaybeDumpString(KS_Code13); j   KCodeDone; nop
-KCode14:; KMaybeDumpString(KS_Code14); j   KCodeDone; nop
-KCode15:; KMaybeDumpString(KS_Code15); j   KCodeDone; nop
-KCode16:; KMaybeDumpString(KS_Code16); j   KCodeDone; nop
-KCode17:; KMaybeDumpString(KS_Code17); j   KCodeDone; nop
-KCode18:; KMaybeDumpString(KS_Code18); j   KCodeDone; nop
-KCode19:; KMaybeDumpString(KS_Code19); j   KCodeDone; nop
-KCode20:; KMaybeDumpString(KS_Code20); j   KCodeDone; nop
-KCode21:; KMaybeDumpString(KS_Code21); j   KCodeDone; nop
-KCode22:; KMaybeDumpString(KS_Code22); j   KCodeDone; nop
-KCode23:; KMaybeDumpString(KS_Code23); j   KCodeDone; nop
-KCode24:; KMaybeDumpString(KS_Code24); j   KCodeDone; nop
-KCode25:; KMaybeDumpString(KS_Code25); j   KCodeDone; nop
-KCode26:; KMaybeDumpString(KS_Code26); j   KCodeDone; nop
-KCode27:; KMaybeDumpString(KS_Code27); j   KCodeDone; nop
-KCode28:; KMaybeDumpString(KS_Code28); j   KCodeDone; nop
-KCode29:; KMaybeDumpString(KS_Code29); j   KCodeDone; nop
-KCode30:; KMaybeDumpString(KS_Code30); j   KCodeDone; nop
-KCode31:; KMaybeDumpString(KS_Code31); j   KCodeDone; nop
+KCode1:; KWriteString(KS_Code1); j   KCodeDone; nop
+KCode2:; KWriteString(KS_Code2); j   KCodeDone; nop
+KCode3:; KWriteString(KS_Code3); j   KCodeDone; nop
+KCode4:; KWriteString(KS_Code4); j   KCodeDone; nop
+KCode5:; KWriteString(KS_Code5); j   KCodeDone; nop
+KCode6:; KWriteString(KS_Code6); j   KCodeDone; nop
+KCode7:; KWriteString(KS_Code7); j   KCodeDone; nop
+KCode8:; KWriteString(KS_Code8); j   KCodeDone; nop
+KCode9:; KWriteString(KS_Code9); j   KCodeDone; nop
+KCode10:; KWriteString(KS_Code10); j   KCodeDone; nop
+KCode11:; KWriteString(KS_Code11); j   KCodeDone; nop
+KCode12:; KWriteString(KS_Code12); j   KCodeDone; nop
+KCode13:; KWriteString(KS_Code13); j   KCodeDone; nop
+KCode14:; KWriteString(KS_Code14); j   KCodeDone; nop
+KCode15:; KWriteString(KS_Code15); j   KCodeDone; nop
+KCode16:; KWriteString(KS_Code16); j   KCodeDone; nop
+KCode17:; KWriteString(KS_Code17); j   KCodeDone; nop
+KCode18:; KWriteString(KS_Code18); j   KCodeDone; nop
+KCode19:; KWriteString(KS_Code19); j   KCodeDone; nop
+KCode20:; KWriteString(KS_Code20); j   KCodeDone; nop
+KCode21:; KWriteString(KS_Code21); j   KCodeDone; nop
+KCode22:; KWriteString(KS_Code22); j   KCodeDone; nop
+KCode23:; KWriteString(KS_Code23); j   KCodeDone; nop
+KCode24:; KWriteString(KS_Code24); j   KCodeDone; nop
+KCode25:; KWriteString(KS_Code25); j   KCodeDone; nop
+KCode26:; KWriteString(KS_Code26); j   KCodeDone; nop
+KCode27:; KWriteString(KS_Code27); j   KCodeDone; nop
+KCode28:; KWriteString(KS_Code28); j   KCodeDone; nop
+KCode29:; KWriteString(KS_Code29); j   KCodeDone; nop
+KCode30:; KWriteString(KS_Code30); j   KCodeDone; nop
+KCode31:; KWriteString(KS_Code31); j   KCodeDone; nop
 
 KCodes:
 dw      KCode0, KCode1, KCode2, KCode3

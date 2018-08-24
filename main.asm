@@ -55,7 +55,7 @@ Main:
     ori     a2, a0, BLAH_XXD
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
-    MaybeDumpString(KS_Newline)
+    WriteString(KS_Newline)
 
 Test3D:
     // write the jump to our actual instructions
@@ -93,7 +93,7 @@ Start3D:
     sw      t0, SP_STATUS(a0)
 
     // wait
-    MaybeDumpString(SWaiting)
+    WriteString(SWaiting)
     lui     a0, SP_BASE
 -
     lw      t0, SP_STATUS(a0)
@@ -111,13 +111,13 @@ Start3D:
     jal     PushVideoTask
     ori     a0, a0, BLAH_SP_TASK
 
-    MaybeDumpString(SWaiting)
+    WriteString(SWaiting)
     SP_BUSY_WAIT()
 
     jal     LoadRSPBoot
     nop
 
-    MaybeDumpString(SWaiting)
+    WriteString(SWaiting)
     SP_BUSY_WAIT()
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
@@ -135,7 +135,7 @@ MainLoop:
     beqz    t0, MainLoop
     nop
 
-    MaybeDumpString(SNewFrame)
+    WriteString(SNewFrame)
 
     j       Start3D
     nop

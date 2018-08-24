@@ -29,7 +29,7 @@ constant K_INT_XTLB_REFILL(2)
 constant K_INT_CACHE_ERROR(3)
 constant K_INT_OTHER(4)
 
-macro DumpString(name) {
+macro _WriteString(name) {
 if K_DEBUG {
     // does not include error/console-checking!
     // note: this first instruction must be okay to be in a delay slot.
@@ -39,21 +39,21 @@ if K_DEBUG {
 }
 }
 
-macro MaybeDumpString(str) {
+macro WriteString(str) {
 if K_DEBUG {
     lui     t0, K_BASE
     lw      t1, K_CONSOLE_AVAILABLE(t0)
     beqz    t1,+
-    DumpString({str})
+    _WriteString({str})
 +
 }
 }
 
-macro KMaybeDumpString(str) {
+macro KWriteString(str) {
 if K_DEBUG {
     lw      t1, K_CONSOLE_AVAILABLE(k0)
     beqz    t1,+
-    DumpString({str})
+    _WriteString({str})
 +
 }
 }
