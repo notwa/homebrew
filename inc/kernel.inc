@@ -11,6 +11,7 @@ constant K_IN_ISR(0x060C)
 constant K_EPC(0x0610)
 constant K_ERRORPC(0x0614)
 constant K_BADVADDR(0x0618)
+constant K_HISTORY(0x061C)
 
 constant K_64DRIVE_MAGIC(0x0700)
 constant K_CI_BASE(0x0704)

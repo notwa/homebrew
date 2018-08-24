@@ -283,7 +283,7 @@ InterruptHandler:
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
-    sw      r0, K_REASON+0x1C(k0)
+    sw      r0, K_HISTORY(k0)
 
     // prevent recursive interrupts if ISR_Main somehow causes an interrupt
 //  lw      t1, K_IN_ISR(k0)
@@ -442,6 +442,9 @@ K_MI_SP:
 
     // then check andi t1, SG1 | SG2 ?
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x01
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_SP
 
@@ -451,6 +454,9 @@ K_MI_SI:
     lui     a1, SI_BASE
     sw      r0, SI_STATUS(a1)
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x02
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_SI
 
@@ -461,6 +467,9 @@ K_MI_AI:
     lui     a1, AI_BASE
     sw      t0, AI_STATUS(a1)
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x04
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_AI
 
@@ -470,6 +479,9 @@ K_MI_VI:
     lui     a1, VI_BASE
     sw      r0, VI_V_CURRENT_LINE(a1)
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x08
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_VI
 
@@ -480,6 +492,9 @@ K_MI_PI:
     lui     a1, PI_BASE
     sw      t0, PI_STATUS(a1)
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x10
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_PI
 
@@ -490,6 +505,9 @@ K_MI_DP:
     lui     a1, MI_BASE
     sw      t0, MI_INIT_MODE(a1)
 
+    lw      t0, K_HISTORY(k0)
+    ori     t0, 0x20
+    sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_DP
 
