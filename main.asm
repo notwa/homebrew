@@ -244,6 +244,6 @@ align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
 align(16); insert FONT, "res/dwarf.1bpp"
 align(16); insert LZ_BAKU, "res/Image.baku.lzss"
 
-if pc() > 0x80100000 {
-    error "ran out of space writing main code and data"
+if pc() > (BLAH_BASE << 16) {
+    error "ran out of memory for code and data"
 }
