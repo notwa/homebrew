@@ -23,10 +23,10 @@ if origin() != 0x1000 {
 include "kernel.asm"
 
 Main:
-    lui     s0, BLAH_BASE
+    lui     s0, MAIN_BASE
     nop; nop; nop; nop
     mfc0    t0, CP0_Count
-    sw      t0, BLAH_COUNTS+0(s0)
+    sw      t0, MAIN_COUNTS+0(s0)
 
     // decompress our picture
     la      a0, LZ_BAKU + 4
@@ -39,28 +39,28 @@ Main:
     mfc0    t0, CP0_Count
     nop; nop; nop; nop
 
-    lw      t1, BLAH_COUNTS+0x0(s0)
-    sw      t0, BLAH_COUNTS+0x4(s0)
+    lw      t1, MAIN_COUNTS+0x0(s0)
+    sw      t0, MAIN_COUNTS+0x4(s0)
     subu    t1, t0, t1
-    sw      t1, BLAH_COUNTS+0xC(s0)
+    sw      t1, MAIN_COUNTS+0xC(s0)
 
     jal     PokeDataCache
     nop
 
-    lui     a0, BLAH_BASE
+    lui     a0, MAIN_BASE
     lli     a1, 0x20
-    ori     a2, a0, BLAH_XXD
+    ori     a2, a0, MAIN_XXD
     jal     DumpAndWrite
     lli     a3, 0x20 * 4
     WriteString(KS_Newline)
 
 Test3D:
     // write the jump to our actual instructions
-    lui     a0, BLAH_BASE
+    lui     a0, MAIN_BASE
     lui     t0, 0xDE01 // jump (no push)
-    ori     t1, a0, BLAH_DLIST
-    sw      t0, BLAH_DLIST_JUMPER+0(a0)
-    sw      t1, BLAH_DLIST_JUMPER+4(a0)
+    ori     t1, a0, MAIN_DLIST
+    sw      t0, MAIN_DLIST_JUMPER+0(a0)
+    sw      t1, MAIN_DLIST_JUMPER+4(a0)
 
     jal     SetupScreen
     nop
@@ -68,8 +68,8 @@ Test3D:
     lli     s1, 1 // s1: which color buffer we're writing to (1: alt)
 
 Start3D:
-    lui     a0, BLAH_BASE
-    ori     a0, BLAH_DLIST
+    lui     a0, MAIN_BASE
+    ori     a0, MAIN_DLIST
     jal     WriteDList
     or      a1, s1, r0
     jal     PokeDataCache
@@ -95,9 +95,9 @@ Start3D:
     // only the lowest 12 bits are used, so 00000000 is equivalent to 04001000.
     sw      r0, SP_PC(a0)
 
-    lui     a0, BLAH_BASE
+    lui     a0, MAIN_BASE
     jal     PushVideoTask
-    ori     a0, a0, BLAH_SP_TASK
+    ori     a0, a0, MAIN_SP_TASK
 
     SP_BUSY_WAIT()
 
@@ -149,7 +149,6 @@ SwitchToAlt:
     j       Start3D
     lli     s1, 1
 
-KSL(SWaiting, "Waiting on RSP...")
 KSL(SNewFrame, "next frame")
 
 SetupScreen:
@@ -186,7 +185,7 @@ PushVideoTask:
     li      t1, VIDEO_STACK_SIZE
     li      t2, VIDEO_SOMETHING & ADDR_MASK
     li      t3, (VIDEO_SOMETHING & ADDR_MASK) + VIDEO_SOMETHING_SIZE // end pointer (not size!)
-    li      t4, ((BLAH_BASE << 16) | BLAH_DLIST_JUMPER) & ADDR_MASK // initial DList
+    li      t4, ((MAIN_BASE << 16) | MAIN_DLIST_JUMPER) & ADDR_MASK // initial DList
     lli     t5, 8 // size of one jump command. this is ignored and 0xA8 is used instead
     li      t6, VIDEO_YIELD & ADDR_MASK
     li      t7, VIDEO_YIELD_SIZE
@@ -244,6 +243,6 @@ align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
 align(16); insert FONT, "res/dwarf.1bpp"
 align(16); insert LZ_BAKU, "res/Image.baku.lzss"
 
-if pc() > (BLAH_BASE << 16) {
+if pc() > (MAIN_BASE << 16) {
     error "ran out of memory for code and data"
 }

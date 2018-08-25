@@ -1,13 +1,13 @@
 // settings:
 constant K_DEBUG(0) // slows down interrupt handling to enable debug routines
 
-constant BLAH_BASE(0x800E)
-constant BLAH_COUNTS(0x0010)
-constant BLAH_SP_TASK(0x0040)
-constant BLAH_XXD(0x0080)
-constant BLAH_DLIST(0x1000)
-constant BLAH_DLIST_SIZE(0xF000)
-constant BLAH_DLIST_JUMPER(BLAH_DLIST - 0xA8)
+constant MAIN_BASE(0x800E)
+constant MAIN_COUNTS(0x0010)
+constant MAIN_SP_TASK(0x0040)
+constant MAIN_XXD(0x0080)
+constant MAIN_DLIST(0x1000)
+constant MAIN_DLIST_SIZE(0xF000)
+constant MAIN_DLIST_JUMPER(MAIN_DLIST - 0xA8)
 
 // video settings
 constant WIDTH(640)
@@ -29,6 +29,6 @@ constant VIDEO_STACK(VIDEO_SOMETHING - VIDEO_STACK_SIZE)
 constant VIDEO_YIELD(VIDEO_STACK - VIDEO_YIELD_SIZE)
 constant VIDEO_START(VIDEO_YIELD)
 
-if VIDEO_START < (BLAH_BASE << 16) + 0x10000 {
+if VIDEO_START < (MAIN_BASE << 16) + 0x10000 {
     error "ran out of memory for video"
 }
