@@ -1,9 +1,6 @@
-// write some F3DZEX instructions to a0
-// clobbers t0,t1,a0
-
-constant WIDTH(320)
-constant HEIGHT(240)
-constant HICOLOR(0)
+WriteDList:
+    // a0: pointer to receive F3DZEX instructions
+    // a1: use alt color buffer (boolean)
 
 define dpos(0)
 
@@ -35,7 +32,6 @@ if {dpos} >= 0x8000 {
     // G_AD_DISABLE | G_CD_MAGICSQ | G_TC_FILT | G_TF_BILERP |
     // G_TT_NONE | G_TL_TILE | G_TD_CLAMP | G_MDSFT_TEXTPERSP |
     // G_CYC_FILL | G_PM_NPRIMITIVE
-    // TODO: try running without this
     WriteDL(0xEF382C30, 0x00000000)
 
     // G_GEOMETRYMODE
@@ -74,10 +70,19 @@ if {dpos} >= 0x8000 {
 
     // G_SETCIMG, set our color buffer
 if HICOLOR {
-    WriteDL(0xFF180000 | (WIDTH - 1), VIDEO_C_BUFFER)
+constant G_SETCIMB_UPPER_WORD(0xFF180000)
 } else {
-    WriteDL(0xFF100000 | (WIDTH - 1), VIDEO_C_BUFFER)
+constant G_SETCIMB_UPPER_WORD(0xFF100000)
 }
+    bnez    a1,+
+    nop
+    WriteDL(G_SETCIMB_UPPER_WORD | (WIDTH - 1), VIDEO_C_BUFFER)
+    b       DListDoneColorImage
+    nop
++
+global evaluate dpos({dpos}-8) // move pos back so we can overwrite with alt
+    WriteDL(G_SETCIMB_UPPER_WORD | (WIDTH - 1), VIDEO_C_BUFFER_ALT)
+DListDoneColorImage:
 
     WriteDL(0xF8000000, 0x0A0A0A00) // G_SETFOGCOLOR
     WriteDL(0xDB080000, 0x3E80C280) // set fog distance (float?)
@@ -104,3 +109,8 @@ if HICOLOR {
     WriteDL(0xE9000000, 0)
     // G_ENDDL
     WriteDL(0xDF000000, 0)
+
+    jr  ra
+    nop
+
+print {dpos} / 8, "\n"

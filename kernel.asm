@@ -89,6 +89,7 @@ Start:
     sw      r0, K_REASON(gp)
     sw      r0, K_IN_ISR(gp)
     sw      r0, K_CONSOLE_AVAILABLE(gp)
+    sw      r0, K_HISTORY(gp)
 
 Drive64Init:
     lui     t9, CI_BASE
@@ -283,8 +284,6 @@ InterruptHandler:
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
-    sw      r0, K_HISTORY(k0)
-
     // prevent recursive interrupts if ISR_Main somehow causes an interrupt
 //  lw      t1, K_IN_ISR(k0)
 //  bnez    t1, ISR_Exit // TODO: reimplement properly
@@ -443,7 +442,7 @@ K_MI_SP:
     // then check andi t1, SP_SG1 | SP_SG2 ?
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x01
+    ori     t0, MI_INTR_SP
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_SP
@@ -455,7 +454,7 @@ K_MI_SI:
     sw      r0, SI_STATUS(a1)
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x02
+    ori     t0, MI_INTR_SI
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_SI
@@ -468,7 +467,7 @@ K_MI_AI:
     sw      t0, AI_STATUS(a1)
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x04
+    ori     t0, MI_INTR_AI
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_AI
@@ -480,7 +479,7 @@ K_MI_VI:
     sw      r0, VI_V_CURRENT_LINE(a1)
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x08
+    ori     t0, MI_INTR_VI
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_VI
@@ -493,7 +492,7 @@ K_MI_PI:
     sw      t0, PI_STATUS(a1)
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x10
+    ori     t0, MI_INTR_PI
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_PI
@@ -506,7 +505,7 @@ K_MI_DP:
     sw      t0, MI_INIT_MODE(a1)
 
     lw      t0, K_HISTORY(k0)
-    ori     t0, 0x20
+    ori     t0, MI_INTR_DP
     sw      t0, K_HISTORY(k0)
     j       K_MI_Loop
     andi    s0, ~MI_INTR_DP

@@ -62,35 +62,27 @@ Test3D:
     sw      t0, BLAH_DLIST_JUMPER+0(a0)
     sw      t1, BLAH_DLIST_JUMPER+4(a0)
 
-    lui     a0, BLAH_BASE
-    ori     a0, BLAH_DLIST
-
-include "dlist.asm" // takes a0
-
-    jal     PokeCaches
-    nop
-
-    // take a peek at the display list we wrote
-    lui     a0, BLAH_BASE
-    ori     a0, BLAH_DLIST
-    lli     a1, 0x80
-    ori     a2, a0, BLAH_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x80 * 4
-
     jal     SetupScreen
     nop
 
+    lli     s1, 1 // s1: which color buffer we're writing to (1: alt)
+
 Start3D:
+    lui     a0, BLAH_BASE
+    ori     a0, BLAH_DLIST
+    jal     WriteDList
+    or      a1, s1, r0
+    jal     PokeDataCache
+    nop
+
     ClearIntMask()
 
-    // stuff i'm borrowing from zelda:
+    // prepare RSP
     lui     a0, SP_BASE
     lli     t0, SP_SG2_CLR | SP_SG1_CLR | SP_SG0_CLR | SP_IOB_SET
     sw      t0, SP_STATUS(a0)
 
     // wait
-    WriteString(SWaiting)
     lui     a0, SP_BASE
 -
     lw      t0, SP_STATUS(a0)
@@ -100,21 +92,18 @@ Start3D:
 
     // set RSP PC to IMEM+$0
     lui     a0, SP_PC_BASE
-    //sw      r0, SP_PC(a0)
-    li      t0, 0x04001000
-    sw      t0, SP_PC(a0)
+    // only the lowest 12 bits are used, so 00000000 is equivalent to 04001000.
+    sw      r0, SP_PC(a0)
 
     lui     a0, BLAH_BASE
     jal     PushVideoTask
     ori     a0, a0, BLAH_SP_TASK
 
-    WriteString(SWaiting)
     SP_BUSY_WAIT()
 
     jal     LoadRSPBoot
     nop
 
-    WriteString(SWaiting)
     SP_BUSY_WAIT()
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
@@ -126,16 +115,39 @@ Start3D:
     SetIntMask()
 
 MainLoop:
-    lui     a0, K_BASE
-    lw      t0, K_HISTORY(a0)
-    andi    t0, 0x08
-    beqz    t0, MainLoop
+    // wait on SP
+    lui     a0, SP_BASE
+-
+    lw      t0, SP_STATUS(a0)
+    andi    t0, 1
+    beqz    t0,-
+    nop
+
+    // wait on VI too
+-
+    lui     t0, VI_BASE
+    lw      t0, VI_V_CURRENT_LINE(t0)
+    // until line <= 10
+    sltiu   t0, 11
+    beqz    t0,-
     nop
 
     WriteString(SNewFrame)
 
-    j       Start3D
+    // swap buffers
+    lui     a0, VI_BASE
+    beqz    s1, SwitchToAlt
     nop
+SwitchToMain:
+    la      t0, VIDEO_C_BUFFER_ALT
+    sw      t0, VI_ORIGIN(a0)
+    j       Start3D
+    lli     s1, 0
+SwitchToAlt:
+    la      t0, VIDEO_C_BUFFER
+    sw      t0, VI_ORIGIN(a0)
+    j       Start3D
+    lli     s1, 1
 
 KSL(SWaiting, "Waiting on RSP...")
 KSL(SNewFrame, "next frame")
@@ -155,7 +167,7 @@ PushVideoTask:
     sw      ra, 0x10(sp)
 
     lli     t0, 1 // mode: video
-    lli     t1, 4 // flags: ???
+    lli     t1, 2 // flags: ???
     li      t2, F3DZEX_BOOT // does not need masking for some reason
     li      t3, F3DZEX_BOOT.size
     li      t4, F3DZEX_IMEM & ADDR_MASK
@@ -224,9 +236,14 @@ LoadRSPBoot:
     nop
 
 include "lzss.baku.unsafe.asm"
+include "dlist.asm"
 
 align(16); insert F3DZEX_BOOT, "bin/F3DZEX2.boot.bin"
 align(16); insert F3DZEX_DMEM, "bin/F3DZEX2.data.bin"
 align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
 align(16); insert FONT, "res/dwarf.1bpp"
 align(16); insert LZ_BAKU, "res/Image.baku.lzss"
+
+if pc() > 0x80100000 {
+    error "ran out of space writing main code and data"
+}
