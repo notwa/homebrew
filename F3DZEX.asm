@@ -583,6 +583,7 @@ label_14A8:
     bnez    a2, label_12D8
     andi    a3, a1, 0x1
 
+label_17BC:
     bnez    t0,+
     sll     a3, a3, 3
 
@@ -635,6 +636,7 @@ label_182C:
 
     vge     vec27,vec25,vec31[e11]
     llv     vec22[e4], 0x18(t6)
+label_1870:
     vge     vec3,vec25,vec0[e8]
     addi    at, at, 0xFFFC
     vmudl   vec29,vec23,vec18[e12]
@@ -1273,3 +1275,326 @@ label_1124:
     lw      t9, 0x0C8(r0)
     j       label_1210
     lw      t8, 0x0CC(r0)
+
+base 0x12D8
+
+    lbu     t3, 0x1DC(r0)
+    j       label_12F4
+    lbu     a2, 0x1DD(r0)
+
+    ori     fp, ra, 0x0000
+    addi    t3, r0, 0x0418
+    j       func_1FB4
+    addi    t4, r0, 0x12E8
+
+label_12F4:
+    bnez    t3, label_17BC
+    addi    a2, a2, 0x0168
+    sb      t9, 0x1DC(r0)
+    lqv     vec12[e0], 0x20(r0)
+    lqv     vec8[e0], 0x0(r0)
+    lsv     vec13[e2], 0x2A(r0)
+    lsv     vec9[e2], 0xA(r0)
+    vmov    vec13[e8],vec12[e9]
+    lsv     vec14[e4], 0x34(r0)
+    vmov    vec9[e8],vec8[e9]
+    lsv     vec10[e4], 0x14(r0)
+    vmov    vec14[e8],vec12[e10]
+    addi    s4, r0, 0x0150
+    vmov    vec10[e8],vec8[e10]
+    lpv     vec7[e0], 0xA8(s4)
+    vmov    vec14[e9],vec12[e14]
+    lsv     vec13[e4], 0x32(r0)
+    vmov    vec10[e9],vec8[e14]
+    lsv     vec9[e4], 0x12(r0)
+    vmov    vec12[e9],vec12[e12]
+    lsv     vec12[e4], 0x30(r0)
+    vmov    vec8[e9],vec8[e12]
+    lsv     vec8[e4], 0x10(r0)
+label_1350:
+    vmudn   vec29,vec13,vec7[e9]
+    vmadh   vec29,vec9,vec7[e9]
+    vmadn   vec29,vec12,vec7[e8]
+    spv     vec15[e0], 0xB0(s4)
+    vmadh   vec29,vec8,vec7[e8]
+    lw      t4, 0x00B0(s4)
+    vmadn   vec29,vec14,vec7[e10]
+    vmadh   vec29,vec10,vec7[e10]
+    vsar    vec11,vec11,vec11[e9]
+    sw      t4, 0x00B4(s4)
+    vsar    vec15,vec15,vec15[e8]
+    beq     s4, a2, label_17BC
+    vmudl   vec29,vec11,vec11[e0]
+    vmadm   vec29,vec15,vec11[e0]
+    vmadn   vec16,vec11,vec15[e0]
+    beqz    t3, label_1398
+    vmadh   vec17,vec15,vec15[e0]
+    addi    s4, s4, 0x0018
+label_1398:
+    vaddc   vec18,vec16,vec16[e9]
+    addi    t3, r0, 0x0001
+    vadd    vec29,vec17,vec17[e9]
+    vaddc   vec16,vec18,vec16[e10]
+    vadd    vec17,vec29,vec17[e10]
+    vrsqh   vec29[e8],vec17[e8]
+    lpv     vec7[e0], 0xC0(s4)
+    vrsql   vec16[e8],vec16[e8]
+    vrsqh   vec17[e8],vec0[e8]
+    vmudl   vec29,vec11,vec16[e8]
+    vmadm   vec29,vec15,vec16[e8]
+    vmadn   vec11,vec11,vec17[e8]
+    vmadh   vec15,vec15,vec17[e8]
+    vmudn   vec11,vec11,vec30[e11]
+    j       label_1350
+    vmadh   vec15,vec15,vec30[e11]
+
+    vadd    vec6,vec0,vec7[e5]
+    luv     vec29[e0], 0xB8(t1)
+    vadd    vec5,vec0,vec7[e6]
+    luv     vec27[e0], 0x8(t6)
+    vne     vec4,vec31,vec31[e7]
+    andi    t3, a1, 0x0040
+    beqz    t3, label_168C
+    addi    t4, r0, 0x8080
+    vaddc   vec28,vec27,vec0[e8]
+    suv     vec29[e0], 0x8(t6)
+    ori     t3, r0, 0x0004
+    vmov    vec30[e15],vec30[e14]
+    mtc2    11,vec31[e6]
+label_140C:
+    lbu     t3, 0x00A3(t1)
+    bnez    t3, label_155C
+    lpv     vec2[e0], 0xB0(t1)
+    luv     vec29[e0], 0x8(t6)
+    vmulu   vec20,vec7,vec2[e4]
+    vmacu   vec20,vec6,vec2[e5]
+    vmacu   vec20,vec5,vec2[e6]
+    luv     vec2[e0], 0xA0(t1)
+    vmrg    vec29,vec29,vec28[e0]
+    vand    vec20,vec20,vec31[e15]
+    vmrg    vec2,vec2,vec0[e8]
+    vmulf   vec29,vec29,vec31[e15]
+    vmacf   vec29,vec2,vec20[e4]
+    suv     vec29[e0], 0x8(t6)
+    bne     t1, t5, label_140C
+    addi    t1, t1, 0xFFE8
+
+label_144C:
+    lqv     vec31[e0], 0x1B0(r0)
+    lqv     vec30[e0], 0x1C0(r0)
+    llv     vec22[e4], 0x18(t6)
+    bgezal  t4, func_1480
+    addi    t4, r0, 0x8080
+    andi    t3, a1, 0x0004
+    vmrg    vec3,vec0,vec31[e13]
+    beqz    t3, label_1870
+    vge     vec27,vec25,vec31[e11]
+    lpv     vec2[e0], 0xB0(t1)
+    lpv     vec20[e0], 0x98(t1)
+    j       label_1708
+    vmulf   vec21,vec7,vec2[e4]
+
+func_1480:
+    lqv     vec8[e0], 0x0(t4)
+    lqv     vec10[e0], 0x10(t4)
+    lqv     vec12[e0], 0x20(t4)
+    lqv     vec14[e0], 0x30(t4)
+    vadd    vec9,vec8,vec0[e8]
+    ldv     vec9[e0], 0x8(t4)
+    vadd    vec11,vec10,vec0[e8]
+    ldv     vec11[e0], 0x18(t4)
+    vadd    vec13,vec12,vec0[e8]
+    ldv     vec13[e0], 0x28(t4)
+    vadd    vec15,vec14,vec0[e8]
+    ldv     vec15[e0], 0x38(t4)
+    ldv     vec8[e8], 0x0(t4)
+    ldv     vec10[e8], 0x10(t4)
+    ldv     vec12[e8], 0x20(t4)
+    jr      ra
+    ldv     vec14[e8], 0x30(t4)
+
+func_14C4:
+    lsv     vec4[e0], 0x0(r0)
+    lsv     vec3[e0], 0x20(r0)
+    lsv     vec21[e0], 0x2(r0)
+    lsv     vec28[e0], 0x22(r0)
+    lsv     vec30[e0], 0x4(r0)
+    vmov    vec4[e12],vec4[e8]
+    lsv     vec31[e0], 0x24(r0)
+    vmov    vec3[e12],vec3[e8]
+    lsv     vec4[e2], 0x8(r0)
+    vmov    vec21[e12],vec21[e8]
+    lsv     vec3[e2], 0x28(r0)
+    vmov    vec28[e12],vec28[e8]
+    lsv     vec21[e2], 0xA(r0)
+    vmov    vec30[e12],vec30[e8]
+    lsv     vec28[e2], 0x2A(r0)
+    vmov    vec31[e12],vec31[e8]
+    lsv     vec30[e2], 0xC(r0)
+    vmov    vec4[e13],vec4[e9]
+    lsv     vec31[e2], 0x2C(r0)
+    vmov    vec3[e13],vec3[e9]
+    lsv     vec4[e4], 0x10(r0)
+    vmov    vec21[e13],vec21[e9]
+    lsv     vec3[e4], 0x30(r0)
+    vmov    vec28[e13],vec28[e9]
+    lsv     vec21[e4], 0x12(r0)
+    vmov    vec30[e13],vec30[e9]
+    lsv     vec28[e4], 0x32(r0)
+    vmov    vec31[e13],vec31[e9]
+    lsv     vec30[e4], 0x14(r0)
+    vmov    vec4[e14],vec4[e10]
+    lsv     vec31[e4], 0x34(r0)
+    vmov    vec3[e14],vec3[e10]
+    or      t4, r0, r0
+    vmov    vec21[e14],vec21[e10]
+    vmov    vec28[e14],vec28[e10]
+    vmov    vec30[e14],vec30[e10]
+    j       func_1480
+    vmov    vec31[e14],vec31[e10]
+
+label_155C:
+    ldv     vec20[e8], 0x0(t6)
+    bltzal  t4, func_14C4
+    ldv     vec20[e0], 0x10(t6)
+    vmudn   vec2,vec15,vec1[e8]
+    ldv     vec29[e0], 0xA8(t1)
+    vmadh   vec2,vec11,vec1[e8]
+    vmadn   vec2,vec12,vec20[e4]
+    vmadh   vec2,vec8,vec20[e4]
+    vmadn   vec2,vec13,vec20[e5]
+    ldv     vec29[e8], 0xA8(t1)
+    vmadh   vec2,vec9,vec20[e5]
+    vmadn   vec2,vec14,vec20[e6]
+    vmadh   vec2,vec10,vec20[e6]
+    vsub    vec20,vec29,vec2[e0]
+    vmrg    vec29,vec20,vec0[e8]
+    vmudh   vec2,vec29,vec29[e0]
+    vsar    vec2,vec2,vec2[e8]
+    vsar    vec29,vec29,vec29[e9]
+    vaddc   vec29,vec29,vec29[e2]
+    vadd    vec2,vec2,vec2[e2]
+    vaddc   vec29,vec29,vec29[e6]
+    vadd    vec2,vec2,vec2[e6]
+    vrsqh   vec29[e11],vec2[e9]
+    vrsql   vec29[e11],vec29[e9]
+    vrsqh   vec29[e10],vec2[e13]
+    vrsql   vec29[e15],vec29[e13]
+    vrsqh   vec29[e14],vec0[e8]
+    vmudn   vec2,vec3,vec20[e4]
+    sll     t3, t3, 4
+    vmadh   vec2,vec4,vec20[e4]
+    lbu     t8, 0x00AE(t1)
+    vmadn   vec2,vec28,vec20[e5]
+    mtc2    11,vec27[e0]
+    vmadh   vec2,vec21,vec20[e5]
+    vmadn   vec2,vec31,vec20[e6]
+    vmadh   vec20,vec30,vec20[e6]
+    vmudm   vec2,vec20,vec29[e7]
+    vmadh   vec20,vec20,vec29[e6]
+    vmudn   vec2,vec2,vec31[e11]
+    vmadh   vec20,vec20,vec31[e11]
+    vmulu   vec2,vec7,vec20[e4]
+    mtc2    11,vec27[e8]
+    vmacu   vec2,vec6,vec20[e5]
+    lbu     t3, 0x00A7(t1)
+    vmacu   vec2,vec5,vec20[e6]
+    sll     t8, t8, 5
+    vand    vec20,vec2,vec31[e15]
+    mtc2    24,vec20[e14]
+    vrcph   vec29[e8],vec29[e10]
+    vrcpl   vec29[e8],vec29[e11]
+    vrcph   vec29[e12],vec29[e14]
+    vrcpl   vec29[e12],vec29[e15]
+    vmudh   vec2,vec29,vec30[e15]
+    mtc2    11,vec20[e6]
+    vmudl   vec2,vec2,vec2[e4]
+    vmulf   vec29,vec29,vec20[e11]
+    vmadm   vec29,vec2,vec20[e15]
+    vmadn   vec29,vec27,vec30[e11]
+    vsar    vec2,vec2,vec2[e9]
+    vrcph   vec2[e8],vec2[e8]
+    vrcpl   vec2[e8],vec29[e8]
+    vrcph   vec2[e12],vec2[e12]
+    vrcpl   vec2[e12],vec29[e12]
+    luv     vec29[e0], 0x8(t6)
+    vand    vec2,vec2,vec31[e15]
+    vmulf   vec2,vec2,vec20[e0]
+    luv     vec20[e0], 0xA0(t1)
+    vmrg    vec29,vec29,vec28[e0]
+    vand    vec2,vec2,vec31[e15]
+    vmrg    vec20,vec20,vec0[e8]
+    vmulf   vec29,vec29,vec31[e15]
+    vmacf   vec29,vec20,vec2[e4]
+    suv     vec29[e0], 0x8(t6)
+    bne     t1, t5, label_140C
+    addi    t1, t1, 0xFFE8
+    j       label_144C
+label_168C:
+    lpv     vec20[e0], 0x98(t1)
+
+label_1690:
+    vmulu   vec21,vec7,vec2[e4]
+    luv     vec4[e0], 0xA0(t1)
+    vmacu   vec21,vec6,vec2[e5]
+    beq     t1, t5, label_1758
+    vmacu   vec21,vec5,vec2[e6]
+    vmulu   vec28,vec7,vec20[e4]
+    luv     vec3[e0], 0x88(t1)
+    vmacu   vec28,vec6,vec20[e5]
+    addi    t3, t1, 0xFFE8
+    vmacu   vec28,vec5,vec20[e6]
+    addi    t1, t1, 0xFFD0
+    vmrg    vec29,vec29,vec27[e0]
+    mtc2    0,vec4[e6]
+    vmrg    vec3,vec3,vec0[e8]
+    mtc2    0,vec4[e14]
+    vand    vec21,vec21,vec31[e15]
+    lpv     vec2[e0], 0xB0(t1)
+    vand    vec28,vec28,vec31[e15]
+    lpv     vec20[e0], 0x98(t1)
+    vmulf   vec29,vec29,vec31[e15]
+    vmacf   vec29,vec4,vec21[e4]
+    bne     t3, t5, label_1690
+    vmacf   vec29,vec3,vec28[e4]
+    vmrg    vec3,vec0,vec31[e13]
+    llv     vec22[e4], 0x18(t6)
+label_16F4:
+    vge     vec27,vec25,vec31[e11]
+    andi    t3, a1, 0x0004
+    vmulf   vec21,vec7,vec2[e4]
+    beqz    t3, label_1870
+    suv     vec29[e0], 0x8(t6)
+label_1708:
+    vmacf   vec21,vec6,vec2[e5]
+    andi    t4, a1, 0x0008
+    vmacf   vec21,vec5,vec2[e6]
+    vxor    vec4,vec3,vec31[e13]
+    vmulf   vec28,vec7,vec20[e4]
+    vmacf   vec28,vec6,vec20[e5]
+    vmacf   vec28,vec5,vec20[e6]
+    lqv     vec2[e0], 0x1D0(r0)
+    vmudh   vec22,vec1,vec31[e13]
+    vmacf   vec22,vec3,vec21[e4]
+    beqz    t4, label_1870
+    vmacf   vec22,vec4,vec28[e4]
+    vmadh   vec22,vec1,vec2[e8]
+    vmulf   vec4,vec22,vec22[e0]
+    vmulf   vec3,vec22,vec31[e15]
+    vmacf   vec3,vec22,vec2[e10]
+    vmudh   vec21,vec1,vec31[e13]
+    vmacf   vec22,vec22,vec2[e9]
+    j       label_1870
+    vmacf   vec22,vec4,vec3[e0]
+
+label_1758:
+    vmrg    vec29,vec29,vec27[e0]
+    vmrg    vec4,vec4,vec0[e8]
+    vand    vec21,vec21,vec31[e15]
+    veq     vec3,vec31,vec31[e7]
+    lpv     vec2[e0], 0x80(t1)
+    vmrg    vec3,vec0,vec31[e13]
+    llv     vec22[e4], 0x18(t6)
+    vmulf   vec29,vec29,vec31[e15]
+    j       label_16F4
+    vmacf   vec29,vec4,vec21[e4]
