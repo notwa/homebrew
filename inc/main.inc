@@ -1,5 +1,7 @@
 // settings:
 constant K_DEBUG(0) // slows down interrupt handling to enable debug routines
+constant HIRES(1)
+constant HICOLOR(1)
 
 constant MAIN_BASE(0x800E)
 constant MAIN_COUNTS(0x0010)
@@ -9,23 +11,32 @@ constant MAIN_DLIST(0x1000)
 constant MAIN_DLIST_SIZE(0xF000)
 constant MAIN_DLIST_JUMPER(MAIN_DLIST - 0xA8)
 
-// video settings
-constant WIDTH(640)
-constant HEIGHT(480)
-constant HICOLOR(1)
+if HIRES {
+    constant WIDTH(640)
+    constant HEIGHT(480)
+} else {
+    constant WIDTH(320)
+    constant HEIGHT(240)
+}
 
-constant VIDEO_C_BUFFER_SIZE(WIDTH * HEIGHT * (HICOLOR * 2 + 2))
-constant VIDEO_Z_BUFFER_SIZE(WIDTH * HEIGHT * 2)
-constant VIDEO_SOMETHING_SIZE(0x18000)
-constant VIDEO_STACK_SIZE(0x400)
-constant VIDEO_YIELD_SIZE(0xC00)
+constant TASK_YIELDED(0x0001)
+constant TASK_DP_WAIT(0x0002)
+constant TASK_LOADABLE(0x0004)
+constant TASK_SP_ONLY(0x0008)
 
+constant VIDEO_C_IMAGE_SIZE(WIDTH * HEIGHT * (HICOLOR * 2 + 2))
+constant VIDEO_Z_IMAGE_SIZE(WIDTH * HEIGHT * 2)
+constant VIDEO_OUTPUT_SIZE(0x18000) // technically a buffer?
+constant VIDEO_STACK_SIZE(0x400) // used for dlist calls, pushing matrices, etc?
+constant VIDEO_YIELD_SIZE(0xC00) // stores and restores DMEM.
+
+// NOTE: these should be row-aligned to avoid caching issues and DMA issues.
 constant VIDEO_END(0x80400000)
-constant VIDEO_C_BUFFER(VIDEO_END - VIDEO_C_BUFFER_SIZE)
-constant VIDEO_C_BUFFER_ALT(VIDEO_C_BUFFER - VIDEO_C_BUFFER_SIZE)
-constant VIDEO_Z_BUFFER(VIDEO_C_BUFFER_ALT - VIDEO_Z_BUFFER_SIZE)
-constant VIDEO_SOMETHING(VIDEO_Z_BUFFER - VIDEO_SOMETHING_SIZE)
-constant VIDEO_STACK(VIDEO_SOMETHING - VIDEO_STACK_SIZE)
+constant VIDEO_C_IMAGE(VIDEO_END - VIDEO_C_IMAGE_SIZE)
+constant VIDEO_C_IMAGE_ALT(VIDEO_C_IMAGE - VIDEO_C_IMAGE_SIZE)
+constant VIDEO_Z_IMAGE(VIDEO_C_IMAGE_ALT - VIDEO_Z_IMAGE_SIZE)
+constant VIDEO_OUTPUT(VIDEO_Z_IMAGE - VIDEO_OUTPUT_SIZE)
+constant VIDEO_STACK(VIDEO_OUTPUT - VIDEO_STACK_SIZE)
 constant VIDEO_YIELD(VIDEO_STACK - VIDEO_YIELD_SIZE)
 constant VIDEO_START(VIDEO_YIELD)
 

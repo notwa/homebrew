@@ -21,7 +21,7 @@ constant K_STACK(0x0C00 - 0x10)
 constant K_XXD(0x0C00) // size: 0x400 (any larger and you overwrite kernel code)
 
 // note this gets subtracted by 0x10 and the stack grows *backwards.*
-constant K_STACK_INIT_BASE(0x803F)
+constant K_STACK_INIT(0x800F9000) // size: a measly 36 KiB
 
 // internal interrupt enum: (0 means no known interrupt/exception)
 constant K_INT_TLB_REFILL(1)

@@ -81,3 +81,12 @@ macro SP_BUSY_WAIT() {
     bnez    t0,-
     nop
 }
+
+macro SP_WAIT() {
+    lui     a0, SP_BASE
+-
+    lw      t0, SP_STATUS(a0)
+    andi    t0, 1
+    beqz    t0,-
+    nop
+}

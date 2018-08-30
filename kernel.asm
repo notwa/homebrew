@@ -21,12 +21,12 @@ Start:
     bne     t1, t2,-
     addiu   t0, t0, 0x10
 
-    // do whatever this does.
-    li      a0, 0x01000800
+    // flush denormals to 0 and enable invalid operations
+    li      a0, 0x01000800 // TODO: use flag constants
     ctc1    a0, CP1_FCSR
-    //
+    // is this just anti-gameshark BS?
     lui     a0, 0x0490
-    mtc0    a0, CP0_WatchLo // is this just anti-gameshark BS?
+    mtc0    a0, CP0_WatchLo
 
     // initialize the N64 so it doesn't immediately die.
     SI_WAIT()
@@ -74,7 +74,7 @@ Start:
 
     // SP defaults to RSP instruction memory: 0xA4001FF0
     // we can do better than that.
-    lui     sp, K_STACK_INIT_BASE
+    li      sp, K_STACK_INIT
     // SP should always be 8-byte aligned
     // so that SD and LD instructions don't fail on it.
     // we also need 4 empty words for storing
