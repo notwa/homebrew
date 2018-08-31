@@ -105,23 +105,23 @@ WriteDList:
 
     la      t8, view_mat1
 
-    sh      s2, 0x20(t8) // xx lo
+    sh      s2, MAT_XX_FRAC(t8)
     sra     t9, s2, 16
-    sh      t9, 0x00(t8) // xx hi
+    sh      t9, MAT_XX(t8)
 
     subu    v0, r0, v0
-    sh      v0, 0x24(t8) // xz lo
+    sh      v0, MAT_XZ_FRAC(t8)
     sra     t9, v0, 16
-    sh      t9, 0x04(t8) // xz hi
+    sh      t9, MAT_XZ(t8)
 
     subu    v0, r0, v0
-    sh      v0, 0x30(t8) // zx lo
+    sh      v0, MAT_ZX_FRAC(t8)
     sra     t9, v0, 16
-    sh      t9, 0x10(t8) // zx hi
+    sh      t9, MAT_ZX(t8)
 
-    sh      s2, 0x34(t8) // zz lo
+    sh      s2, MAT_ZZ_FRAC(t8)
     sra     t9, s2, 16
-    sh      t9, 0x14(t8) // zz hi
+    sh      t9, MAT_ZZ(t8)
 
     or      a0, s0, r0
     or      a1, s1, r0
@@ -216,10 +216,6 @@ view_mat0:
 constant PERSPECTIVE_NORMALIZATION($00FF)
 
 view_mat1:
-    // xx 0x00, xy 0x02, xz 0x04, xw 0x06
-    // yx 0x08, yy 0x0A, yz 0x0C, yw 0x0E
-    // zx 0x10, zy 0x12, zz 0x14, zw 0x16
-    // wx 0x18, wy 0x1A, wz 0x1C, ww 0x1E
     Mat.X($0001'0000, $0000'0000, $0000'0000, $0000'0000)
     Mat.Y($0000'0000, $0001'0000, $0000'0000, $0000'0000)
     Mat.Z($0000'0000, $0000'0000, $0001'0000, $0000'0000)

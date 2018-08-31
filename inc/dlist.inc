@@ -3,6 +3,43 @@ constant G_SETCIMB_UPPER_WORD(0xFF180000)
 } else {
 constant G_SETCIMB_UPPER_WORD(0xFF100000)
 }
+
+constant MAT_XX(0x00)
+constant MAT_XY(0x02)
+constant MAT_XZ(0x04)
+constant MAT_XW(0x06)
+constant MAT_YX(0x08)
+constant MAT_YY(0x0A)
+constant MAT_YZ(0x0C)
+constant MAT_YW(0x0E)
+constant MAT_ZX(0x10)
+constant MAT_ZY(0x12)
+constant MAT_ZZ(0x14)
+constant MAT_ZW(0x16)
+constant MAT_WX(0x18)
+constant MAT_WY(0x1A)
+constant MAT_WZ(0x1C)
+constant MAT_WW(0x1E)
+
+constant MAT_FRAC(0x20)
+
+constant MAT_XX_FRAC(MAT_XX + MAT_FRAC)
+constant MAT_XY_FRAC(MAT_XY + MAT_FRAC)
+constant MAT_XZ_FRAC(MAT_XZ + MAT_FRAC)
+constant MAT_XW_FRAC(MAT_XW + MAT_FRAC)
+constant MAT_YX_FRAC(MAT_YX + MAT_FRAC)
+constant MAT_YY_FRAC(MAT_YY + MAT_FRAC)
+constant MAT_YZ_FRAC(MAT_YZ + MAT_FRAC)
+constant MAT_YW_FRAC(MAT_YW + MAT_FRAC)
+constant MAT_ZX_FRAC(MAT_ZX + MAT_FRAC)
+constant MAT_ZY_FRAC(MAT_ZY + MAT_FRAC)
+constant MAT_ZZ_FRAC(MAT_ZZ + MAT_FRAC)
+constant MAT_ZW_FRAC(MAT_ZW + MAT_FRAC)
+constant MAT_WX_FRAC(MAT_WX + MAT_FRAC)
+constant MAT_WY_FRAC(MAT_WY + MAT_FRAC)
+constant MAT_WZ_FRAC(MAT_WZ + MAT_FRAC)
+constant MAT_WW_FRAC(MAT_WW + MAT_FRAC)
+
 define dpos(0)
 
 macro WriteDL(evaluate L, evaluate R) {
