@@ -24,11 +24,12 @@ include "kernel.asm"
 
 Main:
     lui     s0, MAIN_BASE
+
+if 0 {
     nop; nop; nop; nop
     mfc0    t0, CP0_Count
     sw      t0, MAIN_COUNTS+0(s0)
 
-if 0 {
     // decompress our picture
     la      a0, LZ_BAKU + 4
     lw      a3, -4(a0) // load uncompressed size from the file itself
@@ -36,7 +37,6 @@ if 0 {
     li      a2, VIDEO_C_IMAGE
     jal     LzDecomp
     nop
-}
 
     mfc0    t0, CP0_Count
     nop; nop; nop; nop
@@ -48,6 +48,7 @@ if 0 {
 
     jal     PokeDataCache
     nop
+}
 
     lui     a0, MAIN_BASE
     lli     a1, 0x20
@@ -81,10 +82,10 @@ Start3D:
 
     // prepare RSP
     lui     a0, SP_BASE
-    lli     t0, SP_SG2_CLR | SP_SG1_CLR | SP_SG0_CLR | SP_IOB_SET
+    lli     t0, SP_SG2_CLR | SP_SG1_CLR | SP_SG0_CLR | SP_INT_ON_BREAK_SET
     sw      t0, SP_STATUS(a0)
 
-    SP_WAIT()
+    SP_HALT_WAIT()
 
     // set RSP PC to IMEM+$0
     lui     a0, SP_PC_BASE
@@ -95,23 +96,25 @@ Start3D:
     jal     PushVideoTask
     ori     a0, a0, MAIN_SP_TASK
 
-    SP_BUSY_WAIT()
+    SP_DMA_WAIT()
 
     jal     LoadRSPBoot
     nop
 
-    SP_BUSY_WAIT()
+    SP_DMA_WAIT()
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
     lui     a0, SP_BASE
-    lli     t0, SP_IOB_SET | SP_STP_CLR | SP_BRK_CLR | SP_HLT_CLR
+    lli     t0, SP_INT_ON_BREAK_SET | SP_SINGLE_STEP_CLR | SP_BREAK_CLR | SP_HALT_CLR
     sw      t0, SP_STATUS(a0)
     nop
 
     SetIntMask()
 
 MainLoop:
-    SP_WAIT()
+    SP_HALT_WAIT()
+
+    WriteString(SPreFrame)
 
     // wait on VI too
 -
@@ -139,6 +142,7 @@ SwitchToAlt:
     j       Start3D
     lli     s1, 1
 
+KSL(SPreFrame, "now waiting for VI")
 KSL(SNewFrame, "next frame")
 
 SetupScreen:
@@ -206,11 +210,12 @@ PushVideoTask:
 
 PushRSPTask:
     lli     t3, 0x40 - 1 // DMA quirk
-    SP_DMA_WAIT() // clobbers t0, t5
+    or      t4, a0, r0
+    SP_DMA_WAIT() // clobbers t0, a0
     la      t1, 0xA4000FC0
-    sw      t1, SP_MEM_ADDR(t5)
-    sw      a0, SP_DRAM_ADDR(t5)
-    sw      t3, SP_RD_LEN(t5) // pull data from RDRAM into DMEM/IMEM
+    sw      t1, SP_MEM_ADDR(a0)
+    sw      t4, SP_DRAM_ADDR(a0)
+    sw      t3, SP_RD_LEN(a0) // pull data from RDRAM into DMEM/IMEM
     jr      ra
     nop
 
@@ -218,11 +223,11 @@ LoadRSPBoot:
     la      t2, UCODE_BOOT & ADDR_MASK
     li      t3, UCODE_BOOT.size
     subiu   t3, t3, 1 // DMA quirk
-    SP_DMA_WAIT() // clobbers t0, t5
+    SP_DMA_WAIT() // clobbers t0, a0
     la      t1, 0xA4001000
-    sw      t1, SP_MEM_ADDR(t5)
-    sw      t2, SP_DRAM_ADDR(t5)
-    sw      t3, SP_RD_LEN(t5) // pull data from RDRAM into DMEM/IMEM
+    sw      t1, SP_MEM_ADDR(a0)
+    sw      t2, SP_DRAM_ADDR(a0)
+    sw      t3, SP_RD_LEN(a0) // pull data from RDRAM into DMEM/IMEM
     jr      ra
     nop
 

@@ -17,13 +17,13 @@ constant SP_PC($00)        // $04080000..$04080003 SP: PC Register
 constant SP_IBIST_REG($04) // $04080004..$04080007 SP: IMEM BIST Register
 
 // SP_STATUS Read Flags:
-constant SP_HLT($0001) // Halt
-constant SP_BRK($0002) // Break
-constant SP_BSY($0004) // DMA Busy
-constant SP_FUL($0008) // DMA Full
-constant SP_IOF($0010) // IO Full
-constant SP_STP($0020) // Single Step
-constant SP_IOB($0040) // Interrupt On Break
+constant SP_HALT($0001)
+constant SP_BREAK($0002)
+constant SP_BUSY($0004) // DMA busy
+constant SP_FULL($0008) // DMA full
+constant SP_IO_FULL($0010)
+constant SP_SINGLE_STEP($0020)
+constant SP_INT_ON_BREAK($0040) // Interrupt On Break
 constant SP_SG0($0080) // Signal 0 Set
 constant SP_SG1($0100) // Signal 1 Set
 constant SP_SG2($0200) // Signal 2 Set
@@ -34,15 +34,15 @@ constant SP_SG6($2000) // Signal 6 Set
 constant SP_SG7($4000) // Signal 7 Set
 
 // SP_STATUS Write Flags:
-constant SP_HLT_CLR($00000001) // Clear Halt
-constant SP_HLT_SET($00000002) //   Set Halt
-constant SP_BRK_CLR($00000004) // Clear Broke
+constant SP_HALT_CLR($00000001)
+constant SP_HALT_SET($00000002)
+constant SP_BREAK_CLR($00000004) // Clear Broke
 constant SP_INT_CLR($00000008) // Clear Interrupt
 constant SP_INT_SET($00000010) //   Set Interrupt
-constant SP_STP_CLR($00000020) // Clear Single Step
-constant SP_STP_SET($00000040) //   Set Single Step
-constant SP_IOB_CLR($00000080) // Clear Interrupt On Break
-constant SP_IOB_SET($00000100) //   Set Interrupt On Break
+constant SP_SINGLE_STEP_CLR($00000020)
+constant SP_SINGLE_STEP_SET($00000040)
+constant SP_INT_ON_BREAK_CLR($00000080) // Clear Interrupt On Break
+constant SP_INT_ON_BREAK_SET($00000100) //   Set Interrupt On Break
 constant SP_SG0_CLR($00000200) // Clear Signal 0
 constant SP_SG0_SET($00000400) //   Set Signal 0
 constant SP_SG1_CLR($00000800) // Clear Signal 1
@@ -60,33 +60,21 @@ constant SP_SG6_SET($00400000) //   Set Signal 6
 constant SP_SG7_CLR($00800000) // Clear Signal 7
 constant SP_SG7_SET($01000000) //   Set Signal 7
 
-macro SP_DMA_WAIT() { // from CPU
-    lui     t5, SP_BASE
--
-    lw      t0, SP_DMA_FULL(t5)
-    bnez    t0,-
-    nop
--
-    lw      t0, SP_DMA_BUSY(t5)
-    bnez    t0,-
-    nop
-}
-
-macro SP_BUSY_WAIT() {
+macro SP_DMA_WAIT() {
     lui     a0, SP_BASE
 -
     lw      t0, SP_STATUS(a0)
-    andi    t0, 0x1C
+    andi    t0, SP_IO_FULL | SP_BUSY | SP_FULL
     sltu    t0, r0, t0
     bnez    t0,-
     nop
 }
 
-macro SP_WAIT() {
+macro SP_HALT_WAIT() {
     lui     a0, SP_BASE
 -
     lw      t0, SP_STATUS(a0)
-    andi    t0, 1
+    andi    t0, SP_HALT
     beqz    t0,-
     nop
 }
