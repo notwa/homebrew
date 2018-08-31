@@ -55,8 +55,118 @@ constant G_FOG(1 << 16)
 constant G_LIGHTING(1 << 17)
 constant G_TEXTURE_GEN(1 << 18)
 constant G_TEXTURE_GEN_LINEAR(1 << 19)
+constant G_LOD(1 << 20) // unimplemented (presumably no effect)
 constant G_SHADING_SMOOTH(1 << 21)
 constant G_CLIPPING(1 << 23)
+constant G_CULL_BOTH(G_CULL_FRONT | G_CULL_BACK)
+
+// gSetOtherModeL: shift amount
+constant G_MDSFT_ALPHACOMPARE(0)
+constant G_MDSFT_ZSRCSEL(2)
+constant G_MDSFT_RENDERMODE(3)
+constant G_MDSFT_BLENDER(16)
+
+// gSetOtherModeH: shift amount
+constant G_MDSFT_BLENDMASK(0) // unsupported (presumably no effect)
+constant G_MDSFT_ALPHADITHER(4)
+constant G_MDSFT_RGBDITHER(6)
+constant G_MDSFT_COMBKEY(8)
+constant G_MDSFT_TEXTCONV(9)
+constant G_MDSFT_TEXTFILT(12)
+constant G_MDSFT_TEXTLUT(14)
+constant G_MDSFT_TEXTLOD(16)
+constant G_MDSFT_TEXTDETAIL(17)
+constant G_MDSFT_TEXTPERSP(19)
+constant G_MDSFT_CYCLETYPE(20)
+constant G_MDSFT_COLORDITHER(22) // unsupported (presumably no effect)
+constant G_MDSFT_PIPELINE(23)
+
+// gSetOtherModeH gPipelineMode
+constant G_PM_1PRIMITIVE(1 << G_MDSFT_PIPELINE)
+constant G_PM_NPRIMITIVE(0 << G_MDSFT_PIPELINE)
+
+// gSetOtherModeH gSetCycleType
+constant G_CYC_1CYCLE(0 << G_MDSFT_CYCLETYPE)
+constant G_CYC_2CYCLE(1 << G_MDSFT_CYCLETYPE)
+constant G_CYC_COPY(2 << G_MDSFT_CYCLETYPE)
+constant G_CYC_FILL(3 << G_MDSFT_CYCLETYPE)
+
+// gSetOtherModeH gSetTexturePersp
+constant G_TP_NONE(0 << G_MDSFT_TEXTPERSP)
+constant G_TP_PERSP(1 << G_MDSFT_TEXTPERSP)
+
+// gSetOtherModeH gSetTextureDetail
+constant G_TD_CLAMP(0 << G_MDSFT_TEXTDETAIL)
+constant G_TD_SHARPEN(1 << G_MDSFT_TEXTDETAIL)
+constant G_TD_DETAIL(2 << G_MDSFT_TEXTDETAIL)
+
+// gSetOtherModeH gSetTextureLOD
+constant G_TL_TILE(0 << G_MDSFT_TEXTLOD)
+constant G_TL_LOD(1 << G_MDSFT_TEXTLOD)
+
+// gSetOtherModeH gSetTextureLUT
+constant G_TT_NONE(0 << G_MDSFT_TEXTLUT)
+constant G_TT_RGBA16(2 << G_MDSFT_TEXTLUT)
+constant G_TT_IA16(3 << G_MDSFT_TEXTLUT)
+
+// gSetOtherModeH gSetTextureFilter
+constant G_TF_POINT(0 << G_MDSFT_TEXTFILT)
+constant G_TF_AVERAGE(3 << G_MDSFT_TEXTFILT)
+constant G_TF_BILERP(2 << G_MDSFT_TEXTFILT)
+
+// gSetOtherModeH gSetTextureConvert
+constant G_TC_CONV(0 << G_MDSFT_TEXTCONV)
+constant G_TC_FILTCONV(5 << G_MDSFT_TEXTCONV)
+constant G_TC_FILT(6 << G_MDSFT_TEXTCONV)
+
+// gSetOtherModeH gSetCombineKey
+constant G_CK_NONE(0 << G_MDSFT_COMBKEY)
+constant G_CK_KEY(1 << G_MDSFT_COMBKEY)
+
+// gSetOtherModeH gSetColorDither
+constant G_CD_MAGICSQ(0 << G_MDSFT_RGBDITHER)
+constant G_CD_BAYER(1 << G_MDSFT_RGBDITHER)
+constant G_CD_NOISE(2 << G_MDSFT_RGBDITHER)
+constant G_CD_DISABLE(3 << G_MDSFT_RGBDITHER)
+constant G_CD_ENABLE(G_CD_NOISE) // for legacy code
+
+// gSetOtherModeH gSetAlphaDither
+constant G_AD_PATTERN(0 << G_MDSFT_ALPHADITHER)
+constant G_AD_NOTPATTERN(1 << G_MDSFT_ALPHADITHER)
+constant G_AD_NOISE(2 << G_MDSFT_ALPHADITHER)
+constant G_AD_DISABLE(3 << G_MDSFT_ALPHADITHER)
+
+// gSetOtherModeL gSetAlphaCompare
+constant G_AC_NONE(0 << G_MDSFT_ALPHACOMPARE)
+constant G_AC_THRESHOLD(1 << G_MDSFT_ALPHACOMPARE)
+constant G_AC_DITHER(3 << G_MDSFT_ALPHACOMPARE)
+
+// gSetOtherModeL gSetDepthSource
+constant G_ZS_PIXEL(0 << G_MDSFT_ZSRCSEL)
+constant G_ZS_PRIM(1 << G_MDSFT_ZSRCSEL)
+
+// gSetOtherModeL gSetRenderMode
+constant AA_EN(0x8) // enable anti-aliasing, except not really?
+// Z stuff
+constant Z_CMP(0x10) // compare pixels to Z buffer (typically used with Z_UPD)
+constant Z_UPD(0x20) // write pixels to Z buffer (typically used with Z_CMP)
+// coverage stuff
+constant IM_RD(0x40)
+constant CLR_ON_CVG(0x80)
+constant CVG_DST_CLAMP(0)
+constant CVG_DST_WRAP(0x100)
+constant CVG_DST_FULL(0x200)
+constant CVG_DST_SAVE(0x300)
+// more Z stuff
+constant ZMODE_OPA(0)
+constant ZMODE_INTER(0x400)
+constant ZMODE_XLU(0x800)
+constant ZMODE_DEC(0xC00)
+// more coverage stuff
+constant CVG_X_ALPHA(0x1000)
+constant ALPHA_CVG_SEL(0x2000)
+// blending
+constant FORCE_BL(0x4000) // no effect?
 
 macro gNoOp() {
     // stalls the RDP (and not the RSP?)
@@ -593,6 +703,7 @@ macro gViewport(variable viewport) {
 }
 
 macro gPerspNorm(variable norm) {
+    if norm < 1 || norm > 0xFFFF {; error "norm out of range"; }
     gMoveWord(G_MW_PERSPNORM, 0, norm)
 }
 

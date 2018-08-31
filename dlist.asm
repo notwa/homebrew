@@ -174,7 +174,8 @@ if HIRES {
 
     gPipeSync()
     gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,7)
-    gSetOtherMode(0, 0)
+    gSetOtherMode(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN, G_AC_NONE | G_ZS_PIXEL | Z_CMP | Z_UPD)
+    // CULL_FRONT is dying on N64?
     gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_BACK | G_SHADING_SMOOTH)
 
     gSetSegment6(model)
@@ -234,6 +235,7 @@ macro _g(variable c, variable a, variable b) {
     dw (c << 24) | a, b
 }
 
+if 1 {
 model: // a colorful cube
 constant S(0x400)
     // TODO: write a macro for this struct
@@ -256,3 +258,7 @@ constant MODEL_START(pc() - model)
     gQuadTri(4, 5, 1, 0)
     gQuadTri(2, 3, 7, 6)
     gEndList()
+} else {
+    constant MODEL_START(0x32B0)
+    insert model, "res/teapot.F3D"
+}
