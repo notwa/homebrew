@@ -132,7 +132,7 @@ WriteDList:
     gTextureOff()
     gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,7)
     gSetScissor(0, 0, 0, WIDTH, HEIGHT) // TODO: use mode enum
-    gSetBlendColor(0,0,0,8)
+    gSetBlendColor(0,0,0,0)
     gClipRatio(2)
     gSetZImage(VIDEO_Z_IMAGE)
 
@@ -168,7 +168,7 @@ if HIRES {
 
     gPipeSync()
     gViewport(viewport)
-    gPerspNorm(0x41)
+    gPerspNorm(PERSPECTIVE_NORMALIZATION)
     gMatrix(view_mat0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION)
     gMatrix(view_mat1, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION)
 
@@ -176,7 +176,7 @@ if HIRES {
     gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,7)
     gSetOtherMode(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN, G_AC_NONE | G_ZS_PIXEL | Z_CMP | Z_UPD)
     // CULL_FRONT is dying on N64?
-    gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_BACK | G_SHADING_SMOOTH)
+    gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_FRONT | G_SHADING_SMOOTH)
 
     gSetSegment6(model)
     gMatrix(model_mat, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW)
@@ -210,9 +210,10 @@ viewport:
 view_mat0:
     Mat.X($0000'C000, $0000'0000, $0000'0000, $0000'0000)
     Mat.Y($0000'0000, $0001'0000, $0000'0000, $0000'0000)
-    Mat.Z($0000'0000, $0000'0000, $FFFF'FF7D, $FFFF'0000)
-    Mat.W($0000'0000, $0000'0000, $0000'CCC0, $0000'0000)
+    Mat.Z($0000'0000, $0000'0000, $FFFE'FF00, $FFFF'0000)
+    Mat.W($0000'0000, $0000'0000, $FFFD'FF00, $0000'0000)
     Mat.rix()
+constant PERSPECTIVE_NORMALIZATION($00FF)
 
 view_mat1:
     // xx 0x00, xy 0x02, xz 0x04, xw 0x06
@@ -235,7 +236,7 @@ macro _g(variable c, variable a, variable b) {
     dw (c << 24) | a, b
 }
 
-if 1 {
+if 0 {
 model: // a colorful cube
 constant S(0x400)
     // TODO: write a macro for this struct
