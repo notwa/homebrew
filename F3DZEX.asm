@@ -59,11 +59,11 @@ constant FUL($0008) // DMA Full
 constant IOF($0010) // IO Full
 constant STP($0020) // Single Step
 constant IOB($0040) // Interrupt On Break
-constant SG0($0080) // Signal 0 Set
-constant SG1($0100) // Signal 1 Set
-constant SG2($0200) // Signal 2 Set
-constant SG3($0400) // Signal 3 Set
-constant SG4($0800) // Signal 4 Set
+constant SG0($0080) // Signal 0 Set (Yield)
+constant SG1($0100) // Signal 1 Set (Yielded)
+constant SG2($0200) // Signal 2 Set (Task Done)
+constant SG3($0400) // Signal 3 Set (RSP Signal)
+constant SG4($0800) // Signal 4 Set (CPU Signal)
 constant SG5($1000) // Signal 5 Set
 constant SG6($2000) // Signal 6 Set
 constant SG7($4000) // Signal 7 Set
@@ -115,6 +115,64 @@ constant TASK_DATA_SIZE(0xFF4)
 constant TASK_YIELD_DATA_PTR(0xFF8)
 constant TASK_YIELD_DATA_SIZE(0xFFC)
 
+// various unknown offsets
+constant DMEM_000(0x000)
+constant DMEM_002(0x002)
+constant DMEM_004(0x004)
+constant DMEM_008(0x008)
+constant DMEM_00A(0x00A)
+constant DMEM_00C(0x00C)
+constant DMEM_010(0x010)
+constant DMEM_012(0x012)
+constant DMEM_014(0x014)
+constant DMEM_020(0x020)
+constant DMEM_022(0x022)
+constant DMEM_024(0x024)
+constant DMEM_028(0x028)
+constant DMEM_02A(0x02A)
+constant DMEM_02C(0x02C)
+constant DMEM_030(0x030)
+constant DMEM_032(0x032)
+constant DMEM_034(0x034)
+constant DMEM_080(0x080)
+constant DMEM_088(0x088)
+constant DMEM_090(0x090)
+constant DMEM_098(0x098)
+constant DMEM_0A0(0x0A0)
+constant DMEM_0A8(0x0A8)
+constant DMEM_0B0(0x0B0)
+constant DMEM_0B8(0x0B8)
+constant DMEM_0C0(0x0C0)
+constant DMEM_0C4(0x0C4)
+constant DMEM_0C8(0x0C8)
+constant DMEM_0CC(0x0CC)
+constant DMEM_0D0(0x0D0)
+constant DMEM_0D8(0x0D8)
+constant DMEM_0DC(0x0DC)
+constant DMEM_0DE(0x0DE)
+constant DMEM_0E0(0x0E0)
+constant DMEM_0E8(0x0E8)
+constant DMEM_0F0(0x0F0)
+constant DMEM_0F4(0x0F4)
+constant DMEM_1B0(0x1B0)
+constant DMEM_1C0(0x1C0)
+constant DMEM_1D0(0x1D0)
+constant DMEM_1D9(0x1D9)
+constant DMEM_1DC(0x1DC)
+constant DMEM_1DD(0x1DD)
+constant DMEM_1E6(0x1E6)
+constant DMEM_1E7(0x1E7)
+constant DMEM_1EC(0x1EC)
+constant DMEM_1EE(0x1EE)
+constant DMEM_2E0(0x2E0)
+constant DMEM_2E8(0x2E8)
+constant DMEM_3CC(0x3CC)
+constant DMEM_410(0x410)
+constant DMEM_418(0x418)
+constant DMEM_920(0x920)
+constant DMEM_BF8(0xBF8)
+constant DMEM_BFC(0xBFC)
+
 output "bin/F3DZEX2.boot.bin", create
 fill 0xD0
 
@@ -126,8 +184,8 @@ base 0x1000
 
 label_1008:
     lw      v0, TASK_UCODE-TASK_START(at)
-    addi    v1, r0, 0x0F7F // copy 0xF80 bytes
-    addi    a3, r0, 0x1080 // to 0xA4001080
+    addi    v1, r0, 0x2000 - label_1080 - 1 // copy 0xF80 bytes
+    addi    a3, r0, label_1080 // to 0xA4001080
     mtc0    a3, MEM_ADDR
     mtc0    v0, DRAM_ADDR
     mtc0    v1, RD_LEN // start the DMA
@@ -166,6 +224,7 @@ label_1054:
     mfc0    v0, RDP_STATUS
 
 // note: this marks 0x80, meaning everything below gets overwritten later.
+label_1080:
     andi    v0, v0, 0x0100
     bgtz    v0,func_103C
     nop
@@ -200,14 +259,14 @@ base 0x1080
 
     vxor    vec0,vec0,vec0 // clear vector 0
 label_1084:
-    lqv     vec31[e0], 0x1B0(r0) // read some? data from DMEM+1B0
+    lqv     vec31[e0], DMEM_1B0(r0)
 func_1088:
-    lqv     vec30[e0], 0x1C0(r0) // read the next row, too
+    lqv     vec30[e0], DMEM_1C0(r0)
     addi    s7, r0, 0xBA8
     vadd    vec1,vec0,vec0 // multiply vector 0 by 2
     addi    s6, r0, 0xD00
     vsub    vec1,vec0,vec31[e8]
-    lw      t3, 0x0F0(r0) // TASK_DRAM_STACK gets written here?
+    lw      t3, DMEM_0F0(r0) // TASK_DRAM_STACK gets written here?
     lw      t4, TASK_FLAGS(r0)
     addi    at, r0, SG1_CLR | SG2_CLR
     beqz    t3,+
@@ -218,7 +277,7 @@ func_1088:
     sw      r0, TASK_FLAGS(r0)
 
     j       label_1168
-    lw      k0, 0xBF8(r0)
+    lw      k0, DMEM_BF8(r0)
 
 +
     mfc0    t3, RDP_STATUS
@@ -252,27 +311,27 @@ func_1088:
     mtc0    v0, COMMAND_START
     mtc0    v0, COMMAND_END
 +
-    sw      v0, 0x0F0(r0)
-    lw      t3, 0x0F4(r0)
+    sw      v0, DMEM_0F0(r0)
+    lw      t3, DMEM_0F4(r0)
     bnez    t3, label_1130
     lw      t3, TASK_DRAM_STACK(r0)
 
-    sw      t3, 0x0F4(r0)
+    sw      t3, DMEM_0F4(r0)
 label_1130:
     lw      at, TASK_UCODE(r0)
-    lw      v0, 0x2E0(r0)
-    lw      v1, 0x2E8(r0)
-    lw      a0, 0x410(r0)
-    lw      a1, 0x418(r0)
+    lw      v0, DMEM_2E0(r0)
+    lw      v1, DMEM_2E8(r0)
+    lw      a0, DMEM_410(r0)
+    lw      a1, DMEM_418(r0)
     add     v0, v0, at
     add     v1, v1, at
-    sw      v0, 0x2E0(r0)
-    sw      v1, 0x2E8(r0)
+    sw      v0, DMEM_2E0(r0)
+    sw      v1, DMEM_2E8(r0)
 func_1154:
     add     a0, a0, at
     add     a1, a1, at
-    sw      a0, 0x410(r0)
-    sw      a1, 0x418(r0)
+    sw      a0, DMEM_410(r0)
+    sw      a1, DMEM_418(r0)
     lw      k0, TASK_DATA_PTR(r0)
 label_1168:
     addi    t3, r0, 0x2E8
@@ -285,7 +344,7 @@ label_1178:
     ori     t8, k0, 0
 
     jal     func_1FD8 // load in the DList from TASK_DATA_PTR?
-    addiu   s4, r0, 0x0920 // DMA destination: DMEM+$920
+    addiu   s4, r0, DMEM_920 // DMA destination
 
 label_1188:
     addiu   k0, k0, 0x00A8
@@ -316,22 +375,22 @@ label_11A4:
     j       func_1FD8
     addi    ra, r0, label_1190
 
-    lw      t3, 0x1EC(r0)
+    lw      t3, DMEM_1EC(r0)
     and     t3, t3, t9
     or      t3, t3, t8
     j       label_1194
-    sw      t3, 0x1EC(r0)
+    sw      t3, DMEM_1EC(r0)
 
 label_11EC:
-    lbu     at, 0x0DE(r0)
+    lbu     at, DMEM_0DE(r0)
     beqz    at, label_1FAC
     addi    at, at, 0xFFFC
 
     j       label_1020
     lw      k0, 0x0138(at)
 
-    ldv     vec29[e0], 0x0D0(r0)
-    lw      t9, 0x0D8(r0)
+    ldv     vec29[e0], DMEM_0D0(r0)
+    lw      t9, DMEM_0D8(r0)
     addi    s7, s7, COMMAND_START
     sdv     vec29[e0], 0x3F8(s7)
 label_1210:
@@ -349,13 +408,13 @@ func_1224:
     srl     t8, t8, 8
     jr      ra
     add     t8, t8, t3
-    sw      t9, 0x0C8(r0)
+    sw      t9, DMEM_0C8(r0)
     j       label_1210
-    sw      t8, 0x0CC(r0)
+    sw      t8, DMEM_0CC(r0)
 
-    sw      t9, 0x0C0(r0)
+    sw      t9, DMEM_0C0(r0)
     j       label_1210
-    sw      t8, 0x0C4(r0)
+    sw      t8, DMEM_0C4(r0)
 
 label_1258:
     addi    ra, r0, label_1194
@@ -365,7 +424,7 @@ label_125C:
 label_1264:
     mfc0    t4, DMA_BUSY
 
-    lw      t8, 0x0F0(r0)
+    lw      t8, DMEM_0F0(r0)
     addiu   s3, t3, 0x0158
     bnez    t4,label_1264
     lw      t4, TASK_OUTPUT_BUFF_SIZE(r0)
@@ -397,7 +456,7 @@ label_1264:
 
 +
     add     t3, t8, s3
-    sw      t3, 0x0F0(r0)
+    sw      t3, DMEM_0F0(r0)
     addi    s3, s3, 0xFFFF
     addi    s4, s6, 0xDEA8
     xori    s6, s6, 0x0208
@@ -418,7 +477,7 @@ label_12E4:
     sh      v0, 0x03CC(s2)
     sh      v1, 0x03CE(s2)
     sh      r0, 0x03D0(s2)
-    lw      sp, 0x3CC(r0)
+    lw      sp, DMEM_3CC(r0)
 label_1308:
     lw      t1, 0x03F8(a1)
     lw      s0, 0x0024(v1)
@@ -455,7 +514,7 @@ label_1320:
     vmadn   vec10,vec6,vec3[e0]
     vmadh   vec11,vec7,vec3[e0]
     vaddc   vec8,vec8,vec8[e2]
-    lqv     vec25[e0], 0x1D0(r0)
+    lqv     vec25[e0], DMEM_1D0(r0)
     vadd    vec9,vec9,vec9[e2]
     vaddc   vec10,vec10,vec10[e2]
     vadd    vec11,vec11,vec11[e2]
@@ -545,7 +604,7 @@ label_14A8:
     lhu     v1, 0x03CE(s5)
     bnez    a1, label_1308
     addi    a1, a1, 0xFFFC
-    sw      r0, 0x3CC(r0)
+    sw      r0, DMEM_3CC(r0)
 
 -
     lhu     at, 0x03CA(s2)
@@ -561,7 +620,7 @@ label_14A8:
 
 +
     jr      fp
-    sw      sp, 0x3CC(r0)
+    sw      sp, DMEM_3CC(r0)
 
     nops(0x1780)
 
@@ -573,12 +632,12 @@ label_14A8:
     jal     func_1FD8
     addi    s3, at, 0xFFFF
 
-    lhu     a1, 0x1EC(r0)
+    lhu     a1, DMEM_1EC(r0)
     srl     at, at, 3
     sub     t7, t9, at
     lhu     t7, 0x0380(t7)
     ori     t6, s4, 0x0
-    lbu     t0, 0x1D9(r0)
+    lbu     t0, DMEM_1D9(r0)
     andi    a2, a1, 0x2
     bnez    a2, label_12D8
     andi    a3, a1, 0x1
@@ -587,32 +646,32 @@ label_17BC:
     bnez    t0,+
     sll     a3, a3, 3
 
-    sb      t9, 0x1D9(r0)
+    sb      t9, DMEM_1D9(r0)
     addi    s5, r0, 0x0040
     addi    s4, r0, 0x0
     jal     func_1088
     addi    s3, r0, 0x0080
 
 +
-    lqv     vec8[e0], 0x80(r0)
-    lqv     vec10[e0], 0x90(r0)
-    lqv     vec12[e0], 0xA0(r0)
-    lqv     vec14[e0], 0xB0(r0)
+    lqv     vec8[e0], DMEM_080(r0)
+    lqv     vec10[e0], DMEM_090(r0)
+    lqv     vec12[e0], DMEM_0A0(r0)
+    lqv     vec14[e0], DMEM_0B0(r0)
     vadd    vec9,vec8,vec0[e8]
-    ldv     vec9[e0], 0x88(r0)
+    ldv     vec9[e0], DMEM_088(r0)
     vadd    vec11,vec10,vec0[e8]
-    ldv     vec11[e0], 0x98(r0)
+    ldv     vec11[e0], DMEM_098(r0)
     vadd    vec13,vec12,vec0[e8]
-    ldv     vec13[e0], 0xA8(r0)
+    ldv     vec13[e0], DMEM_0A8(r0)
     vadd    vec15,vec14,vec0[e8]
-    ldv     vec15[e0], 0xB8(r0)
-    ldv     vec8[e8], 0x80(r0)
-    ldv     vec10[e8], 0x90(r0)
+    ldv     vec15[e0], DMEM_0B8(r0)
+    ldv     vec8[e8], DMEM_080(r0)
+    ldv     vec10[e8], DMEM_090(r0)
     jal     func_19F4
-    ldv     vec12[e8], 0xA0(r0)
+    ldv     vec12[e8], DMEM_0A0(r0)
 
     jal     func_1FC8
-    ldv     vec14[e8], 0xB0(r0)
+    ldv     vec14[e8], DMEM_0B0(r0)
 
     ldv     vec20[e0], 0x0(t6)
     vmov    vec16[e13],vec21[e9]
@@ -740,18 +799,18 @@ label_1870:
 
 func_19F4:
     addi    t5, r0, 0x0180
-    ldv     vec16[e0], 0xE0(r0)
-    ldv     vec16[e8], 0xE0(r0)
+    ldv     vec16[e0], DMEM_0E0(r0)
+    ldv     vec16[e8], DMEM_0E0(r0)
     llv     vec29[e0], 0x60(t5)
-    ldv     vec17[e0], 0xE8(r0)
-    ldv     vec17[e8], 0xE8(r0)
+    ldv     vec17[e0], DMEM_0E8(r0)
+    ldv     vec17[e8], DMEM_0E8(r0)
     vlt     vec19,vec31,vec31[e11]
     vsub    vec21,vec0,vec16[e0]
     llv     vec18[e4], 0x68(t5)
     vmrg    vec16,vec16,vec29[e8]
     llv     vec18[e12], 0x68(t5)
     vmrg    vec19,vec0,vec1[e8]
-    llv     vec18[e8], 0xDC(r0)
+    llv     vec18[e8], DMEM_0DC(r0)
     vmrg    vec17,vec17,vec29[e9]
     lsv     vec18[e10], 0x6(t5)
     vmov    vec16[e9],vec21[e9]
@@ -798,10 +857,10 @@ func_1A7C:
     vlt     vec13,vec2,vec4[e9]
     vmrg    vec14,vec6,vec4[e0]
     bnez    t3, label_1FD4
-    lbu     t3, 0x1EE(r0)
+    lbu     t3, DMEM_1EE(r0)
 
     vmudh   vec29,vec10,vec12[e9]
-    lw      t4, 0x3CC(r0)
+    lw      t4, DMEM_3CC(r0)
     vmadh   vec29,vec12,vec11[e9]
     or      a1, a1, a2
     vge     vec2,vec2,vec4[e9]
@@ -831,7 +890,7 @@ func_1A7C:
     vsub    vec8,vec10,vec14[e0]
     mfc2    v1,vec10[e12]
     vsub    vec11,vec14,vec2[e0]
-    lw      a2, 0x1EC(r0)
+    lw      a2, DMEM_1EC(r0)
     vsub    vec12,vec14,vec10[e0]
     llv     vec13[e0], 0x20(at)
     vsub    vec15,vec10,vec2[e0]
@@ -875,7 +934,7 @@ label_1BC0:
     vrcph   vec22[e11],vec8[e9]
     lw      t0, 0x0020(v1)
     vmudl   vec18,vec18,vec30[e11]
-    lbu     t1, 0x1E7(r0)
+    lbu     t1, DMEM_1E7(r0)
     vmudl   vec19,vec19,vec30[e11]
     sub     t3, a1, a3
     vmudl   vec21,vec21,vec30[e11]
@@ -899,7 +958,7 @@ label_1BC0:
     vmudm   vec29,vec25,vec20[e0]
     mfc2    a1,vec17[e1]
     vmadl   vec29,vec15,vec20[e0]
-    lbu     a3, 0x1E6(r0)
+    lbu     a3, DMEM_1E6(r0)
     vmadn   vec20,vec15,vec22[e0]
     lsv     vec19[e14], 0x1C(v0)
     vmadh   vec15,vec25,vec22[e0]
@@ -1085,7 +1144,7 @@ label_1BC0:
     lh      t9, 6(t9)
     sub     v0, t9, t8
     bgez    v0, label_1194
-    lw      t8, 0x0D8(r0)
+    lw      t8, DMEM_0D8(r0)
     j       label_1008
     lbu     at, 0x09C1(k1)
 
@@ -1133,18 +1192,18 @@ base 0x1000
     bgezal  t4, label_1264
     nop
     jal     func_1FC8
-    lw      t8, 0x0F0(r0)
+    lw      t8, DMEM_0F0(r0)
     bltz    at, label_1084
     mtc0    t8, COMMAND_END
     bnez    at, label_1060
     add     k0, k0, k1
     lw      t8, 0x09C4(k1)
-    sw      k0, 0xFF0(r0)
-    sw      t8, 0xFD0(r0)
+    sw      k0, TASK_DATA_PTR(r0)
+    sw      t8, TASK_UCODE(r0)
     addiu   s4, r0, 0x1080
     jal     func_1FD8
     addi    s3, r0, 0x0F47
-    lw      t8, 0x0D8(r0)
+    lw      t8, DMEM_0D8(r0)
     addiu   s4, r0, 0x0180
     andi    s3, t9, 0x0FFF
     add     t8, t8, s4
@@ -1154,11 +1213,11 @@ base 0x1000
     addi    ra, r0, label_1084
 
 label_1060:
-    lw      t3, 0xFD0(r0)
-    sw      k0, 0xBF8(r0)
-    sw      t3, 0xBFC(r0)
+    lw      t3, TASK_UCODE(r0)
+    sw      k0, DMEM_BF8(r0)
+    sw      t3, DMEM_BFC(r0)
     addi    t4, r0, 0x5000
-    lw      t8, 0xFF8(r0)
+    lw      t8, TASK_YIELD_DATA_PTR(r0)
     addi    s4, r0, 0x8000
     addi    s3, r0, 0x0BFF
     j       func_1FD8
@@ -1173,7 +1232,7 @@ label_1060:
 // this gets loaded by func_1FB4 from DMEM+$2E8
 base 0x1000
 
-    lbu     at, 0x0DE(r0)
+    lbu     at, DMEM_0DE(r0)
     sll     v0, t9, 15
     jal     func_1224
     add     v1, k0, k1
@@ -1182,7 +1241,7 @@ base 0x1000
     sw      v1, 0x0138(at)
     addi    at, at, 0x0004
     j       label_1178
-    sb      at, 0x0DE(r0)
+    sb      at, DMEM_0DE(r0)
 
     addi    t3, r0, 0x1140
     sw      t9, 0xF0A4(t3)
@@ -1195,8 +1254,8 @@ base 0x1000
     j       label_1194
     sw      t8, 0x0000(at)
 
-    lw      t3, 0x0F4(r0)
-    lw      v0, 0xFE0(r0)
+    lw      t3, DMEM_0F4(r0)
+    lw      v0, TASK_DRAM_STACK(r0)
     sub     t8, t3, t8
     sub     at, t8, v0
     bgez    at, label_1068
@@ -1204,9 +1263,9 @@ base 0x1000
     ori     t8, v0, 0x0000
 label_1068:
     beq     t8, t3, label_1194
-    sw      t8, 0x0F4(r0)
+    sw      t8, DMEM_0F4(r0)
     j       label_1124
-    sw      r0, 0x1D9(r0)
+    sw      r0, DMEM_1D9(r0)
 
     lhu     s3, 0x02F2(at)
     jal     func_1FC8
@@ -1244,16 +1303,16 @@ label_10A0:
     andi    t3, t9, 0x0005
     bnez    t3, label_1118
     andi    v0, t9, 0x0002
-    lw      t8, 0x0F4(r0)
+    lw      t8, DMEM_0F4(r0)
     addi    s4, r0, 0xE000
     jal     func_1FD8
     addi    s3, r0, 0x003F
     addi    t8, t8, 0x0040
-    sw      t8, 0x0F4(r0)
+    sw      t8, DMEM_0F4(r0)
     lw      t8, 0x09C4(k1)
 label_1118:
     add     t4, t4, v0
-    sw      r0, 0x1D9(r0)
+    sw      r0, DMEM_1D9(r0)
     jal     func_1224
 label_1124:
     andi    at, t9, 0x00FE
@@ -1272,15 +1331,15 @@ label_1124:
     and     v1, v1, v0
     or      v1, v1, t8
     sw      v1, 0xEF8C(t3)
-    lw      t9, 0x0C8(r0)
+    lw      t9, DMEM_0C8(r0)
     j       label_1210
-    lw      t8, 0x0CC(r0)
+    lw      t8, DMEM_0CC(r0)
 
 base 0x12D8
 
-    lbu     t3, 0x1DC(r0)
+    lbu     t3, DMEM_1DC(r0)
     j       label_12F4
-    lbu     a2, 0x1DD(r0)
+    lbu     a2, DMEM_1DD(r0)
 
     ori     fp, ra, 0x0000
     addi    t3, r0, 0x0418
@@ -1290,27 +1349,27 @@ base 0x12D8
 label_12F4:
     bnez    t3, label_17BC
     addi    a2, a2, 0x0168
-    sb      t9, 0x1DC(r0)
-    lqv     vec12[e0], 0x20(r0)
-    lqv     vec8[e0], 0x0(r0)
-    lsv     vec13[e2], 0x2A(r0)
-    lsv     vec9[e2], 0xA(r0)
+    sb      t9, DMEM_1DC(r0)
+    lqv     vec12[e0], DMEM_020(r0)
+    lqv     vec8[e0], DMEM_000(r0)
+    lsv     vec13[e2], DMEM_02A(r0)
+    lsv     vec9[e2], DMEM_00A(r0)
     vmov    vec13[e8],vec12[e9]
-    lsv     vec14[e4], 0x34(r0)
+    lsv     vec14[e4], DMEM_034(r0)
     vmov    vec9[e8],vec8[e9]
-    lsv     vec10[e4], 0x14(r0)
+    lsv     vec10[e4], DMEM_014(r0)
     vmov    vec14[e8],vec12[e10]
     addi    s4, r0, 0x0150
     vmov    vec10[e8],vec8[e10]
     lpv     vec7[e0], 0xA8(s4)
     vmov    vec14[e9],vec12[e14]
-    lsv     vec13[e4], 0x32(r0)
+    lsv     vec13[e4], DMEM_032(r0)
     vmov    vec10[e9],vec8[e14]
-    lsv     vec9[e4], 0x12(r0)
+    lsv     vec9[e4], DMEM_012(r0)
     vmov    vec12[e9],vec12[e12]
-    lsv     vec12[e4], 0x30(r0)
+    lsv     vec12[e4], DMEM_030(r0)
     vmov    vec8[e9],vec8[e12]
-    lsv     vec8[e4], 0x10(r0)
+    lsv     vec8[e4], DMEM_010(r0)
 label_1350:
     vmudn   vec29,vec13,vec7[e9]
     vmadh   vec29,vec9,vec7[e9]
@@ -1380,8 +1439,8 @@ label_140C:
     addi    t1, t1, 0xFFE8
 
 label_144C:
-    lqv     vec31[e0], 0x1B0(r0)
-    lqv     vec30[e0], 0x1C0(r0)
+    lqv     vec31[e0], DMEM_1B0(r0)
+    lqv     vec30[e0], DMEM_1C0(r0)
     llv     vec22[e4], 0x18(t6)
     bgezal  t4, func_1480
     addi    t4, r0, 0x8080
@@ -1414,37 +1473,37 @@ func_1480:
     ldv     vec14[e8], 0x30(t4)
 
 func_14C4:
-    lsv     vec4[e0], 0x0(r0)
-    lsv     vec3[e0], 0x20(r0)
-    lsv     vec21[e0], 0x2(r0)
-    lsv     vec28[e0], 0x22(r0)
-    lsv     vec30[e0], 0x4(r0)
+    lsv     vec4[e0], DMEM_000(r0)
+    lsv     vec3[e0], DMEM_020(r0)
+    lsv     vec21[e0], DMEM_002(r0)
+    lsv     vec28[e0], DMEM_022(r0)
+    lsv     vec30[e0], DMEM_004(r0)
     vmov    vec4[e12],vec4[e8]
-    lsv     vec31[e0], 0x24(r0)
+    lsv     vec31[e0], DMEM_024(r0)
     vmov    vec3[e12],vec3[e8]
-    lsv     vec4[e2], 0x8(r0)
+    lsv     vec4[e2], DMEM_008(r0)
     vmov    vec21[e12],vec21[e8]
-    lsv     vec3[e2], 0x28(r0)
+    lsv     vec3[e2], DMEM_028(r0)
     vmov    vec28[e12],vec28[e8]
-    lsv     vec21[e2], 0xA(r0)
+    lsv     vec21[e2], DMEM_00A(r0)
     vmov    vec30[e12],vec30[e8]
-    lsv     vec28[e2], 0x2A(r0)
+    lsv     vec28[e2], DMEM_02A(r0)
     vmov    vec31[e12],vec31[e8]
-    lsv     vec30[e2], 0xC(r0)
+    lsv     vec30[e2], DMEM_00C(r0)
     vmov    vec4[e13],vec4[e9]
-    lsv     vec31[e2], 0x2C(r0)
+    lsv     vec31[e2], DMEM_02C(r0)
     vmov    vec3[e13],vec3[e9]
-    lsv     vec4[e4], 0x10(r0)
+    lsv     vec4[e4], DMEM_010(r0)
     vmov    vec21[e13],vec21[e9]
-    lsv     vec3[e4], 0x30(r0)
+    lsv     vec3[e4], DMEM_030(r0)
     vmov    vec28[e13],vec28[e9]
-    lsv     vec21[e4], 0x12(r0)
+    lsv     vec21[e4], DMEM_012(r0)
     vmov    vec30[e13],vec30[e9]
-    lsv     vec28[e4], 0x32(r0)
+    lsv     vec28[e4], DMEM_032(r0)
     vmov    vec31[e13],vec31[e9]
-    lsv     vec30[e4], 0x14(r0)
+    lsv     vec30[e4], DMEM_014(r0)
     vmov    vec4[e14],vec4[e10]
-    lsv     vec31[e4], 0x34(r0)
+    lsv     vec31[e4], DMEM_034(r0)
     vmov    vec3[e14],vec3[e10]
     or      t4, r0, r0
     vmov    vec21[e14],vec21[e10]
@@ -1573,7 +1632,7 @@ label_1708:
     vmulf   vec28,vec7,vec20[e4]
     vmacf   vec28,vec6,vec20[e5]
     vmacf   vec28,vec5,vec20[e6]
-    lqv     vec2[e0], 0x1D0(r0)
+    lqv     vec2[e0], DMEM_1D0(r0)
     vmudh   vec22,vec1,vec31[e13]
     vmacf   vec22,vec3,vec21[e4]
     beqz    t4, label_1870
