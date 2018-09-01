@@ -343,15 +343,15 @@ label_1168:
     ori     t4, ra, 0
 
 label_1178:
-    addi    s3, r0, 0xA7 // DMA length: 0xA8
+    addi    s3, r0, 0xA8 - 1 // DMA length: 0xA8
     ori     t8, k0, 0
 
     jal     func_1FD8 // load in the DList from TASK_DATA_PTR?
     addiu   s4, r0, DMEM_920 // DMA destination
 
 label_1188:
-    addiu   k0, k0, 0x00A8
-    addi    k1, r0, 0xFF58
+    addiu   k0, k0, 0xA8
+    subi    k1, r0, 0xA8
 label_1190:
     jal     func_1FC8
 label_1194:
@@ -387,7 +387,7 @@ label_11A4:
 label_11EC:
     lbu     at, DMEM_0DE(r0)
     beqz    at, label_1FAC
-    addi    at, at, 0xFFFC
+    subi    at, at, 4
 
     j       label_1020
     lw      k0, 0x0138(at)
@@ -460,11 +460,11 @@ label_1264:
 +
     add     t3, t8, s3
     sw      t3, DMEM_0F0(r0)
-    addi    s3, s3, 0xFFFF
-    addi    s4, s6, 0xDEA8
+    subi    s3, s3, 1
+    subi    s4, s6, 0x2158
     xori    s6, s6, 0x0208
     j       func_1FD8
-    addi    s7, s6, 0xFEA8
+    subi    s7, s6, 0x0158
 
 label_12D8:
     addi    t3, r0, 0x0410
@@ -485,9 +485,9 @@ label_1308:
     lw      t1, 0x03F8(a1)
     lw      s0, 0x0024(v1)
     and     s0, s0, t1
-    addi    s1, s2, 0xFFFA
+    subi    s1, s2, 0x0006
     xori    s2, s2, 0x001C
-    addi    s5, s2, 0xFFFA
+    subi    s5, s2, 0x0006
 label_1320:
     lhu     v0, 0x03D0(s1)
     addi    s1, s1, 0x2
@@ -581,7 +581,7 @@ label_13D8:
     addi    at, r0, 0x2
     sh      t7, 0x03D0(s5)
     j       func_19F4
-    addi    ra, r0, 0x9870
+    subi    ra, r0, 0x6790
 
 label_1478:
     slv     vec25[e0], 0x1C8(t7)
@@ -589,7 +589,7 @@ label_1478:
     suv     vec22[e0], 0x3C0(t7)
     slv     vec22[e8], 0x1C4(t7)
     ssv     vec3[e4], 0xCC(t7)
-    addi    t7, t7, 0xFFD8
+    subi    t7, t7, 0x0028
     addi    s5, s5, 0x2
 
 label_1494:
@@ -606,7 +606,7 @@ label_14A8:
     sh      r0, 0x03D0(s5)
     lhu     v1, 0x03CE(s5)
     bnez    a1, label_1308
-    addi    a1, a1, 0xFFFC
+    subi    a1, a1, 0x0004
     sw      r0, DMEM_3CC(r0)
 
 -
@@ -633,7 +633,7 @@ label_14A8:
 
     sub     s4, s4, at
     jal     func_1FD8
-    addi    s3, at, 0xFFFF
+    subi    s3, at, 0x0001
 
     lhu     a1, DMEM_1EC(r0)
     srl     at, at, 3
@@ -700,7 +700,7 @@ label_182C:
     llv     vec22[e4], 0x18(t6)
 label_1870:
     vge     vec3,vec25,vec0[e8]
-    addi    at, at, 0xFFFC
+    subi    at, at, 0x0004
     vmudl   vec29,vec23,vec18[e12]
     sub     t3, t0, a3
     vmadm   vec2,vec24,vec18[e12]
@@ -754,7 +754,7 @@ label_1870:
     vmadn   vec5,vec26,vec4[e0]
     lsv     vec24[e6], 0xB4(t7)
     vmadh   vec4,vec25,vec4[e0]
-    sh      t2, 0xFFFE(t0)
+    sh      t2, -2(t0)
     vmadh   vec2,vec2,vec31[e15]
     sll     t3, t2, 4
     vcl     vec29,vec23,vec7[e7]
@@ -764,12 +764,12 @@ label_1870:
     vmadm   vec29,vec24,vec5[e7]
     addi    t6, t6, 0x0020
     vmadn   vec26,vec23,vec2[e7]
-    sh      t2, 0xFFFC(t0)
+    sh      t2, -4(t0)
     vmadh   vec25,vec24,vec2[e7]
     sll     t2, t2, 4
     vmudm   vec3,vec22,vec18[e0]
-    sh      t3, 0xFFD6(t7)
-    sh      t2, 0xFFD4(t7)
+    sh      t3, -42(t7)
+    sh      t2, -44(t7)
     vmudl   vec29,vec26,vec18[e12]
     ssv     vec5[e6], 0xD2(t7)
     vmadm   vec25,vec25,vec18[e12]
@@ -1221,7 +1221,7 @@ label_1060:
     sw      t3, DMEM_BFC(r0)
     addi    t4, r0, 0x5000
     lw      t8, TASK_YIELD_DATA_PTR(r0)
-    addi    s4, r0, 0x8000
+    subi    s4, r0, 0x8000
     addi    s3, r0, 0x0BFF
     j       func_1FD8
     addi    ra, r0, func_1088
@@ -1247,9 +1247,9 @@ base 0x1000
     sb      at, DMEM_0DE(r0)
 
     addi    t3, r0, 0x1140
-    sw      t9, 0xF0A4(t3)
+    sw      t9, -0xF5C(t3)
     j       label_1194
-    sw      t8, 0xF0A8(t3)
+    sw      t8, -0xF58(t3)
 
     srl     v0, t9, 16
     lhu     at, 0x27FE(v0)
@@ -1279,7 +1279,7 @@ label_108C:
     vmadn   vec9,vec0,vec0[e8]
     addi    t3, s4, 0x0008
     vmadh   vec8,vec0,vec0[e8]
-    addi    s5, s5, 0xFFE0
+    subi    s5, s5, 0x0020
     vmudh   vec29,vec0,vec0[e8]
 label_10A0:
     ldv     vec5[e0], 0x40(s5)
@@ -1307,7 +1307,7 @@ label_10A0:
     bnez    t3, label_1118
     andi    v0, t9, 0x0002
     lw      t8, DMEM_0F4(r0)
-    addi    s4, r0, 0xE000
+    subi    s4, r0, 0x2000
     jal     func_1FD8
     addi    s3, r0, 0x003F
     addi    t8, t8, 0x0040
@@ -1325,7 +1325,7 @@ label_1124:
     lhu     ra, 0x0336(t4)
     j       func_1FD8
     add     s4, s4, v0
-    lw      v1, 0xEF8C(t3)
+    lw      v1, -0x1074(t3)
     lui     v0, 0x8000
     srav    v0, v0, t9
     srl     at, t9, 8
@@ -1333,7 +1333,7 @@ label_1124:
     nor     v0, v0, r0
     and     v1, v1, v0
     or      v1, v1, t8
-    sw      v1, 0xEF8C(t3)
+    sw      v1, -0x1074(t3)
     lw      t9, DMEM_0C8(r0)
     j       label_1210
     lw      t8, DMEM_0CC(r0)
@@ -1417,7 +1417,7 @@ label_1398:
     vne     vec4,vec31,vec31[e7]
     andi    t3, a1, 0x0040
     beqz    t3, label_168C
-    addi    t4, r0, 0x8080
+    subi    t4, r0, 0x7F80
     vaddc   vec28,vec27,vec0[e8]
     suv     vec29[e0], 0x8(t6)
     ori     t3, r0, 0x0004
@@ -1439,14 +1439,14 @@ label_140C:
     vmacf   vec29,vec2,vec20[e4]
     suv     vec29[e0], 0x8(t6)
     bne     t1, t5, label_140C
-    addi    t1, t1, 0xFFE8
+    subi    t1, t1, 0x0018
 
 label_144C:
     lqv     vec31[e0], DMEM_1B0(r0)
     lqv     vec30[e0], DMEM_1C0(r0)
     llv     vec22[e4], 0x18(t6)
     bgezal  t4, func_1480
-    addi    t4, r0, 0x8080
+    subi    t4, r0, 0x7F80
     andi    t3, a1, 0x0004
     vmrg    vec3,vec0,vec31[e13]
     beqz    t3, label_1870
@@ -1590,7 +1590,7 @@ label_155C:
     vmacf   vec29,vec20,vec2[e4]
     suv     vec29[e0], 0x8(t6)
     bne     t1, t5, label_140C
-    addi    t1, t1, 0xFFE8
+    subi    t1, t1, 0x0018
     j       label_144C
 label_168C:
     lpv     vec20[e0], 0x98(t1)
@@ -1604,9 +1604,9 @@ label_1690:
     vmulu   vec28,vec7,vec20[e4]
     luv     vec3[e0], 0x88(t1)
     vmacu   vec28,vec6,vec20[e5]
-    addi    t3, t1, 0xFFE8
+    subi    t3, t1, 0x0018
     vmacu   vec28,vec5,vec20[e6]
-    addi    t1, t1, 0xFFD0
+    subi    t1, t1, 0x0030
     vmrg    vec29,vec29,vec27[e0]
     mtc2    0,vec4[e6]
     vmrg    vec3,vec3,vec0[e8]
