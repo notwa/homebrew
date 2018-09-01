@@ -179,7 +179,10 @@ fill 0xD0
 origin 0x0000
 base 0x1000
 
-    j       label_1054
+// quirk with the addressing used in the boot file:
+constant BOOT_IMEM_ADDR(0xA4000000) // doesn't affect functionality
+
+    j       label_1054 | BOOT_IMEM_ADDR
     addi    at, r0, TASK_START
 
 label_1008:
@@ -195,7 +198,7 @@ label_1020:
     mfc0    a0, DMA_BUSY // wait until it finishes
     bnez    a0,-
     nop
-    jal     func_103C // check error status
+    jal     func_103C | BOOT_IMEM_ADDR // check error status
     nop
     jr      a3 // jump to the new code we just loaded
     mtc0    r0, SEMAPHORE
@@ -219,7 +222,7 @@ label_1054:
     andi    v0, v0, 2 // check flag 1
     beqz    v0,+
     nop
-    jal     func_103C
+    jal     func_103C | BOOT_IMEM_ADDR
     nop
     mfc0    v0, RDP_STATUS
 
@@ -243,9 +246,9 @@ label_1080:
     mfc0    a0, DMA_BUSY // wait until it finishes
     bnez    a0,-
     nop
-    jal     func_103C // check error status
+    jal     func_103C | BOOT_IMEM_ADDR // check error status
     nop
-    j       label_1008
+    j       label_1008 | BOOT_IMEM_ADDR
     nop
     nop
 

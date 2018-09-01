@@ -65,8 +65,7 @@ PushRSPTask:
 
 LoadRSPBoot:
     la      t2, UCODE_BOOT & ADDR_MASK
-    li      t3, UCODE_BOOT.size
-    subiu   t3, t3, 1 // DMA quirk
+    li      t3, UCODE_BOOT.size - 1 // DMA quirk
     SP_DMA_WAIT() // clobbers t0, a0
     la      t1, 0xA4001000
     sw      t1, SP_MEM_ADDR(a0)
@@ -75,6 +74,6 @@ LoadRSPBoot:
     jr      ra
     nop
 
-align(16); insert UCODE_BOOT, "bin/common.boot.bin"
+align(16); insert UCODE_BOOT, "bin/F3DZEX2.boot.bin"
 align(16); insert F3DZEX_IMEM, "bin/F3DZEX2.bin"
 align(16); insert F3DZEX_DMEM, "bin/F3DZEX2.data.bin"
