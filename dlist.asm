@@ -130,7 +130,7 @@ WriteDList:
     gPipeSync()
     gSetSegment0(0) // set to 0 so that 00-prefixed addresses are absolute.
     gTextureOff()
-    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,7)
+    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,4)
     gSetScissor(0, 0, 0, WIDTH, HEIGHT) // TODO: use mode enum
     gSetBlendColor(0,0,0,0)
     gClipRatio(2)
@@ -173,7 +173,7 @@ if HIRES {
     gMatrix(view_mat1, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION)
 
     gPipeSync()
-    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,7)
+    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,4)
     gSetOtherMode(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN, G_AC_NONE | G_ZS_PIXEL | Z_CMP | Z_UPD)
     // CULL_FRONT is dying on N64?
     gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_FRONT | G_SHADING_SMOOTH)

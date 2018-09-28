@@ -726,6 +726,6 @@ macro gDisasmCombine(variable upper, variable lower) {
     variable Ad0((lower >> 9) & 0x7)
     variable d1((lower >> 6) & 0x7)
     variable Ab1((lower >> 3) & 0x7)
-    variable Ad1((lower >> 3) & 0x7)
+    variable Ad1(lower & 0x7)
     print "gSetCombine(",a0,",",b0,",",c0,",",d0,",",Aa0,",",Ab0,",",Ac0,",",Ad0,", ",a1,",",b1,",",c1,",",d1,",",Aa1,",",Ab1,",",Ac1,",",Ad1,")\n"
 }
