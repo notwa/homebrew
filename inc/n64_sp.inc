@@ -1,20 +1,20 @@
-constant SP_MEM_BASE($A400) // $04000000..$04000FFF SP MEM Base Register
-constant SP_DMEM($0000)     // $04000000..$04000FFF SP: RSP DMEM (4096 Bytes)
-constant SP_IMEM($1000)     // $04001000..$04001FFF SP: RSP IMEM (4096 Bytes)
+constant SP_MEM_BASE($A400) // $04000000 SP MEM Base Register
+constant SP_DMEM($0000)     // $04000000 RSP DMEM (4096 Bytes)
+constant SP_IMEM($1000)     // $04001000 RSP IMEM (4096 Bytes)
 
-constant SP_BASE($A404)    // $04040000..$0404001F SP Base Register
-constant SP_MEM_ADDR($00)  // $04040000..$04040003 SP: Master, SP Memory Address Register
-constant SP_DRAM_ADDR($04) // $04040004..$04040007 SP: Slave, SP DRAM DMA Address Register
-constant SP_RD_LEN($08)    // $04040008..$0404000B SP: Read DMA Length Register
-constant SP_WR_LEN($0C)    // $0404000C..$0404000F SP: Write DMA Length Register
-constant SP_STATUS($10)    // $04040010..$04040013 SP: Status Register
-constant SP_DMA_FULL($14)  // $04040014..$04040017 SP: DMA Full Register
-constant SP_DMA_BUSY($18)  // $04040018..$0404001B SP: DMA Busy Register
-constant SP_SEMAPHORE($1C) // $0404001C..$0404001F SP: Semaphore Register
+constant SP_BASE($A404)    // $04040000 SP Base Register
+constant SP_MEM_ADDR($00)  // $04040000 Master, SP Memory Address Register
+constant SP_DRAM_ADDR($04) // $04040004 Slave, SP DRAM DMA Address Register
+constant SP_RD_LEN($08)    // $04040008 Read DMA Length Register
+constant SP_WR_LEN($0C)    // $0404000C Write DMA Length Register
+constant SP_STATUS($10)    // $04040010 Status Register
+constant SP_DMA_FULL($14)  // $04040014 DMA Full Register
+constant SP_DMA_BUSY($18)  // $04040018 DMA Busy Register
+constant SP_SEMAPHORE($1C) // $0404001C Semaphore Register
 
-constant SP_PC_BASE($A408) // $04080000..$04080007 SP PC Base Register
-constant SP_PC($00)        // $04080000..$04080003 SP: PC Register
-constant SP_IBIST_REG($04) // $04080004..$04080007 SP: IMEM BIST Register
+constant SP_PC_BASE($A408) // $04080000 SP PC Base Register
+constant SP_PC($00)        // $04080000 PC Register
+constant SP_IBIST_REG($04) // $04080004 IMEM BIST Register
 
 // SP_STATUS Read Flags:
 constant SP_HALT($0001)
@@ -24,14 +24,14 @@ constant SP_FULL($0008) // DMA full
 constant SP_IO_FULL($0010)
 constant SP_SINGLE_STEP($0020)
 constant SP_INT_ON_BREAK($0040) // Interrupt On Break
-constant SP_SG0($0080) // Signal 0 Set
-constant SP_SG1($0100) // Signal 1 Set
-constant SP_SG2($0200) // Signal 2 Set
-constant SP_SG3($0400) // Signal 3 Set
-constant SP_SG4($0800) // Signal 4 Set
-constant SP_SG5($1000) // Signal 5 Set
-constant SP_SG6($2000) // Signal 6 Set
-constant SP_SG7($4000) // Signal 7 Set
+constant SP_SIG0($0080) // Signal 0 Set
+constant SP_SIG1($0100) // Signal 1 Set
+constant SP_SIG2($0200) // Signal 2 Set
+constant SP_SIG3($0400) // Signal 3 Set
+constant SP_SIG4($0800) // Signal 4 Set
+constant SP_SIG5($1000) // Signal 5 Set
+constant SP_SIG6($2000) // Signal 6 Set
+constant SP_SIG7($4000) // Signal 7 Set
 
 // SP_STATUS Write Flags:
 constant SP_HALT_CLR($00000001)
@@ -43,22 +43,40 @@ constant SP_SINGLE_STEP_CLR($00000020)
 constant SP_SINGLE_STEP_SET($00000040)
 constant SP_INT_ON_BREAK_CLR($00000080) // Clear Interrupt On Break
 constant SP_INT_ON_BREAK_SET($00000100) //   Set Interrupt On Break
-constant SP_SG0_CLR($00000200) // Clear Signal 0
-constant SP_SG0_SET($00000400) //   Set Signal 0
-constant SP_SG1_CLR($00000800) // Clear Signal 1
-constant SP_SG1_SET($00001000) //   Set Signal 1
-constant SP_SG2_CLR($00002000) // Clear Signal 2
-constant SP_SG2_SET($00004000) //   Set Signal 2
-constant SP_SG3_CLR($00008000) // Clear Signal 3
-constant SP_SG3_SET($00010000) //   Set Signal 3
-constant SP_SG4_CLR($00020000) // Clear Signal 4
-constant SP_SG4_SET($00040000) //   Set Signal 4
-constant SP_SG5_CLR($00080000) // Clear Signal 5
-constant SP_SG5_SET($00100000) //   Set Signal 5
-constant SP_SG6_CLR($00200000) // Clear Signal 6
-constant SP_SG6_SET($00400000) //   Set Signal 6
-constant SP_SG7_CLR($00800000) // Clear Signal 7
-constant SP_SG7_SET($01000000) //   Set Signal 7
+constant SP_SIG0_CLR($00000200)
+constant SP_SIG0_SET($00000400)
+constant SP_SIG1_CLR($00000800)
+constant SP_SIG1_SET($00001000)
+constant SP_SIG2_CLR($00002000)
+constant SP_SIG2_SET($00004000)
+constant SP_SIG3_CLR($00008000)
+constant SP_SIG3_SET($00010000)
+constant SP_SIG4_CLR($00020000)
+constant SP_SIG4_SET($00040000)
+constant SP_SIG5_CLR($00080000)
+constant SP_SIG5_SET($00100000)
+constant SP_SIG6_CLR($00200000)
+constant SP_SIG6_SET($00400000)
+constant SP_SIG7_CLR($00800000)
+constant SP_SIG7_SET($01000000)
+
+// signal conventions:
+constant SP_YIELD(SP_SIG0)
+constant SP_YIELDED(SP_SIG1)
+constant SP_TASKDONE(SP_SIG2)
+constant SP_RSPSIGNAL(SP_SIG3)
+constant SP_CPUSIGNAL(SP_SIG4)
+
+constant SP_YIELD_CLR(SP_SIG0_CLR)
+constant SP_YIELD_SET(SP_SIG0_SET)
+constant SP_YIELDED_CLR(SP_SIG1_CLR)
+constant SP_YIELDED_SET(SP_SIG1_SET)
+constant SP_TASKDONE_CLR(SP_SIG2_CLR)
+constant SP_TASKDONE_SET(SP_SIG2_SET)
+constant SP_RSPSIGNAL_CLR(SP_SIG3_CLR)
+constant SP_RSPSIGNAL_SET(SP_SIG3_SET)
+constant SP_CPUSIGNAL_CLR(SP_SIG4_CLR)
+constant SP_CPUSIGNAL_SET(SP_SIG4_SET)
 
 macro SP_DMA_WAIT() {
     lui     a0, SP_BASE

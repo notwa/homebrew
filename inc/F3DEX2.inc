@@ -1,12 +1,13 @@
 
 // gMatrix: params argument
-// NOTE: the 0 flags are to declare intent. they have no effect.
-constant G_MTX_MODELVIEW(0)
-constant G_MTX_PROJECTION(4)
-constant G_MTX_MUL(0)
-constant G_MTX_LOAD(2)
-constant G_MTX_NOPUSH(0)
-constant G_MTX_PUSH(1)
+constant G_MTX_NOPUSH(0 << 0)
+constant G_MTX_PUSH(1 << 0)
+//
+constant G_MTX_MUL(0 << 1)
+constant G_MTX_LOAD(1 << 1)
+//
+constant G_MTX_MODELVIEW(0 << 2)
+constant G_MTX_PROJECTION(1 << 2)
 
 // gMoveWord: index argument
 constant G_MW_MATRIX(0x0)

@@ -435,11 +435,11 @@ K_MI_Loop:
 K_MI_SP:
     KWriteString(KS_MI_SP)
 
-    lli     t0, SP_SG3_CLR | SP_INT_CLR // delay slot
+    lli     t0, SP_RSPSIGNAL_CLR | SP_INT_CLR
     lui     a1, SP_BASE
     sw      t0, SP_STATUS(a1)
 
-    // then check andi t1, SP_SG1 | SP_SG2 ?
+    // then check andi t1, SP_YIELDED | SP_TASKDONE ?
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_SP

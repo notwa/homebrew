@@ -69,15 +69,15 @@ if {dpos} >= 0x2000 {
 }
 
 macro MatEye() {
-    dh 0x0001, 0x0000, 0x0000, 0x0000
-    dh 0x0000, 0x0001, 0x0000, 0x0000
-    dh 0x0000, 0x0000, 0x0001, 0x0000
-    dh 0x0000, 0x0000, 0x0000, 0x0001
+    dh 1, 0, 0, 0
+    dh 0, 1, 0, 0
+    dh 0, 0, 1, 0
+    dh 0, 0, 0, 1
 
-    dh 0x0000, 0x0000, 0x0000, 0x0000
-    dh 0x0000, 0x0000, 0x0000, 0x0000
-    dh 0x0000, 0x0000, 0x0000, 0x0000
-    dh 0x0000, 0x0000, 0x0000, 0x0000
+    dh 0, 0, 0, 0
+    dh 0, 0, 0, 0
+    dh 0, 0, 0, 0
+    dh 0, 0, 0, 0
 }
 
 macro Matrix(variable xx, variable xy, variable xz, variable xw, variable yx, variable yy, variable yz, variable yw, variable zx, variable zy, variable zz, variable zw, variable wx, variable wy, variable wz, variable ww) {

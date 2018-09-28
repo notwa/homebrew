@@ -16,14 +16,14 @@ include "n64_pif.inc"
 include "n64_util.inc"
 
 // Memory Map
-constant RDRAM_BASE($A3F0)       // $03F00000..$03F00027 RDRAM Base Register
-constant RDRAM_DEVICE_TYPE($00)  // $03F00000..$03F00003 RDRAM: Device Type Register
-constant RDRAM_DEVICE_ID($04)    // $03F00004..$03F00007 RDRAM: Device ID Register
-constant RDRAM_DELAY($08)        // $03F00008..$03F0000B RDRAM: Delay Register
-constant RDRAM_MODE($0C)         // $03F0000C..$03F0000F RDRAM: Mode Register
-constant RDRAM_REF_INTERVAL($10) // $03F00010..$03F00013 RDRAM: Ref Interval Register
-constant RDRAM_REF_ROW($14)      // $03F00014..$03F00017 RDRAM: Ref Row Register
-constant RDRAM_RAS_INTERVAL($18) // $03F00018..$03F0001B RDRAM: Ras Interval Register
-constant RDRAM_MIN_INTERVAL($1C) // $03F0001C..$03F0001F RDRAM: Minimum Interval Register
-constant RDRAM_ADDR_SELECT($20)  // $03F00020..$03F00023 RDRAM: Address Select Register
-constant RDRAM_DEVICE_MANUF($24) // $03F00024..$03F00027 RDRAM: Device Manufacturer Register
+constant RDRAM_BASE($A3F0)       // $03F00000 RDRAM Base
+constant RDRAM_DEVICE_TYPE($00)  // $03F00000 Device Type
+constant RDRAM_DEVICE_ID($04)    // $03F00004 Device ID
+constant RDRAM_DELAY($08)        // $03F00008 Delay
+constant RDRAM_MODE($0C)         // $03F0000C Mode
+constant RDRAM_REF_INTERVAL($10) // $03F00010 Ref Interval
+constant RDRAM_REF_ROW($14)      // $03F00014 Ref Row
+constant RDRAM_RAS_INTERVAL($18) // $03F00018 Ras Interval
+constant RDRAM_MIN_INTERVAL($1C) // $03F0001C Minimum Interval
+constant RDRAM_ADDR_SELECT($20)  // $03F00020 Address Select
+constant RDRAM_DEVICE_MANUF($24) // $03F00024 Device Manufacturer

@@ -82,7 +82,7 @@ Start3D:
 
     // prepare RSP
     lui     a0, SP_BASE
-    lli     t0, SP_SG2_CLR | SP_SG1_CLR | SP_SG0_CLR | SP_INT_ON_BREAK_SET
+    lli     t0, SP_INT_ON_BREAK_SET | SP_TASKDONE_CLR | SP_YIELDED_CLR | SP_YIELD_CLR
     sw      t0, SP_STATUS(a0)
 
     SP_HALT_WAIT()
