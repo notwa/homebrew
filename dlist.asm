@@ -124,7 +124,6 @@ WriteDList:
     sh      t9, MAT_ZZ(t8)
 
     or      a0, s0, r0
-    or      a1, s1, r0
 
     // init
     gPipeSync()
@@ -140,7 +139,7 @@ WriteDList:
     gClearZImage(WIDTH, HEIGHT, VIDEO_Z_IMAGE)
     gPipeSync()
 
-    WriteCB(G_SETCIMB_UPPER_WORD | (WIDTH - 1))
+    WriteCB(G_SETCIMB_UPPER_WORD | (WIDTH - 1), s1)
 
 if HICOLOR {
     gSetFillColor(0x444444FF) // dark gray

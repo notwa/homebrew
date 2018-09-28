@@ -56,11 +56,11 @@ if {dpos} >= 0x2000 {
 }
 }
 
-macro WriteCB(evaluate L) {
+macro WriteCB(evaluate L, reg) {
     lui     t0, ({L} >> 16) & 0xFFFF
     ori     t0, {L} & 0xFFFF
     sw      t0, {dpos}+0(a0)
-    sw      a1, {dpos}+4(a0)
+    sw      {reg}, {dpos}+4(a0)
 global evaluate dpos({dpos}+8)
 if {dpos} >= 0x2000 {
     addiu   a0, 0x2000
