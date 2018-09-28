@@ -1,6 +1,6 @@
 PushVideoTask:
     // a0: Task RDRAM Pointer (size: 0x40) (should probably be row-aligned)
-    subiu   sp, sp, 0x18
+    subiu   sp, 0x18
     sw      ra, 0x10(sp)
 
     lli     t0, 1 // mode: video
@@ -46,11 +46,11 @@ PushVideoTask:
 
     li      t9, ADDR_MASK
     jal     PushRSPTask
-    and     a0, a0, t9
+    and     a0, t9
 
     lw      ra, 0x10(sp)
     jr      ra
-    addiu   sp, sp, 0x18
+    addiu   sp, 0x18
 
 PushRSPTask:
     lli     t3, 0x40 - 1 // DMA quirk

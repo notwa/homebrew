@@ -40,7 +40,7 @@ Start:
 
     // enable CPU interrupts.
     mfc0    t1, CP0_Status
-    ori     t1, t1, CP0_STATUS_IM_ALL | CP0_STATUS_IE
+    ori     t1, CP0_STATUS_IM_ALL | CP0_STATUS_IE
     mtc0    t1, CP0_Status
 
     // enable even more interrupts.
@@ -74,7 +74,7 @@ Start:
 
     // SP defaults to RSP instruction memory: 0xA4001FF0
     // we can do better than that.
-    li      sp, K_STACK_INIT
+    la      sp, K_STACK_INIT
     // SP should always be 8-byte aligned
     // so that SD and LD instructions don't fail on it.
     // we also need 4 empty words for storing

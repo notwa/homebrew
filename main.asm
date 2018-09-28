@@ -23,9 +23,11 @@ if origin() != 0x1000 {
 include "kernel.asm"
 
 Main:
-    lui     s0, MAIN_BASE
 
 if 0 {
+DecompImage:
+    lui     s0, MAIN_BASE
+
     nop; nop; nop; nop
     mfc0    t0, CP0_Count
     sw      t0, MAIN_COUNTS+0(s0)
@@ -48,14 +50,11 @@ if 0 {
 
     jal     PokeDataCache
     nop
-}
 
     lui     a0, MAIN_BASE
+    jal     MainDumpWrite
     lli     a1, 0x20
-    ori     a2, a0, MAIN_XXD
-    jal     DumpAndWrite
-    lli     a3, 0x20 * 4
-    WriteString(KS_Newline)
+}
 
 Test3D:
     // write the jump to our actual commands
@@ -107,7 +106,6 @@ Start3D:
     lui     a0, SP_BASE
     lli     t0, SP_INT_ON_BREAK_SET | SP_SINGLE_STEP_CLR | SP_BREAK_CLR | SP_HALT_CLR
     sw      t0, SP_STATUS(a0)
-    nop
 
     SetIntMask()
 
@@ -152,6 +150,24 @@ if HICOLOR {
     ScreenNTSC(WIDTH, HEIGHT, BPP16|AA_MODE_2, VIDEO_C_IMAGE | UNCACHED)
 }
     jr      ra
+    nop
+
+MainDumpWrite:
+    subiu   sp, 0x18
+    sw      ra, 0x10(sp)
+
+    lui     a2, MAIN_BASE
+    ori     a2, MAIN_XXD
+    jal     DumpAndWrite // a0,a1 passthru
+    lli     a3, 0x200
+    WriteString(KS_Newline)
+
+    lw      ra, 0x10(sp)
+    jr      ra
+    addiu   sp, 0x18
+
+Die:
+    j       Die
     nop
 
 include "lzss.baku.unsafe.asm"
