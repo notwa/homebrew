@@ -253,6 +253,36 @@ db "t8: ", "t9: ", "k0: ", "k1: "
 db "gp: ", "sp: ", "fp: ", "ra: "
 db "HI: ", "LO: "
 
+DumpWord:
+    // a0: address of word to dump
+    subiu   sp, 0x18
+    sw      ra, 0x10(sp)
+    sw      s0, 0x14(sp)
+
+    move    s0, a0
+
+    la      a0, DumpWordString
+    jal     DumpRegistersHelper
+    move    a1, s0
+
+    la      a0, DumpWordString + 12
+    jal     DumpRegistersHelper
+    lw      a1, 0(s0)
+
+    la      a0, DumpWordString
+    jal     Drive64Write
+    lli     a1, 24
+
+    lw      ra, 0x10(sp)
+    lw      s0, 0x14(sp)
+    jr      ra
+    addiu   sp, 0x18
+
+align(8)
+DumpWordString:
+    db "........:   ........\n", 0, 0, 0
+align(8)
+
 PokeDataCache:
     lui     a0, 0x8000
     ori     a1, a0, 8 * 1024 // cache size
