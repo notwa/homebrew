@@ -82,12 +82,6 @@ Drive64WriteExit:
     jr      ra
     nop
 
-Drive64TestWrite:
-    li      a2, 0xA0000020
-    lli     a3, 0x20
-    j       Drive64WriteDirect
-    nop
-
 include "xxd.asm"
 
 DumpAndWrite:
