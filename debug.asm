@@ -46,10 +46,10 @@ Drive64Write:
     // set length (needs to be decremented due to DMA quirk)
     subiu   t3, a3, 1
 
-    PI_WAIT()
-    sw      t1, PI_DRAM_ADDR(t5)
-    sw      t2, PI_CART_ADDR(t5)
-    sw      t3, PI_RD_LEN(t5)  // "read" from DRAM to cart
+    PI_WAIT() // clobbers a0,t0
+    sw      t1, PI_DRAM_ADDR(a0)
+    sw      t2, PI_CART_ADDR(a0)
+    sw      t3, PI_RD_LEN(a0)  // "read" from DRAM to cart
     PI_WAIT()
 
 Drive64WriteDirect: // TODO: rewrite so this takes a0,a1 instead of a2,a3
@@ -66,7 +66,7 @@ Drive64WriteDirect: // TODO: rewrite so this takes a0,a1 instead of a2,a3
     lui     t9, K_BASE
     lw      t9, K_CI_BASE(t9)
 
-    CI_USB_WRITE_WAIT(0x10000) // clobbers t0,v0, requires t9
+    CI_USB_WRITE_WAIT(0x10000) // clobbers a0,v0,t0, requires t9
     bnez    v0, Drive64WriteExit
     nop
 
@@ -76,7 +76,7 @@ Drive64WriteDirect: // TODO: rewrite so this takes a0,a1 instead of a2,a3
     PI_WAIT()
     sw      t1, CI_USB_COMMAND_STATUS(t9)
 
-    CI_USB_WRITE_WAIT(0x10000) // clobbers t0,v0, requires t9
+    CI_USB_WRITE_WAIT(0x10000) // clobbers a0,v0,t0, requires t9
 
 Drive64WriteExit:
     jr      ra

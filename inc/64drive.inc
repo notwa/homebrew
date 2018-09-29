@@ -34,6 +34,7 @@ constant CI_EEPROM($1000)               // 2048 bytes
 constant CI_WRITEBACK_LBA($1800)        // 1024 bytes (256 words)
 
 macro CI_WAIT() {
+    // requires t9 to be set to either CI_BASE or CI_BASE_EXTENDED
     PI_WAIT()
 -
     lw      t0, CI_STATUS(t9)
@@ -43,6 +44,7 @@ macro CI_WAIT() {
 }
 
 macro CI_USB_WRITE_WAIT(timeout) {
+    // requires t9 to be set to either CI_BASE or CI_BASE_EXTENDED
     PI_WAIT()
 
     if {timeout} > 0 {

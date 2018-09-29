@@ -14,9 +14,9 @@ constant PI_BSD_DOM2_PGS($2C) // $0460002C Domain 2 Page Size
 constant PI_BSD_DOM2_RLS($30) // $04600030 Domain 2 Release
 
 macro PI_WAIT() {
-    lui     t5, PI_BASE
+    lui     a0, PI_BASE
 -
-    lw      t0, PI_STATUS(t5)
+    lw      t0, PI_STATUS(a0)
     andi    t0, t0, 3
     bnez    t0,-
     nop
