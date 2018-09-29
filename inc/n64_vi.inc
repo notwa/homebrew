@@ -1,52 +1,55 @@
-constant VI_BASE($A440)         // $04400000..$04400037 Video Interface (VI) Base Register
-constant VI_STATUS($00)         // $04400000..$04400003 VI: Status/Control Register
-constant VI_ORIGIN($04)         // $04400004..$04400007 VI: Origin Register
-constant VI_WIDTH($08)          // $04400008..$0440000B VI: Width Register
-constant VI_V_INTR($0C)         // $0440000C..$0440000F VI: Vertical Interrupt Register
-constant VI_V_CURRENT_LINE($10) // $04400010..$04400013 VI: Current Vertical Line Register
-constant VI_TIMING($14)         // $04400014..$04400017 VI: Video Timing Register
-constant VI_V_SYNC($18)         // $04400018..$0440001B VI: Vertical Sync Register
-constant VI_H_SYNC($1C)         // $0440001C..$0440001F VI: Horizontal Sync Register
-constant VI_H_SYNC_LEAP($20)    // $04400020..$04400023 VI: Horizontal Sync Leap Register
-constant VI_H_VIDEO($24)        // $04400024..$04400027 VI: Horizontal Video Register
-constant VI_V_VIDEO($28)        // $04400028..$0440002B VI: Vertical Video Register
-constant VI_V_BURST($2C)        // $0440002C..$0440002F VI: Vertical Burst Register
-constant VI_X_SCALE($30)        // $04400030..$04400033 VI: X-Scale Register
-constant VI_Y_SCALE($34)        // $04400034..$04400037 VI: Y-Scale Register
+constant VI_BASE($A440)         // $04400000 Video Interface (VI) Base
+constant VI_STATUS($00)         // $04400000 Status/Control
+constant VI_ORIGIN($04)         // $04400004 Origin
+constant VI_WIDTH($08)          // $04400008 Width
+constant VI_V_INTR($0C)         // $0440000C Vertical Interrupt
+constant VI_V_CURRENT_LINE($10) // $04400010 Current Vertical Line
+constant VI_TIMING($14)         // $04400014 Video Timing
+constant VI_V_SYNC($18)         // $04400018 Vertical Sync
+constant VI_H_SYNC($1C)         // $0440001C Horizontal Sync
+constant VI_H_SYNC_LEAP($20)    // $04400020 Horizontal Sync Leap
+constant VI_H_VIDEO($24)        // $04400024 Horizontal Video
+constant VI_V_VIDEO($28)        // $04400028 Vertical Video
+constant VI_V_BURST($2C)        // $0440002C Vertical Burst
+constant VI_X_SCALE($30)        // $04400030 X-Scale
+constant VI_Y_SCALE($34)        // $04400034 Y-Scale
 
-constant BPP0($0000)  // VI Status/Control: Color Depth Blank (No Data Or Sync) (Bit 0..1)
-//*RESERVED*($0001)   // VI Status/Control: Color Depth Reserved (Bit 0..1)
-constant BPP16($0002) // VI Status/Control: Color Depth 16BPP R5/G5/B5/A1 (Bit 0..1)
-constant BPP32($0003) // VI Status/Control: Color Depth 32BPP R8/G8/B8/A8 (Bit 0..1)
-constant GAMMA_DITHER_EN($00004) // VI Status/Control: Gamma Dither Enable (Requires: Gamma Enable) (Bit 2)
-constant GAMMA_EN($00008)        // VI Status/Control: Gamma Enable (Gamma Boost For YUV Images) (Bit 3)
-constant DIVOT_EN($00010)    // VI Status/Control: Divot Enable (Used With Anti-alias) (Bit 4)
-constant VBUS_CLK_EN($00020) // VI Status/Control: Video Bus Clock Enable (Bit 5)
-constant INTERLACE($00040) // VI Status/Control: Interlace/Serrate (Used With Interlaced Display) (Bit 6)
-constant TST_MODE($00080)  // VI Status/Control: Test Mode (Bit 7)
-constant AA_MODE_0($00000) // VI Status/Control: AA Mode 0 = Anti­-alias & Resample (Always Fetch Extra Lines) (Bit 8..9)
-constant AA_MODE_1($00100) // VI Status/Control: AA Mode 1 = Anti­-alias & Resample (Fetch Extra Lines When Needed) (Bit 8..9)
-constant AA_MODE_2($00200) // VI Status/Control: AA Mode 2 = Resample Only (Bit 8..9)
-constant AA_MODE_3($00300) // VI Status/Control: AA Mode 3 = Replicate Pixels & No Interpolation (Bit 8..9)
-constant DIAG_0($00400) // VI Status/Control: Diagnotic 0 (Bit 10..11)
-constant DIAG_1($00800) // VI Status/Control: Diagnotic 1 (Bit 10..11)
-constant PIXEL_ADV_0($00000) // VI Status/Control: Pixel Advance 0 (Bit 12..15)
-constant PIXEL_ADV_1($01000) // VI Status/Control: Pixel Advance 1 (Bit 12..15)
-constant PIXEL_ADV_2($02000) // VI Status/Control: Pixel Advance 2 (Bit 12..15)
-constant PIXEL_ADV_3($03000) // VI Status/Control: Pixel Advance 3 (Bit 12..15)
-constant PIXEL_ADV_4($04000) // VI Status/Control: Pixel Advance 4 (Bit 12..15)
-constant PIXEL_ADV_5($05000) // VI Status/Control: Pixel Advance 5 (Bit 12..15)
-constant PIXEL_ADV_6($06000) // VI Status/Control: Pixel Advance 6 (Bit 12..15)
-constant PIXEL_ADV_7($07000) // VI Status/Control: Pixel Advance 7 (Bit 12..15)
-constant PIXEL_ADV_8($08000) // VI Status/Control: Pixel Advance 8 (Bit 12..15)
-constant PIXEL_ADV_9($09000) // VI Status/Control: Pixel Advance 9 (Bit 12..15)
-constant PIXEL_ADV_A($0A000) // VI Status/Control: Pixel Advance A (Bit 12..15)
-constant PIXEL_ADV_B($0B000) // VI Status/Control: Pixel Advance B (Bit 12..15)
-constant PIXEL_ADV_C($0C000) // VI Status/Control: Pixel Advance C (Bit 12..15)
-constant PIXEL_ADV_D($0D000) // VI Status/Control: Pixel Advance D (Bit 12..15)
-constant PIXEL_ADV_E($0E000) // VI Status/Control: Pixel Advance E (Bit 12..15)
-constant PIXEL_ADV_F($0F000) // VI Status/Control: Pixel Advance F (Bit 12..15)
-constant DITHER_FILTER_EN($10000) // VI Status/Control: Dither Filter Enable (Used With 16BPP Display) (Bit 16)
+// VI Status Flags (lower halfword)
+constant BPP0($0000)  // Color Depth Blank (No Data Or Sync)
+//*RESERVED*($0001)   // Color Depth Reserved
+constant BPP16($0002) // Color Depth 16BPP R5/G5/B5/A1
+constant BPP32($0003) // Color Depth 32BPP R8/G8/B8/A8
+constant GAMMA_DITHER_EN($0004) // Gamma Dither Enable (Requires: Gamma Enable)
+constant GAMMA_EN($0008) // Gamma Enable (Gamma Boost For YUV Images)
+constant DIVOT_EN($0010) // Divot Enable (Used With Anti-alias)
+constant VBUS_CLK_EN($0020) // Video Bus Clock Enable
+constant INTERLACE($0040) // Interlace/Serrate (Used With Interlaced Display)
+constant TST_MODE($0080)  // Test Mode
+constant AA_MODE_0($0000) // AA Mode 0 = Anti­-alias & Resample (Always Fetch Extra Lines)
+constant AA_MODE_1($0100) // AA Mode 1 = Anti­-alias & Resample (Fetch Extra Lines When Needed)
+constant AA_MODE_2($0200) // AA Mode 2 = Resample Only
+constant AA_MODE_3($0300) // AA Mode 3 = Replicate Pixels & No Interpolation
+constant DIAG_0($0400) // Diagnotic 0
+constant DIAG_1($0800) // Diagnotic 1
+constant PIXEL_ADV_0($0000) // Pixel Advance 0
+constant PIXEL_ADV_1($1000) // Pixel Advance 1
+constant PIXEL_ADV_2($2000) // Pixel Advance 2
+constant PIXEL_ADV_3($3000) // Pixel Advance 3
+constant PIXEL_ADV_4($4000) // Pixel Advance 4
+constant PIXEL_ADV_5($5000) // Pixel Advance 5
+constant PIXEL_ADV_6($6000) // Pixel Advance 6
+constant PIXEL_ADV_7($7000) // Pixel Advance 7
+constant PIXEL_ADV_8($8000) // Pixel Advance 8
+constant PIXEL_ADV_9($9000) // Pixel Advance 9
+constant PIXEL_ADV_A($A000) // Pixel Advance A
+constant PIXEL_ADV_B($B000) // Pixel Advance B
+constant PIXEL_ADV_C($C000) // Pixel Advance C
+constant PIXEL_ADV_D($D000) // Pixel Advance D
+constant PIXEL_ADV_E($E000) // Pixel Advance E
+constant PIXEL_ADV_F($F000) // Pixel Advance F
+
+// VI Status Flags (upper halfword)
+constant DITHER_FILTER_EN($10000) // Dither Filter Enable (Used With 16BPP Display)
 
 constant VI_NTSC_CLOCK(48681812) // NTSC: Hz = 48.681812 MHz
 constant VI_PAL_CLOCK(49656530)  // PAL:  Hz = 49.656530 MHz
@@ -91,7 +94,6 @@ macro ScreenPAL(width,height, status, origin) {
   lli t0,{width}      // T0 = Width (Frame Buffer Line Width In Pixels)
   sw t0,VI_WIDTH(a0)  // Store Width To VI Width Register ($A4400008)
   lli t0,$2           // T0 = Vertical Interrupt (Interrupt When Current Half-Line $2)
-//lli t0,2
   sw t0,VI_V_INTR(a0) // Store Vertical Interrupt To VI Interrupt Register ($A440000C)
   lli t0,0            // T0 = Current Vertical Line (Current Half-Line, Sampled Once Per Line = 0)
   sw t0,VI_V_CURRENT_LINE(a0) // Store Current Vertical Line To VI Current Register ($A4400010)
@@ -125,4 +127,3 @@ macro WaitScanline(scanline) { // Wait For RDP To Reach Scanline
     bne t1,t0,- // IF (Current Scan Line != Scan Line) Wait
     nop // ELSE Continue (Delay Slot)
 }
-
