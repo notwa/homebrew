@@ -3,6 +3,8 @@ constant K_DEBUG(0) // slows down interrupt handling to enable debug routines
 constant HIRES(1)
 constant HICOLOR(1)
 
+constant MAIN_DECOMP_IMAGE(HIRES & HICOLOR)
+
 constant MAIN_BASE(0x800E)
 constant MAIN_COUNTS(0x0010)
 constant MAIN_SP_TASK(0x0040)

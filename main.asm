@@ -24,7 +24,7 @@ include "kernel.asm"
 
 Main:
 
-if 0 {
+if MAIN_DECOMP_IMAGE {
 DecompImage:
     lui     s0, MAIN_BASE
 
@@ -170,12 +170,15 @@ Die:
     j       Die
     nop
 
-include "lzss.baku.unsafe.asm"
+
+if MAIN_DECOMP_IMAGE {
+    include "lzss.baku.unsafe.asm"
+    align(16); insert LZ_BAKU, "res/Image.baku.lzss"
+}
 include "dlist.asm"
 include "task.asm"
 
 //align(16); insert FONT, "res/dwarf.1bpp"
-//align(16); insert LZ_BAKU, "res/Image.baku.lzss"
 
 if pc() > (MAIN_BASE << 16) {
     error "ran out of memory for code and data"
