@@ -110,10 +110,10 @@ Start3D:
     SetIntMask()
 
 MainLoop:
+    WriteString(S_SP_Wait)
     SP_HALT_WAIT()
 
-    WriteString(SPreFrame)
-
+    WriteString(S_VI_Wait)
     // wait on VI too
 -
     lui     t0, VI_BASE
@@ -140,9 +140,6 @@ SwitchToAlt:
     j       Start3D
     lli     s1, 1
 
-KSL(SPreFrame, "now waiting for VI")
-KSL(SNewFrame, "next frame")
-
 SetupScreen:
     ScreenNTSC(WIDTH, HEIGHT, VIDEO_MODE, VIDEO_C_IMAGE | UNCACHED)
     jr      ra
@@ -166,6 +163,9 @@ Die:
     j       Die
     nop
 
+KSL(S_SP_Wait, "now waiting on SP")
+KSL(S_VI_Wait, "now waiting on VI")
+KSL(SNewFrame, "next frame")
 
 if MAIN_DECOMP_IMAGE {
     include "lzss.baku.unsafe.asm"
