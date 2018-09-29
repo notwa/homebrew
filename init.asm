@@ -98,7 +98,7 @@
 
     // enable CPU interrupts.
     mfc0    t1, CP0_Status
-    ori     t1, CP0_STATUS_IM_WANTED | CP0_STATUS_IE
+    ori     t1, CP0_STATUS_IM_ALL | CP0_STATUS_IE
     mtc0    t1, CP0_Status
 
     // enable even more interrupts.

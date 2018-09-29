@@ -44,7 +44,6 @@ constant CP0_STATUS_IM5($2000) // Interrupt Mask 5 (External)
 constant CP0_STATUS_IM6($4000) // Interrupt Mask 6 (External)
 constant CP0_STATUS_IM7($8000) // Interrupt Mask 7 (External)
 constant CP0_STATUS_IM_ALL($FF00) // all interrupt masks
-constant CP0_STATUS_IM_WANTED($7F00) // FIXME: just the interrupts we can deal with
 
 // note that these are all masks.
 constant CP0_CAUSE_CODE($007C) // actually supposed to be called ExcCode

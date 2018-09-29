@@ -21,7 +21,7 @@ include "init.asm"
     //       or just DMA in the ISR and our defaults from ROM...
     sw      r0, K_64DRIVE_MAGIC(gp)
     sw      r0, K_REASON(gp)
-    sw      r0, K_IN_ISR(gp)
+    sw      r0, K_UNUSED(gp)
     sw      r0, K_CONSOLE_AVAILABLE(gp)
     sw      r0, K_HISTORY(gp)
 
@@ -29,7 +29,7 @@ Drive64Init:
     lui     t9, CI_BASE
     lui     t2, 0x5544      // "UD" of "UDEV"
     lw      t1, CI_HW_MAGIC(t9)
-    ori     t2, t2, 0x4556  // "EV" of "UDEV"
+    ori     t2, 0x4556  // "EV" of "UDEV"
 
     beq     t1, t2, Drive64Confirmed
     nop
@@ -78,12 +78,12 @@ evaluate x({x} + 8)
 WipeRegisters:
     // load up most registers with a dummy value for debugging
     lui     at, 0xCAFE
-    ori     at, at, 0xBABE
+    ori     at, 0xBABE
     dsll    at, 16
     // attempting to use this as an address should trigger an interrupt
-    ori     at, at, 0xDEAD
+    ori     at, 0xDEAD
     dsll    at, 16
-    ori     at, at, 0xBEEF
+    ori     at, 0xBEEF
 
     // k0, k1, sp intentionally absent
     daddu   v0, at, r0
@@ -218,12 +218,6 @@ InterruptHandler:
     mfc0    k1, CP0_BadVAddr
     sw      k1, K_BADVADDR(k0)
 
-    // prevent recursive interrupts if ISR_Main somehow causes an interrupt
-//  lw      t1, K_IN_ISR(k0)
-//  bnez    t1, ISR_Exit // TODO: reimplement properly
-    lli     t0, 1
-    sw      t0, K_IN_ISR(k0)
-
     // be wary, this is a tiny temporary stack!
     ori     sp, k0, K_STACK
 
@@ -232,6 +226,15 @@ ISR_Main: // free to modify any GPR from here to ISR_Exit
     KWriteString(KS_Newline)
     KWriteString(KS_Handling)
     KWriteString(KS_Code)
+
+    // handle timer interrupt
+    lw      t0, K_CAUSE(k0)
+    andi    t0, CP0_CAUSE_IP7
+    beqz    t0, ISR_CountDone
+    nop
+    KWriteString(KS_Timer)
+    mtc0    r0, CP0_Compare
+ISR_CountDone:
 
     // switch-case on the cause code:
     // conveniently, the ExcCode in Cause is already shifted left by 2.
@@ -277,8 +280,6 @@ if K_DEBUG {
 }
 
 ISR_Exit:
-    sw      r0, K_IN_ISR(k0)
-
     lui     k0, K_BASE
     ld      t0, K_DUMP+0x100(k0)
     ld      t1, K_DUMP+0x108(k0)
@@ -369,11 +370,9 @@ K_MI_Loop:
 K_MI_SP:
     KWriteString(KS_MI_SP)
 
-    lli     t0, SP_RSPSIGNAL_CLR | SP_INT_CLR
+    lli     t0, SP_INT_CLR
     lui     a1, SP_BASE
     sw      t0, SP_STATUS(a1)
-
-    // then check andi t1, SP_YIELDED | SP_TASKDONE ?
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_SP
@@ -396,9 +395,8 @@ K_MI_SI:
 K_MI_AI:
     KWriteString(KS_MI_AI)
 
-    lli     t0, 0x01
     lui     a1, AI_BASE
-    sw      t0, AI_STATUS(a1)
+    sw      r0, AI_STATUS(a1)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_AI
@@ -410,7 +408,8 @@ K_MI_VI:
     KWriteString(KS_MI_VI)
 
     lui     a1, VI_BASE
-    sw      r0, VI_V_CURRENT_LINE(a1)
+    lw      t0, VI_V_CURRENT_LINE(a1)
+    sw      t0, VI_V_CURRENT_LINE(a1)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_VI
@@ -434,7 +433,7 @@ K_MI_PI:
 K_MI_DP:
     KWriteString(KS_MI_DP)
 
-    lli     t0, 0x800
+    lli     t0, 0x0800
     lui     a1, MI_BASE
     sw      t0, MI_INIT_MODE(a1)
 
@@ -528,6 +527,7 @@ KSL(KS_Code29, "RESERVED 29")
 KSL(KS_Code30, "RESERVED 30")
 KSL(KS_Code31, "RESERVED 31")
 
+KSL(KS_Timer, "  * Timer Interrupt")
 KSL(KS_MI_SP, "  * Signal Processor Interrupt")
 KSL(KS_MI_SI, "  * Serial Interface Interrupt")
 KSL(KS_MI_AI, "  * Audio Interface Interrupt")
