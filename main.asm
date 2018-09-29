@@ -118,8 +118,8 @@ MainLoop:
 -
     lui     t0, VI_BASE
     lw      t0, VI_V_CURRENT_LINE(t0)
-    // until line <= 3
-    sltiu   t0, 4 // larger values seem to die on N64 (cen64 has no problem)
+    // until line <= 10
+    sltiu   t0, 10 + 1
     beqz    t0,-
     nop
 
@@ -144,11 +144,7 @@ KSL(SPreFrame, "now waiting for VI")
 KSL(SNewFrame, "next frame")
 
 SetupScreen:
-if HICOLOR {
-    ScreenNTSC(WIDTH, HEIGHT, BPP32|INTERLACE|AA_MODE_2, VIDEO_C_IMAGE | UNCACHED)
-} else {
-    ScreenNTSC(WIDTH, HEIGHT, BPP16|AA_MODE_2, VIDEO_C_IMAGE | UNCACHED)
-}
+    ScreenNTSC(WIDTH, HEIGHT, VIDEO_MODE, VIDEO_C_IMAGE | UNCACHED)
     jr      ra
     nop
 

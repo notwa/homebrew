@@ -21,6 +21,13 @@ if HIRES {
     constant HEIGHT(240)
 }
 
+if HICOLOR {
+    constant VIDEO_MODE(BPP32 | INTERLACE | AA_MODE_2)
+} else {
+//  constant VIDEO_MODE(BPP16 | AA_MODE_2)
+    constant VIDEO_MODE(BPP16 | GAMMA_EN | GAMMA_DITHER_EN | AA_MODE_1 | DIVOT_EN | PIXEL_ADV_3)
+}
+
 constant TASK_YIELDED(0x0001)
 constant TASK_DP_WAIT(0x0002)
 constant TASK_LOADABLE(0x0004)
@@ -29,8 +36,8 @@ constant TASK_SP_ONLY(0x0008)
 constant VIDEO_C_IMAGE_SIZE(WIDTH * HEIGHT * (HICOLOR * 2 + 2))
 constant VIDEO_Z_IMAGE_SIZE(WIDTH * HEIGHT * 2)
 constant VIDEO_OUTPUT_SIZE(0x18000) // technically a buffer?
-constant VIDEO_STACK_SIZE(0x400) // used for dlist calls, pushing matrices, etc?
-constant VIDEO_YIELD_SIZE(0xC00) // stores and restores DMEM.
+constant VIDEO_STACK_SIZE(0x8000) // used for dlist calls, pushing matrices, etc?
+constant VIDEO_YIELD_SIZE(0x1000) // stores and restores DMEM.
 
 // NOTE: these should be row-aligned to avoid caching issues and DMA issues.
 constant VIDEO_END(0x80400000)
