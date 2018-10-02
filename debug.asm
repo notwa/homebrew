@@ -207,7 +207,7 @@ DumpRegistersHelper:
     andi    t7, t7, 0xF
     srl     t8, a1, 28
 
-macro AsciiNybble(reg, out) {
+macro AsciiNybble(out, reg) {
     sltiu   at, {reg}, 0xA
     bnez    at,+
     addiu   {out}, {reg}, 0x30 // delay slot
@@ -215,21 +215,21 @@ macro AsciiNybble(reg, out) {
 +
 }
 
-    AsciiNybble(t8, v0)
+    AsciiNybble(v0, t8)
     sb      v0, 0(a0)
-    AsciiNybble(t7, v0)
+    AsciiNybble(v0, t7)
     sb      v0, 1(a0)
-    AsciiNybble(t6, v0)
+    AsciiNybble(v0, t6)
     sb      v0, 2(a0)
-    AsciiNybble(t5, v0)
+    AsciiNybble(v0, t5)
     sb      v0, 3(a0)
-    AsciiNybble(t4, v0)
+    AsciiNybble(v0, t4)
     sb      v0, 4(a0)
-    AsciiNybble(t3, v0)
+    AsciiNybble(v0, t3)
     sb      v0, 5(a0)
-    AsciiNybble(t2, v0)
+    AsciiNybble(v0, t2)
     sb      v0, 6(a0)
-    AsciiNybble(t1, v0)
+    AsciiNybble(v0, t1)
     sb      v0, 7(a0)
 
     jr      ra
