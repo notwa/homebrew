@@ -1,4 +1,3 @@
-// built on the N64 ROM template by krom
 arch n64.cpu
 endian msb
 
@@ -11,7 +10,7 @@ include "inc/kernel.inc"
 output "test.z64", create
 fill 1052672 // ROM size
 
-origin 0x00000000
+origin 0
 base 0x80000000
 
 include "header.asm"
@@ -93,7 +92,7 @@ Start3D:
 
     lui     a0, MAIN_BASE
     jal     PushVideoTask
-    ori     a0, a0, MAIN_SP_TASK
+    ori     a0, MAIN_SP_TASK
 
     SP_DMA_WAIT()
 
@@ -173,8 +172,6 @@ if MAIN_DECOMP_IMAGE {
 }
 include "dlist.asm"
 include "task.asm"
-
-//align(16); insert FONT, "res/dwarf.1bpp"
 
 if pc() > (MAIN_BASE << 16) {
     error "ran out of memory for code and data"

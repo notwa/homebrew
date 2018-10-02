@@ -27,7 +27,7 @@ include "init.asm"
 
 Drive64Init:
     lui     t9, CI_BASE
-    lui     t2, 0x5544      // "UD" of "UDEV"
+    lui     t2, 0x5544  // "UD" of "UDEV"
     lw      t1, CI_HW_MAGIC(t9)
     ori     t2, 0x4556  // "EV" of "UDEV"
 

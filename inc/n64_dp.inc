@@ -15,26 +15,26 @@ constant DPS_BUFTEST_ADDR($08) // $04200008 Span Buffer Test Address Register
 constant DPS_BUFTEST_DATA($0C) // $0420000C Span Buffer Test Data Register
 
 // DPC_STATUS Read Flags:
-constant DPC_XBS($001) // Use XBUS DMEM DMA Or DRAM DMA (Bit 0)
-constant DPC_FRZ($002) // RDP Frozen (Bit 1)
-constant DPC_FLUSH($004) // RDP Flushed (Bit 2)
-constant DPC_GCL($008) // GCLK Alive (Bit 3)
-constant DPC_TMB($010) // TMEM Busy (Bit 4)
-constant DPC_PLB($020) // RDP PIPELINE Busy (Bit 5)
-constant DPC_CMB($040) // RDP COMMAND Unit Busy (Bit 6)
-constant DPC_CMR($080) // RDP COMMAND Buffer Ready (Bit 7)
-constant DPC_DMA($100) // RDP DMA Busy (Bit 8)
-constant DPC_CME($200) // RDP COMMAND END Register Valid (Bit 9)
-constant DPC_CMS($400) // RDP COMMAND START Register Valid (Bit 10)
+constant DPC_XBS($001) // Use XBUS DMEM DMA Or DRAM DMA
+constant DPC_FRZ($002) // RDP Frozen
+constant DPC_FLUSH($004) // RDP Flushed
+constant DPC_GCL($008) // GCLK Alive
+constant DPC_TMB($010) // TMEM Busy
+constant DPC_PLB($020) // RDP PIPELINE Busy
+constant DPC_CMB($040) // RDP COMMAND Unit Busy
+constant DPC_CMR($080) // RDP COMMAND Buffer Ready
+constant DPC_DMA($100) // RDP DMA Busy
+constant DPC_CME($200) // RDP COMMAND END Register Valid
+constant DPC_CMS($400) // RDP COMMAND START Register Valid
 
 // DPC_STATUS Write Flags:
-constant DPC_XBS_CLR($001) // Clear XBUS DMEM DMA (Bit 0)
-constant DPC_XBS_SET($002) //   Set XBUS DMEM DMA (Bit 1)
-constant DPC_FRZ_CLR($004) // Clear FREEZE (Bit 2)
-constant DPC_FRZ_SET($008) //   Set FREEZE (Bit 3)
-constant DPC_FLUSH_CLR($010) // Clear FLUSH (Bit 4)
-constant DPC_FLUSH_SET($020) //   Set FLUSH (Bit 5)
-constant DPC_TMC_CLR($040) // Clear TMEM COUNTER (Bit 6)
-constant DPC_PLC_CLR($080) // Clear PIPELINE COUNTER (Bit 7)
-constant DPC_CMC_CLR($100) // Clear COMMAND COUNTER (Bit 8)
-constant DPC_CLK_CLR($200) // Clear CLOCK COUNTER (Bit 9)
+constant DPC_XBS_CLR($001) // Clear XBUS DMEM DMA
+constant DPC_XBS_SET($002) //   Set XBUS DMEM DMA
+constant DPC_FRZ_CLR($004) // Clear FREEZE
+constant DPC_FRZ_SET($008) //   Set FREEZE
+constant DPC_FLUSH_CLR($010) // Clear FLUSH
+constant DPC_FLUSH_SET($020) //   Set FLUSH
+constant DPC_TMC_CLR($040) // Clear TMEM COUNTER
+constant DPC_PLC_CLR($080) // Clear PIPELINE COUNTER
+constant DPC_CMC_CLR($100) // Clear COMMAND COUNTER
+constant DPC_CLK_CLR($200) // Clear CLOCK COUNTER

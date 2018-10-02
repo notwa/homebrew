@@ -5,7 +5,7 @@
 -
     ld      t3, 0(t1)
     ld      t4, 8(t1)
-    addiu   t1, t1, 0x10
+    addiu   t1, 0x10
     sd      t3, 0(t0)
     sd      t4, 8(t0)
     cache   0x19, 0(t0) // tell data cache to write itself out
@@ -13,7 +13,7 @@
     // an instruction cache line is 2 rows, and a data cache line is 1 row,
     // so poking at the start of each row is enough to flush them both.
     bne     t1, t2,-
-    addiu   t0, t0, 0x10
+    addiu   t0, 0x10
 
     // flush denormals to 0 and enable invalid operations
     li      a0, 0x01000800 // TODO: use flag constants
@@ -44,7 +44,7 @@
     tlbwi
     nop
     nop
-    subiu   t1, t1, 1
+    subiu   t1, 1
     bgez    t1,-
     nop
     mtc0    r0, CP0_EntryHi
@@ -82,7 +82,7 @@
     lui     t2, PI_BASE
 -
     lw      t0, PI_STATUS(t2)
-    andi    t0, t0, 3
+    andi    t0, 3
     bnez    t0,-
     nop
     //

@@ -25,10 +25,10 @@ constant DIVOT_EN($0010) // Divot Enable (Used With Anti-alias)
 constant VBUS_CLK_EN($0020) // Video Bus Clock Enable
 constant INTERLACE($0040) // Interlace/Serrate (Used With Interlaced Display)
 constant TST_MODE($0080)  // Test Mode
-constant AA_MODE_0($0000) // AA Mode 0 = Anti­-alias & Resample (Always Fetch Extra Lines)
-constant AA_MODE_1($0100) // AA Mode 1 = Anti­-alias & Resample (Fetch Extra Lines When Needed)
+constant AA_MODE_0($0000) // AA Mode 0 = Anti­alias & Resample (Always Fetch Extra Lines)
+constant AA_MODE_1($0100) // AA Mode 1 = Anti­alias & Resample (Fetch Extra Lines When Needed)
 constant AA_MODE_2($0200) // AA Mode 2 = Resample Only
-constant AA_MODE_3($0300) // AA Mode 3 = Replicate Pixels & No Interpolation
+constant AA_MODE_3($0300) // AA Mode 3 = Replicate Pixels & No Interpolation
 constant DIAG_0($0400) // Diagnotic 0
 constant DIAG_1($0800) // Diagnotic 1
 constant PIXEL_ADV_0($0000) // Pixel Advance 0
