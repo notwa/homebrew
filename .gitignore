@@ -4,9 +4,13 @@
 *.exe
 *.lnk
 *.log
+*.n64
 *.tmp
 *.txt
 *.z64
+*.zip
 _old
+asdf
 microcodes
 old.asm
+sdk
