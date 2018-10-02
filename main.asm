@@ -134,12 +134,12 @@ MainLoop:
     beqz    s1, SwitchToAlt
     nop
 SwitchToMain:
-    la      t0, VIDEO_C_IMAGE_ALT
+    la      t0, VIDEO_C_IMAGE_ALT | UNCACHED
     sw      t0, VI_ORIGIN(a0)
     j       Start3D
     lli     s1, 0
 SwitchToAlt:
-    la      t0, VIDEO_C_IMAGE
+    la      t0, VIDEO_C_IMAGE | UNCACHED
     sw      t0, VI_ORIGIN(a0)
     j       Start3D
     lli     s1, 1
