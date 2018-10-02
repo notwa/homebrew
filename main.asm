@@ -69,6 +69,9 @@ Test3D:
     lli     s1, 1 // s1: which color buffer we're writing to (1: alt)
 
 Start3D:
+    mfc0    t0, CP0_Status
+    mtc0    t0, CP0_Status
+
     lui     a0, MAIN_BASE
     ori     a0, MAIN_DLIST
     jal     WriteDList
@@ -76,14 +79,12 @@ Start3D:
     jal     PokeDataCache
     nop
 
-    ClearIntMask()
+    DisableInt()
 
     // prepare RSP
     lui     a0, SP_BASE
-    lli     t0, SP_INT_ON_BREAK_SET | SP_TASKDONE_CLR | SP_YIELDED_CLR | SP_YIELD_CLR
+    lli     t0, SP_TASKDONE_CLR | SP_YIELDED_CLR | SP_YIELD_CLR | SP_HALT_SET
     sw      t0, SP_STATUS(a0)
-
-    SP_HALT_WAIT()
 
     // set RSP PC to IMEM+$0
     lui     a0, SP_PC_BASE
@@ -94,32 +95,36 @@ Start3D:
     jal     PushVideoTask
     ori     a0, MAIN_SP_TASK
 
-    SP_DMA_WAIT()
-
     jal     LoadRSPBoot
     nop
-
-    SP_DMA_WAIT()
 
     // clear all flags that would halt RSP (i.e. tell it to run!)
     lui     a0, SP_BASE
     lli     t0, SP_INT_ON_BREAK_SET | SP_SINGLE_STEP_CLR | SP_BREAK_CLR | SP_HALT_CLR
     sw      t0, SP_STATUS(a0)
 
-    SetIntMask()
+    EnableInt()
 
 MainLoop:
     WriteString(S_SP_Wait)
-    SP_HALT_WAIT()
+-
+    mfc0    t0, CP0_Status
+    mtc0    t0, CP0_Status
+    //
+    lui     a0, SP_BASE
+    lw      t0, SP_STATUS(a0)
+    andi    t0, SP_HALT
+    beqz    t0,-
+    nop
 
     WriteString(S_VI_Wait)
     // wait on VI too
+    lui     a0, VI_BASE
 -
-    lui     t0, VI_BASE
-    lw      t0, VI_V_CURRENT_LINE(t0)
-    // until line <= 10
-    sltiu   t0, 10 + 1
-    beqz    t0,-
+    lw      t0, VI_V_CURRENT_LINE(a0)
+    // until half-line <= 2
+    sltiu   at, t0, 2 + 1
+    beqz    at,-
     nop
 
     WriteString(SNewFrame)

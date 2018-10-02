@@ -54,23 +54,25 @@ PushVideoTask:
 
 PushRSPTask:
     lli     t3, 0x40 - 1 // DMA quirk
-    or      t4, a0, r0
-    SP_DMA_WAIT() // clobbers t0, a0
+    or      t2, a0, r0
+    SP_DMA_WAIT() // clobbers t0,a0
     la      t1, 0xA4000FC0
     sw      t1, SP_MEM_ADDR(a0)
-    sw      t4, SP_DRAM_ADDR(a0)
+    sw      t2, SP_DRAM_ADDR(a0)
     sw      t3, SP_RD_LEN(a0) // pull data from RDRAM into DMEM/IMEM
+    SP_DMA_WAIT() // clobbers t0,a0
     jr      ra
     nop
 
 LoadRSPBoot:
     la      t2, UCODE_BOOT & ADDR_MASK
     li      t3, UCODE_BOOT.size - 1 // DMA quirk
-    SP_DMA_WAIT() // clobbers t0, a0
+    SP_DMA_WAIT() // clobbers t0,a0
     la      t1, 0xA4001000
     sw      t1, SP_MEM_ADDR(a0)
     sw      t2, SP_DRAM_ADDR(a0)
     sw      t3, SP_RD_LEN(a0) // pull data from RDRAM into DMEM/IMEM
+    SP_DMA_WAIT() // clobbers t0,a0
     jr      ra
     nop
 
