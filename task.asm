@@ -22,7 +22,7 @@ PushVideoTask:
 
     li      t0, VIDEO_STACK & ADDR_MASK // used for DList calls and returns?
     li      t1, VIDEO_STACK_SIZE
-    li      t2, VIDEO_OUTPUT & ADDR_MASK
+    li      t2, (VIDEO_OUTPUT & ADDR_MASK) | UNCACHED
     // most commercial games re-use the yield pointer, so i assume it's fine:
     li      t3, VIDEO_YIELD & ADDR_MASK // stores output buffer size
     li      t4, ((MAIN_BASE << 16) | MAIN_DLIST_JUMPER) & ADDR_MASK // initial DList

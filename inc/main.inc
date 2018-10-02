@@ -1,7 +1,7 @@
 // settings:
 constant K_DEBUG(0) // slows down interrupt handling to enable debug routines
-constant HIRES(1)
-constant HICOLOR(1)
+constant HIRES(0)
+constant HICOLOR(0)
 
 constant MAIN_DECOMP_IMAGE(HIRES & HICOLOR)
 
@@ -21,11 +21,22 @@ if HIRES {
     constant HEIGHT(240)
 }
 
-if HICOLOR {
-    constant VIDEO_MODE(BPP32 | INTERLACE | AA_MODE_2)
+if HIRES {
+    if HICOLOR {
+        // 640x480, 32-bit
+        constant VIDEO_MODE(BPP32 | INTERLACE | AA_MODE_3 | PIXEL_ADV_3)
+    } else {
+        // 640x480, 16-bit
+        constant VIDEO_MODE(BPP16 | INTERLACE | AA_MODE_2 | PIXEL_ADV_3)
+    }
 } else {
-//  constant VIDEO_MODE(BPP16 | AA_MODE_2)
-    constant VIDEO_MODE(BPP16 | GAMMA_EN | GAMMA_DITHER_EN | AA_MODE_1 | DIVOT_EN | PIXEL_ADV_3)
+    if HICOLOR {
+        // 320x240, 32-bit
+        constant VIDEO_MODE(BPP32 | AA_MODE_2 | DIVOT_EN | PIXEL_ADV_3)
+    } else {
+        // 320x240, 16-bit
+        constant VIDEO_MODE(BPP16 | AA_MODE_1 | DIVOT_EN | PIXEL_ADV_3)
+    }
 }
 
 constant TASK_YIELDED(0x0001)
