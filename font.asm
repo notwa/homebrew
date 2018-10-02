@@ -100,10 +100,4 @@ DrawChar16Loop:
     jr      ra
     nop
 
-FontLUT16:
-    dh      0x0000, 0xFFFF
-
-FontLUT32:
-    dw      0x00000000, 0xFFFFFFFF
-
 align(16); insert FONT, "res/dwarf.1bpp"
