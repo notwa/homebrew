@@ -5,7 +5,7 @@ some code is borrowed from [krom's repo.][krom]
 their work has been invaluable in getting things started on the N64,
 and i recommend checking it out.
 
-some (currently unused) resources are scattered about.
+some resources are scattered about for testing purposes.
 the [Dwarf Fortress][dwarf] 8x12 font is included as a 1-bit-per-pixel image.
 [a test card by Väinö Helminen][card] is included as well.
 
