@@ -12,19 +12,19 @@ origin 0
 base 0x80000000
 
 // N64 header:
-dw $80371240 // PI_BSB_DOM1
-dw $F // Initial Clock Rate
+dw 0x80371240 // PI_BSB_DOM1
+dw 0xF // Initial Clock Rate
 dw Start // Boot Address Offset
-dw $1444 // Release Offset
+dw 0x1444 // Release Offset
 db "CRC1" // CRC1: COMPLEMENT CHECK
 db "CRC2" // CRC2: CHECKSUM
 dd 0 // unused
 db "Cache tests                "
 // "123456789012345678901234567"
-db $00 // Developer ID Code
-db $00 // Cartridge ID Code
+db 0x00 // Developer ID Code
+db 0x00 // Cartridge ID Code
 db 0 // unused
-db $00 // Country Code
+db 0x00 // Country Code
 db 0 // unused
 
 insert "bin/6102.bin"
@@ -177,18 +177,14 @@ MainHexDumpInnerLoop:
     jal     PokeDataCache
     nop
 
-if 0 {
-    ScreenNTSC2(WIDTH, HEIGHT, VIDEO_MODE, VIDEO_BUFFER | UNCACHED)
-
-} else {
     lui     a0, VI_BASE
     li      t1, VIDEO_MODE
-    li      t2, VIDEO_BUFFER | UNCACHED
-    li      t3, 0x00000280
-    li      t4, 0 // 0x00000200
-    li      t5, 0x00000000
-    li      t6, 0x03E52239
-    li      t7, 0x0000020C
+    li      t2, VIDEO_BUFFER & ADDR_MASK
+    li      t3, 640 // width in pixels (for the buffer)
+    li      t4, 0 // interrupt on line
+    li      t5, 0 // current line; any write clears VI interrupt
+    li      t6, 0x03E52239 // timings (split into 4)
+    li      t7, 525 - 1 // lines. subtracting by one enables interlacing.
     sw      t1, 4 *  0(a0)
     sw      t2, 4 *  1(a0)
     sw      t3, 4 *  2(a0)
@@ -197,13 +193,13 @@ if 0 {
     sw      t6, 4 *  5(a0)
     sw      t7, 4 *  6(a0)
 
-    li      t1, 0x00000C15
-    li      t2, 0x0C150C15
-    li      t3, 0x006C02EC
-    li      t4, 0x002301FD
-    li      t5, 0x000E0204
-    li      t6, 0x00000400
-    li      t7, 0x02000800
+    li      t1, 0x00000C15 // divide VI clock to get proper NTSC rate
+    li      t2, 0x0C150C15 // likewise (this is only different on PAL)
+    li      t3, 0x006C02EC // 640 pixels per row, starting at 108 units
+    li      t4, 0x00230203 // 480 pixels per column, starting at 35 units
+    li      t5, 0x000E0204 // video burst starts at 14 and lasts for 502 units
+    li      t6, 0x00000400 // x offset and x step size (inverse scaling)
+    li      t7, 0x00000800 // y offset and y step size (inverse scaling)
     sw      t1, 4 *  7(a0)
     sw      t2, 4 *  8(a0)
     sw      t3, 4 *  9(a0)
@@ -212,10 +208,22 @@ if 0 {
     sw      t6, 4 * 12(a0)
     sw      t7, 4 * 13(a0)
 
-}
-
 VideoLoop:
-    WaitScanline(2)
+    lui     a0, VI_BASE
+    li      t1, VIDEO_BUFFER & ADDR_MASK
+
+-
+    lw      t0, VI_V_CURRENT_LINE(a0)
+    sltiu   at, t0, 2 + 1
+    beqz    at,-
+    nop
+
+    andi    t0, 1
+    bnez    t0,+
+    nop
+    addiu   t1, WIDTH * DEPTH
++
+    sw      t1, VI_ORIGIN(a0)
 
     j       VideoLoop
     nop
