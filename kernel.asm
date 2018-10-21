@@ -24,6 +24,9 @@ include "init.asm"
     sw      r0, K_UNUSED(gp)
     sw      r0, K_CONSOLE_AVAILABLE(gp)
     sw      r0, K_HISTORY(gp)
+    sw      r0, KV_RES(gp)
+    sw      r0, KV_MODE(gp)
+    sw      r0, KV_ORIGIN(gp)
 
 Drive64Init:
     lui     t9, CI_BASE
@@ -368,11 +371,11 @@ K_MI_Loop:
     nop
 
 K_MI_SP:
-    KWriteString(KS_MI_SP)
-
     lli     t0, SP_INT_CLR
     lui     a1, SP_BASE
     sw      t0, SP_STATUS(a1)
+
+    KWriteString(KS_MI_SP)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_SP
@@ -381,10 +384,10 @@ K_MI_SP:
     andi    s0, ~MI_INTR_SP
 
 K_MI_SI:
-    KWriteString(KS_MI_SI)
-
     lui     a1, SI_BASE
     sw      r0, SI_STATUS(a1)
+
+    KWriteString(KS_MI_SI)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_SI
@@ -393,10 +396,10 @@ K_MI_SI:
     andi    s0, ~MI_INTR_SI
 
 K_MI_AI:
-    KWriteString(KS_MI_AI)
-
     lui     a1, AI_BASE
     sw      r0, AI_STATUS(a1)
+
+    KWriteString(KS_MI_AI)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_AI
@@ -405,11 +408,13 @@ K_MI_AI:
     andi    s0, ~MI_INTR_AI
 
 K_MI_VI:
-    KWriteString(KS_MI_VI)
 
-    lui     a1, VI_BASE
-    lw      t0, VI_V_CURRENT_LINE(a1)
-    sw      t0, VI_V_CURRENT_LINE(a1)
+    lw      a0, KV_RES(k0)
+    lw      a1, KV_MODE(k0)
+    jal     SetScreenNTSC
+    lw      a2, KV_ORIGIN(k0)
+
+    KWriteString(KS_MI_VI)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_VI
@@ -418,11 +423,11 @@ K_MI_VI:
     andi    s0, ~MI_INTR_VI
 
 K_MI_PI:
-    KWriteString(KS_MI_PI)
-
     lli     t0, 0x02
     lui     a1, PI_BASE
     sw      t0, PI_STATUS(a1)
+
+    KWriteString(KS_MI_PI)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_PI
@@ -431,11 +436,11 @@ K_MI_PI:
     andi    s0, ~MI_INTR_PI
 
 K_MI_DP:
-    KWriteString(KS_MI_DP)
-
     lli     t0, 0x0800
     lui     a1, MI_BASE
     sw      t0, MI_INIT_MODE(a1)
+
+    KWriteString(KS_MI_DP)
 
     lw      t0, K_HISTORY(k0)
     ori     t0, MI_INTR_DP
@@ -484,6 +489,14 @@ dw      KCode16, KCode17, KCode18, KCode19
 dw      KCode20, KCode21, KCode22, KCode23
 dw      KCode24, KCode25, KCode26, KCode27
 dw      KCode28, KCode29, KCode30, KCode31
+
+K_SetScreenNTSC:
+    lui     a3, K_BASE
+    sw      a0, KV_RES(a3)
+    sw      a1, KV_MODE(a3)
+    sw      a2, KV_ORIGIN(a3)
+    // fall-thru
+MakeSetScreenNTSC()
 
 include "debug.asm"
 

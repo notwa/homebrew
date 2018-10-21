@@ -55,6 +55,155 @@ constant VI_NTSC_CLOCK(48681812) // NTSC: Hz = 48.681812 MHz
 constant VI_PAL_CLOCK(49656530)  // PAL:  Hz = 49.656530 MHz
 constant VI_MPAL_CLOCK(48628316) // MPAL: Hz = 48.628316 MHz
 
+// enum for video resolutions; values are arbitrary.
+// interlaced:
+constant RES_640_480(480) // no padding.
+constant RES_576_432(432) // 640x480 after VI padding.
+constant RES_512_448(448) // stretched to 640x448, 640x480 after VI padding.
+// not interlaced:
+constant RES_320_240(240) // upscaled 2x.
+constant RES_288_216(216) // upscaled 2x. 640x480 after VI padding.
+constant RES_256_224(224) // upscaled 2x, stretched to 640x448, etc.
+
+macro MakeSetScreenNTSC() {
+    // note that you can only call this macro once.
+
+SetScreenNTSC:
+    // this version expects to be called every frame.
+    // a0: resolution to use (enum).
+    // a1: desired VI settings (status/control). mutable.
+    // a2: image color buffer origin address. mutable.
+    // v0: zero on success, non-zero on failure (bad enum or VI settings).
+
+    lui     v1, VI_BASE
+    lw      t0, VI_V_CURRENT_LINE(v1)
+    andi    t0, 1
+
+    andi    t1, a1, 3 // extract BPP
+    subiu   t1, 2 // now 16 BPP is 0 and 32 BPP is 1
+    bltz    t1, SetScreenNTSC_Fail // fail if it's not set to 16 or 32 BPP
+
+    lli     t8, RES_640_480 // delay slot
+    beq     a0, t8, SetScreenNTSC_480
+
+    lli     t9, RES_576_432 // delay slot
+    beq     a0, t9, SetScreenNTSC_432
+
+    lli     t8, RES_512_448 // delay slot
+    beq     a0, t8, SetScreenNTSC_448
+
+    lli     t9, RES_320_240 // delay slot
+    beq     a0, t9, SetScreenNTSC_240
+
+    lli     t8, RES_288_216 // delay slot
+    beq     a0, t8, SetScreenNTSC_216
+
+    lli     t9, RES_256_224 // delay slot
+    beq     a0, t9, SetScreenNTSC_224
+
+SetScreenNTSC_Fail:
+    lli     v0, 1 // delay slot
+    jr      ra
+    sw      r0, VI_V_CURRENT_LINE(v1) // clear interrupt
+
+SetScreenNTSC_SetInterlaced:
+    beqz    t0, SetScreenNTSC_Set // nothing more to do on even fields.
+    ori     a1, INTERLACE
+
+    // handle odd fields.
+    addu    a2, t2 // add width to origin
+    addu    a2, t2 // and again for a full row (when 16 BPP)
+    beqz    t1, SetScreenNTSC_Set // branch when 16 BPP
+    subiu   t7, 2 // prevents bottom line from displaying out-of-bounds garbage
+    addu    a2, t2
+    addu    a2, t2 // full row (when 32 BPP)
+
+SetScreenNTSC_Set:
+    lw      t1, VI_V_CURRENT_LINE(v1)
+
+    // variable stuff:
+    sw      t1, VI_V_CURRENT_LINE(v1)
+    sw      t2, VI_WIDTH(v1) // VI_H_WIDTH
+    sw      t3, VI_V_SYNC(v1)
+    sw      t4, VI_X_SCALE(v1)
+    sw      t5, VI_Y_SCALE(v1)
+    sw      t6, VI_H_VIDEO(v1) // VI_H_START
+    sw      t7, VI_V_VIDEO(v1) // VI_V_START
+
+    // constant stuff:
+    lli     t1, 2
+    li      t2, 57 | (34 << 8) | (5 << 16) | (62 << 20)
+    lli     t3, 3093
+    li      t4, 3093 | (3093 << 16)
+    li      t5, (0x0E << 16) | 0x204
+    sw      t1, VI_V_INTR(v1) // VI_INTR
+    sw      t2, VI_TIMING(v1) // VI_BURST
+    sw      t3, VI_H_SYNC(v1)
+    sw      t4, VI_H_SYNC_LEAP(v1) // VI_LEAP
+    sw      t5, VI_V_BURST(v1)
+
+    // final variable stuff:
+    sw      a1, VI_STATUS(v1) // VI_CONTROL
+    sw      a2, VI_ORIGIN(v1) // VI_DRAM_ADDR
+
+    jr      ra
+    lli     v0, 0
+
+SetScreenNTSC_480:
+    lli     t2, 640
+    li      t4, 0x400
+    li      t5, 0x800 | (0x200 << 16)
+    li      t6, (0x6C << 16) | (0x6C + 640)
+    li      t7, (0x23 << 16) | (0x23 + 480)
+    b       SetScreenNTSC_SetInterlaced
+    lli     t3, 525 - 1
+
+SetScreenNTSC_432:
+    lli     t2, 576
+    li      t4, 0x400
+    li      t5, 0x800 | (0x200 << 16)
+    li      t6, (0x8C << 16) | (0x8C + 576)
+    li      t7, (0x3B << 16) | (0x3B + 432)
+    b       SetScreenNTSC_SetInterlaced
+    lli     t3, 525 - 1
+
+SetScreenNTSC_448:
+    lli     t2, 512
+    li      t4, (512 * 256 + 128) / 160
+    li      t5, 0x800 | (0x200 << 16)
+    li      t6, (0x6C << 16) | (0x6C + 640)
+    li      t7, (0x33 << 16) | (0x33 + 448)
+    b       SetScreenNTSC_SetInterlaced
+    lli     t3, 525 - 1
+
+SetScreenNTSC_240:
+    lli     t2, 320
+    li      t4, 0x200
+    li      t5, 0x400
+    li      t6, (0x6C << 16) | (0x6C + 640)
+    li      t7, (0x23 << 16) | (0x23 + 480)
+    b       SetScreenNTSC_Set
+    lli     t3, 525
+
+SetScreenNTSC_216:
+    lli     t2, 288
+    li      t4, 0x200
+    li      t5, 0x400
+    li      t6, (0x8C << 16) | (0x8C + 576)
+    li      t7, (0x3B << 16) | (0x3B + 432)
+    b       SetScreenNTSC_Set
+    lli     t3, 525
+
+SetScreenNTSC_224:
+    lli     t2, 256
+    li      t4, (256 * 256 + 128) / 160
+    li      t5, 0x400
+    li      t6, (0x6C << 16) | (0x6C + 640)
+    li      t7, (0x33 << 16) | (0x33 + 448)
+    b       SetScreenNTSC_Set
+    lli     t3, 525
+}
+
 macro ScreenNTSC(width,height, status, origin) {
   lui a0,VI_BASE // A0 = VI Base Register ($A4400000)
   la t0,{origin}      // T0 = Origin (Frame Buffer Origin In Bytes)

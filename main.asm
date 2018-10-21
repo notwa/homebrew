@@ -117,8 +117,23 @@ MainLoop:
     beqz    t0,-
     nop
 
-    WriteString(S_VI_Wait)
+    // queue buffers to swap
+    lui     a0, K_BASE
+    beqz    s1, SwapToMain
+    nop
+SwapToAlt:
+    la      t0, VIDEO_C_IMAGE_ALT | UNCACHED
+    sw      t0, KV_ORIGIN(a0)
+    b       +
+    lli     s1, 0
+SwapToMain:
+    la      t0, VIDEO_C_IMAGE | UNCACHED
+    sw      t0, KV_ORIGIN(a0)
+    lli     s1, 1
++
+
     // wait on VI too
+    WriteString(S_VI_Wait)
     lui     a0, VI_BASE
 -
     lw      t0, VI_V_CURRENT_LINE(a0)
@@ -129,24 +144,27 @@ MainLoop:
 
     WriteString(SNewFrame)
 
-    // swap buffers
-    lui     a0, VI_BASE
-    beqz    s1, SwitchToAlt
+    j       Start3D
     nop
-SwitchToMain:
-    la      t0, VIDEO_C_IMAGE_ALT | UNCACHED
-    sw      t0, VI_ORIGIN(a0)
-    j       Start3D
-    lli     s1, 0
-SwitchToAlt:
-    la      t0, VIDEO_C_IMAGE | UNCACHED
-    sw      t0, VI_ORIGIN(a0)
-    j       Start3D
-    lli     s1, 1
 
 SetupScreen:
-    ScreenNTSC(WIDTH, HEIGHT, VIDEO_MODE, VIDEO_C_IMAGE | UNCACHED)
-    jr      ra
+if WIDTH == 640 {
+    lli     a0, RES_640_480
+} else if WIDTH == 576 {
+    lli     a0, RES_576_432
+} else if WIDTH == 512 {
+    lli     a0, RES_512_448
+} else if WIDTH == 320 {
+    lli     a0, RES_320_240
+} else if WIDTH == 288 {
+    lli     a0, RES_288_216
+} else if WIDTH == 256 {
+    lli     a0, RES_256_224
+}
+
+    li      a1, VIDEO_MODE
+    la      a2, VIDEO_C_IMAGE | UNCACHED
+    j       K_SetScreenNTSC // tail-call
     nop
 
 MainDumpWrite:
@@ -164,6 +182,8 @@ MainDumpWrite:
     addiu   sp, 0x18
 
 Die:
+    mfc0    t0, CP0_Status
+    mtc0    t0, CP0_Status
     j       Die
     nop
 

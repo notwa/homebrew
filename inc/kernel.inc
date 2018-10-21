@@ -13,6 +13,10 @@ constant K_ERRORPC(0x0614)
 constant K_BADVADDR(0x0618)
 constant K_HISTORY(0x061C)
 
+constant KV_RES(0x0620)
+constant KV_MODE(0x0624)
+constant KV_ORIGIN(0x0628)
+
 constant K_64DRIVE_MAGIC(0x0700)
 constant K_CI_BASE(0x0704)
 constant K_CONSOLE_AVAILABLE(0x0708)
