@@ -107,10 +107,10 @@ SetScreenNTSC_Fail:
     sw      r0, VI_V_CURRENT_LINE(v1) // clear interrupt
 
 SetScreenNTSC_SetInterlaced:
-    beqz    t0, SetScreenNTSC_Set // nothing more to do on even fields.
+    bnez    t0, SetScreenNTSC_Set // nothing more to do on odd (top) fields.
     ori     a1, INTERLACE
 
-    // handle odd fields.
+    // handle even (bottom) fields.
     addu    a2, t2 // add width to origin
     addu    a2, t2 // and again for a full row (when 16 BPP)
     beqz    t1, SetScreenNTSC_Set // branch when 16 BPP
