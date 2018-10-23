@@ -5,7 +5,7 @@ constant HICOLOR(0)
 
 constant MAIN_DECOMP_IMAGE(HIRES & HICOLOR)
 
-constant MAIN_BASE(0x800E)
+constant MAIN_BASE(0x8004)
 constant MAIN_COUNTS(0x0010)
 constant MAIN_SP_TASK(0x0040)
 constant MAIN_XXD(0x0080)
@@ -13,12 +13,20 @@ constant MAIN_DLIST(0x1000)
 constant MAIN_DLIST_SIZE(0xF000)
 constant MAIN_DLIST_JUMPER(MAIN_DLIST - 0xA8)
 
+constant FONT_BASE(0x8005)
+
 if HIRES {
     constant WIDTH(640)
     constant HEIGHT(480)
 } else {
     constant WIDTH(320)
     constant HEIGHT(240)
+}
+
+if HICOLOR {
+    constant DEPTH(4)
+} else {
+    constant DEPTH(2)
 }
 
 if HIRES {
@@ -44,7 +52,7 @@ constant TASK_DP_WAIT(0x0002)
 constant TASK_LOADABLE(0x0004)
 constant TASK_SP_ONLY(0x0008)
 
-constant VIDEO_C_IMAGE_SIZE(WIDTH * HEIGHT * (HICOLOR * 2 + 2))
+constant VIDEO_C_IMAGE_SIZE(WIDTH * HEIGHT * DEPTH)
 constant VIDEO_Z_IMAGE_SIZE(WIDTH * HEIGHT * 2)
 constant VIDEO_OUTPUT_SIZE(0x18000) // technically a buffer?
 constant VIDEO_STACK_SIZE(0x8000) // used for dlist calls, pushing matrices, etc?

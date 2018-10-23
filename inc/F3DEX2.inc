@@ -159,15 +159,28 @@ constant CVG_DST_WRAP(0x100)
 constant CVG_DST_FULL(0x200)
 constant CVG_DST_SAVE(0x300)
 // more Z stuff
-constant ZMODE_OPA(0)
-constant ZMODE_INTER(0x400)
-constant ZMODE_XLU(0x800)
-constant ZMODE_DEC(0xC00)
+constant ZMODE_OPA(0) // opaque
+constant ZMODE_INTER(0x400) // interpenetrating
+constant ZMODE_XLU(0x800) // translucent
+constant ZMODE_DEC(0xC00) // decal
 // more coverage stuff
 constant CVG_X_ALPHA(0x1000)
 constant ALPHA_CVG_SEL(0x2000)
 // blending
 constant FORCE_BL(0x4000) // no effect?
+
+// blending modes
+constant G_BL_CLR_IN(0)
+constant G_BL_CLR_MEM(1)
+constant G_BL_CLR_BL(2)
+constant G_BL_CLR_FOG(3)
+constant G_BL_1MA(0)
+constant G_BL_A_MEM(1)
+constant G_BL_A_IN(0)
+constant G_BL_A_FOG(1)
+constant G_BL_A_SHADE(2)
+constant G_BL_1(2)
+constant G_BL_0(3)
 
 macro gNoOp() {
     // stalls the RDP (and not the RSP?)
@@ -489,7 +502,7 @@ macro gSetPrimDepth(variable z, variable dz) {
     // fixes the Z value to a constant for the following primitives.
     // useful for 2.5D effects, maybe?
     // TODO: what are the ranges?
-    _g(0xEE, 0, (z << 16) | d)
+    _g(0xEE, 0, (z << 16) | dz)
 }
 
 macro gRdpSetOtherMode(variable omodeH, variable omodeL) {

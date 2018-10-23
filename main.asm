@@ -23,9 +23,13 @@ include "kernel.asm"
 
 Main:
 
+    lui     s0, MAIN_BASE
+
+    jal     LoadFont16
+    lui     a0, FONT_BASE
+
 if MAIN_DECOMP_IMAGE {
 DecompImage:
-    lui     s0, MAIN_BASE
 
     nop; nop; nop; nop
     mfc0    t0, CP0_Count
@@ -72,8 +76,7 @@ Start3D:
     mfc0    t0, CP0_Status
     mtc0    t0, CP0_Status
 
-    lui     a0, MAIN_BASE
-    ori     a0, MAIN_DLIST
+    ori     a0, s0, MAIN_DLIST
     jal     WriteDList
     or      a1, s1, r0
     jal     PokeDataCache
@@ -91,9 +94,8 @@ Start3D:
     // only the lowest 12 bits are used, so 00000000 is equivalent to 04001000.
     sw      r0, SP_PC(a0)
 
-    lui     a0, MAIN_BASE
     jal     PushVideoTask
-    ori     a0, MAIN_SP_TASK
+    ori     a0, s0, MAIN_SP_TASK
 
     jal     LoadRSPBoot
     nop
@@ -106,6 +108,8 @@ Start3D:
     EnableInt()
 
 MainLoop:
+    mfc0    s2, CP0_Count
+
     WriteString(S_SP_Wait)
 -
     mfc0    t0, CP0_Status
@@ -116,6 +120,79 @@ MainLoop:
     andi    t0, SP_HALT
     beqz    t0,-
     nop
+
+    mfc0    s3, CP0_Count
+    subu    s3, s2
+    addiu   s3, COUNT_RATE / (60 * 200) // for rounding
+    li      t9, COUNT_RATE / (60 * 100)
+    divu    s3, t9
+    mflo    s2 // s2: frame budget spent in (integer) percent
+
+    // there are faster ways, but i'll prefer smaller codesize for now.
+    lli     t9, 10
+    divu    s2, t9
+    mfhi    s3 // s3: (RTL) first digit
+    mflo    t0
+    divu    t0, t9
+    mfhi    s4 // s4: (RTL) second digit
+    mflo    t0
+    divu    t0, t9
+    mfhi    s5 // s5: (RTL) third digit
+
+if !HICOLOR {
+
+if HIRES {
+    lli     s6, 64 // s6: X position
+    lli     s7, 48 // s7: Y position
+} else {
+    lli     s6, 32 // s6: X position
+    lli     s7, 24 // s7: Y position
+}
+
+    la      s8, VIDEO_C_IMAGE // s8: output image buffer
+    beqz    s1,+
+    nop
+    la      s8, VIDEO_C_IMAGE_ALT
++
+
+    beqz    s5,+
+    lui     a0, FONT_BASE
+    addiu   a1, s5, '0'
+    sll     a2, s7, 16
+    or      a2, s6
+    move    a3, s8
+    jal     DrawChar16
++
+    addiu   s6, FONT_WIDTH
+
+    or      at, s5, s6
+    beqz    at,+
+    lui     a0, FONT_BASE
+    addiu   a1, s4, '0'
+    sll     a2, s7, 16
+    or      a2, s6
+    move    a3, s8
+    jal     DrawChar16
++
+    addiu   s6, FONT_WIDTH
+
+    lui     a0, FONT_BASE
+    addiu   a1, s3, '0'
+    sll     a2, s7, 16
+    or      a2, s6
+    move    a3, s8
+    jal     DrawChar16
+    addiu   s6, FONT_WIDTH
+
+    lui     a0, FONT_BASE
+    addiu   a1, r0, '%'
+    sll     a2, s7, 16
+    or      a2, s6
+    move    a3, s8
+    jal     DrawChar16
+    addiu   s6, FONT_WIDTH
+
+}
 
     // queue buffers to swap
     lui     a0, K_BASE
@@ -197,6 +274,7 @@ if MAIN_DECOMP_IMAGE {
 }
 include "dlist.asm"
 include "task.asm"
+include "font.8x16.asm"
 
 if pc() > (MAIN_BASE << 16) {
     error "ran out of memory for code and data"

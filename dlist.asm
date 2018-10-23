@@ -174,13 +174,24 @@ if HIRES {
     gMatrix(view_mat1, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION)
 
     gPipeSync()
-    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,4)
-    gSetOtherMode(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN, G_AC_NONE | G_ZS_PIXEL | Z_CMP | Z_UPD)
+    gSetCombine(0,0,0,4,0,0,0,4, 0,0,0,4,0,0,0,4)
+variable upper(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN)
+variable lower(AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | G_BL_CLR_IN << 30 | G_BL_A_IN << 26 | G_BL_CLR_MEM << 22 | G_BL_A_MEM << 18)
+    gSetOtherMode(upper, lower)
     gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_FRONT | G_SHADING_SMOOTH)
 
     gSetSegment6(model)
     gMatrix(model_mat, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW)
     gDisplayList((6 << 24) | MODEL_START)
+
+if 0 {
+    // debug: display coverage values onscreen.
+    gPipeSync()
+    gSetOtherMode(G_CYC_1CYCLE, G_ZS_PRIM | IM_RD | FORCE_BL | G_BL_CLR_IN << 30 | G_BL_0 << 26 | G_BL_CLR_BL << 22 | G_BL_A_MEM << 18)
+    gSetBlendColor(0xFF,0xFF,0xFF,0xFF)
+    gSetPrimDepth(0xFFFF, 0xFFFF)
+    gFillRect(0, 0, WIDTH - 1, HEIGHT - 1)
+}
 
     // finish.
     gFullSync()
@@ -204,8 +215,8 @@ align(8)
 
 viewport:
     // note that the third parameters here affect the range of Z-buffering.
-    dh WIDTH/2*4, HEIGHT/2*4, 0x3FF, 0 // scale
-    dh WIDTH/2*4, HEIGHT/2*4, 0x000, 0 // translation
+    dh WIDTH/2*4, HEIGHT/2*4, 0x1FF, 0 // scale
+    dh WIDTH/2*4, HEIGHT/2*4, 0x1FF, 0 // translation
 
 view_mat0:
 if FOV90 {
@@ -215,10 +226,10 @@ if FOV90 {
     Mat.X($0001'4C8D, $0000'0000, $0000'0000, $0000'0000)
     Mat.Y($0000'0000, $0001'BB67, $0000'0000, $0000'0000)
 }
-    Mat.Z($0000'0000, $0000'0000, $FFFE'FF00, $FFFF'0000)
-    Mat.W($0000'0000, $0000'0000, $FFFD'FF00, $0000'0000)
+    Mat.Z($0000'0000, $0000'0000, $FFFE'FF9A, $FFFF'0000)
+    Mat.W($0000'0000, $0000'0000, $FFEB'FC00, $0000'0000)
     Mat.rix()
-constant PERSPECTIVE_NORMALIZATION($00FF)
+constant PERSPECTIVE_NORMALIZATION($000A)
 
 view_mat1:
     Mat.X($0001'0000, $0000'0000, $0000'0000, $0000'0000)
@@ -265,6 +276,6 @@ constant MODEL_START(pc() - model)
     gQuadTri(2, 3, 7, 6)
     gEndList()
 } else {
-    constant MODEL_START(0x32B0)
+    constant MODEL_START(0)
     insert model, "res/teapot.F3D"
 }

@@ -15,6 +15,11 @@ include "n64_si.inc"
 include "n64_pif.inc"
 include "n64_util.inc"
 
+// Rates
+constant CLOCK_RATE(93750000)
+constant COUNT_RATE(CLOCK_RATE / 2) // for use with the CP0 Count register.
+constant COP_RATE(CLOCK_RATE * 2 / 3)
+
 // Memory Map
 constant RDRAM_BASE($A3F0)       // $03F00000 RDRAM Base
 constant RDRAM_DEVICE_TYPE($00)  // $03F00000 Device Type

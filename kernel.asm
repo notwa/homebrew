@@ -408,7 +408,6 @@ K_MI_AI:
     andi    s0, ~MI_INTR_AI
 
 K_MI_VI:
-
     lw      a0, KV_RES(k0)
     lw      a1, KV_MODE(k0)
     jal     SetScreenNTSC

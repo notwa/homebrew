@@ -44,8 +44,8 @@ constant MAIN_FROM(0x0000)
 constant MAIN_TO(0x0080)
 constant MAIN_FONT(0x4000)
 
-constant WIDTH(640)
-constant HEIGHT(480)
+constant WIDTH(576) // 640 * 0.9
+constant HEIGHT(432) // 480 * 0.9
 constant DEPTH(2)
 constant VIDEO_BUFFER(0x80400000 - WIDTH * HEIGHT * DEPTH)
 constant VIDEO_MODE(BPP16 | INTERLACE | AA_MODE_2 | DIVOT_EN | PIXEL_ADV_3 | DITHER_FILTER_EN)
@@ -89,7 +89,7 @@ Start:
     li      t1, 0xDEADBEEF
     li      t2, 0xCAFEBABE
     li      t3, 0xABAD1DEA
-    li      t4, 0x12345678
+    li      t4, 0xADD0BEE5
 
     lui     a0, MAIN_BASE
     // spaced out a bit just to see what happens.
@@ -137,8 +137,8 @@ if 0 {
     ori     a0, MAIN_FONT
 
     // show our results on-screen.
-    lli     s0, 64          // s0: X
-    lli     s1, 48          // s1: Y
+    lli     s0, 16          // s0: X
+    lli     s1, 12          // s1: Y
     lli     s2, 0x20 / 4    // s2: number of words to draw
     lui     s3, MAIN_BASE
     ori     s3, MAIN_TO     // s3: start of data to dump
@@ -148,12 +148,12 @@ MainHexDumpLoop:
 
     lw      s4, 0(s3)       // s4: current word being drawn
 
-    addiu   s0, 8 * 8
+    addiu   s0, 8 * FONT_WIDTH
     lli     s5, 8           // s5: inner loop iteration count
 
 MainHexDumpInnerLoop:
     andi    t0, s4, 0x0F
-    subiu   s0, 8
+    subiu   s0, FONT_WIDTH
 
     lui     a0, MAIN_BASE
     ori     a0, MAIN_FONT
@@ -169,10 +169,40 @@ MainHexDumpInnerLoop:
     srl     s4, 4
 
     subiu   s2, 1
-    addiu   s1, 12
+    addiu   s1, FONT_HEIGHT
     bnez    s2, MainHexDumpLoop
     addiu   s3, 4
 
+    la      s3, TEXT
+DrawTextLoop:
+    lbu     a1, 0(s3)
+    addiu   s3, 1
+
+    beqz    a1, DrawTextDone
+
+    lli     t0, 0x0D // delay slot
+    beq     a1, t0, DrawTextLoop
+
+    lli     t1, 0x0A // delay slot
+    bne     a1, t1,+
+    nop
+    addiu   s1, FONT_HEIGHT // next line
+    b       DrawTextLoop
+    lli     s0, 16 // return to base X offset
++
+
+    lui     a0, MAIN_BASE // delay slot
+    ori     a0, MAIN_FONT
+    sll     a2, s1, 16
+    or      a2, s0
+    la      a3, VIDEO_BUFFER
+    jal     DrawChar16
+
+    addiu   s0, FONT_WIDTH // delay slot
+    b       DrawTextLoop
+    nop
+
+DrawTextDone:
     // use our old cache-poking utility for now.
     jal     PokeDataCache
     nop
@@ -180,50 +210,57 @@ MainHexDumpInnerLoop:
     lui     a0, VI_BASE
     li      t1, VIDEO_MODE
     li      t2, VIDEO_BUFFER & ADDR_MASK
-    li      t3, 640 // width in pixels (for the buffer)
-    li      t4, 0 // interrupt on line
+    li      t3, WIDTH // width of the buffer in pixels
+    li      t4, 0 // interrupt on line, 0 to disable (i think?)
     li      t5, 0 // current line; any write clears VI interrupt
     li      t6, 0x03E52239 // timings (split into 4)
-    li      t7, 525 - 1 // lines. subtracting by one enables interlacing.
-    sw      t1, 4 *  0(a0)
-    sw      t2, 4 *  1(a0)
-    sw      t3, 4 *  2(a0)
-    sw      t4, 4 *  3(a0)
-    sw      t5, 4 *  4(a0)
-    sw      t6, 4 *  5(a0)
-    sw      t7, 4 *  6(a0)
+    li      t7, 525 - 1 // lines; subtracting by one enables interlacing
+    sw      t1, VI_STATUS(a0)           // offset 0x00
+    sw      t2, VI_ORIGIN(a0)           // offset 0x04
+    sw      t3, VI_WIDTH(a0)            // offset 0x08
+    sw      t4, VI_V_INTR(a0)           // offset 0x0C
+    sw      t5, VI_V_CURRENT_LINE(a0)   // offset 0x10
+    sw      t6, VI_TIMING(a0)           // offset 0x14
+    sw      t7, VI_V_SYNC(a0)           // offset 0x18
 
     li      t1, 0x00000C15 // divide VI clock to get proper NTSC rate
     li      t2, 0x0C150C15 // likewise (this is only different on PAL)
-    li      t3, 0x006C02EC // 640 pixels per row, starting at 108 units
-    li      t4, 0x00230203 // 480 pixels per column, starting at 35 units
+    li      t3, 0x008C02CC // 576 pixels per row, starting at ... units
+    li      t4, 0x003B01EB // 432 pixels per column, starting at ... units
     li      t5, 0x000E0204 // video burst starts at 14 and lasts for 502 units
     li      t6, 0x00000400 // x offset and x step size (inverse scaling)
-    li      t7, 0x00000800 // y offset and y step size (inverse scaling)
-    sw      t1, 4 *  7(a0)
-    sw      t2, 4 *  8(a0)
-    sw      t3, 4 *  9(a0)
-    sw      t4, 4 * 10(a0)
-    sw      t5, 4 * 11(a0)
-    sw      t6, 4 * 12(a0)
-    sw      t7, 4 * 13(a0)
+    li      t7, 0x02000800 // y offset and y step size (inverse scaling)
+    // setting y offset to 0.5 (it's Q10 fixed point)
+    // reduces interlacing jitter at the cost of a little image sharpness.
+    sw      t1, VI_H_SYNC(a0)           // offset 0x1C
+    sw      t2, VI_H_SYNC_LEAP(a0)      // offset 0x20
+    sw      t3, VI_H_VIDEO(a0)          // offset 0x24
+    sw      t4, VI_V_VIDEO(a0)          // offset 0x28
+    sw      t5, VI_V_BURST(a0)          // offset 0x2C
+    sw      t6, VI_X_SCALE(a0)          // offset 0x30
+    sw      t7, VI_Y_SCALE(a0)          // offset 0x34
 
 VideoLoop:
     lui     a0, VI_BASE
     li      t1, VIDEO_BUFFER & ADDR_MASK
 
 -
+    // wait until we're done displaying the frame.
     lw      t0, VI_V_CURRENT_LINE(a0)
     sltiu   at, t0, 2 + 1
     beqz    at,-
     nop
 
-    andi    t0, 1
-    bnez    t0,+
+    andi    t0, 1   // check if we're on an odd field.
+    li      t2, 0x003B01EB
+    bnez    t0,+    // if we're not, branch.
     nop
-    addiu   t1, WIDTH * DEPTH
+    addiu   t1, WIDTH * DEPTH   // odd field, so offset the image by one row.
+    li      t2, 0x003B01E9 // slightly shorter image so that
+                           // the y offset doesn't cause sampling out of bounds
 +
     sw      t1, VI_ORIGIN(a0)
+    sw      t2, VI_V_VIDEO(a0)
 
     j       VideoLoop
     nop
@@ -250,4 +287,9 @@ PokeDataCache:
     jr      ra
     nop
 
-include "font.asm"
+align(16)
+insert TEXT, "text.txt"
+db 0
+align(4)
+
+include "font.8x16.asm"

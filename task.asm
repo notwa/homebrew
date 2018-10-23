@@ -5,10 +5,15 @@ PushVideoTask:
 
     lli     t0, 1 // mode: video
     lli     t1, TASK_DP_WAIT // flags
-    li      t2, UCODE_BOOT // does not need masking (not actually used?)
+    li      t2, UCODE_BOOT & ADDR_MASK // not actually used?
     li      t3, UCODE_BOOT.size
     li      t4, F3DZEX_IMEM & ADDR_MASK
+constant IMEM_SIZE(F3DZEX_IMEM.size) // weird bass quirk
+if IMEM_SIZE > 0xFC0 {
+    li      t5, 0xFC0
+} else {
     li      t5, F3DZEX_IMEM.size
+}
     li      t6, F3DZEX_DMEM & ADDR_MASK
     li      t7, F3DZEX_DMEM.size
     sw      t0, 0x00(a0)
@@ -25,7 +30,7 @@ PushVideoTask:
     li      t2, (VIDEO_OUTPUT & ADDR_MASK) | UNCACHED
     // most commercial games re-use the yield pointer, so i assume it's fine:
     li      t3, VIDEO_YIELD & ADDR_MASK // stores output buffer size
-    li      t4, ((MAIN_BASE << 16) | MAIN_DLIST_JUMPER) & ADDR_MASK // initial DList
+    li      t4, ((MAIN_BASE << 16) | MAIN_DLIST_JUMPER) // initial DList
     lli     t5, 8 // size of one jump command. this is ignored and 0xA8 is used instead
     li      t6, VIDEO_YIELD & ADDR_MASK
     li      t7, VIDEO_YIELD_SIZE
@@ -37,6 +42,8 @@ PushVideoTask:
     sw      t5, 0x34(a0)
     sw      t6, 0x38(a0)
     sw      t7, 0x3C(a0)
+
+    nop; nop; nop; nop
 
     // tell data cache to write itself out
     cache   0x19, 0x00(a0)
