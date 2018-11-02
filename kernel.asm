@@ -69,12 +69,12 @@ Drive64Done:
     li      t1, 0x80400000
 -
 define x(0)
-while {x} < 0x100 {
-    // TODO: is sw faster than sd?
+while {x} < 0x80 {
+    // sd is roughly the same speed as sw here and saves code size.
     sd      r0, {x}(t0)
 evaluate x({x} + 8)
 }
-    addiu   t0, 0x100
+    addiu   t0, 0x80
     bne     t0, t1,-
     nop
 
