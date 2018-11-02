@@ -128,10 +128,9 @@ WriteDList:
     or      a0, s0, r0
 
     // init
-    gPipeSync()
-    gSetSegment0(0) // set to 0 so that 00-prefixed addresses are absolute.
-    gTextureOff()
-    gSetCombine(15,15,31,4,7,7,7,4, 15,15,31,4,7,7,7,4)
+    gSetSegment0(0) // set to 0 so that 00-prefixed addresses are absolute (physical).
+    gReset()
+
     gSetScissor(0, 0, 0, WIDTH, HEIGHT) // TODO: use mode enum
     gSetBlendColor(0,0,0,0)
     gClipRatio(2)
@@ -162,9 +161,9 @@ if HICOLOR {
 
     // note that all the coordinates are inclusive!
 if HIRES {
-    gFillRect(312, 232, 327, 247)
+    gFillRect(WIDTH/2-8, HEIGHT/2-8, WIDTH/2+7, HEIGHT/2+7)
 } else {
-    gFillRect(156, 116, 163, 123)
+    gFillRect(WIDTH/2-4, HEIGHT/2-4, WIDTH/2+3, HEIGHT/2+3)
 }
 
     gPipeSync()
@@ -175,8 +174,10 @@ if HIRES {
 
     gPipeSync()
     gSetCombine(0,0,0,4,0,0,0,4, 0,0,0,4,0,0,0,4)
+variable clk1(G_BL_CLR_IN << 12 | G_BL_A_IN << 8 | G_BL_CLR_MEM << 4 | G_BL_A_MEM)
+variable clk2(G_BL_CLR_IN << 12 | G_BL_A_IN << 8 | G_BL_CLR_MEM << 4 | G_BL_A_MEM)
 variable upper(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_AVERAGE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN)
-variable lower(AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | G_BL_CLR_IN << 30 | G_BL_A_IN << 26 | G_BL_CLR_MEM << 22 | G_BL_A_MEM << 18)
+variable lower(AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | clk1 << 18 | clk2 << 16)
     gSetOtherMode(upper, lower)
     gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_FRONT | G_SHADING_SMOOTH)
 

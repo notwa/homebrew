@@ -1,4 +1,3 @@
-
 // gMatrix: params argument
 constant G_MTX_NOPUSH(0 << 0)
 constant G_MTX_PUSH(1 << 0)
@@ -46,6 +45,16 @@ constant G_IM_SIZE_8(1)
 constant G_IM_SIZE_16(2)
 constant G_IM_SIZE_32(3)
 constant G_IM_SIZE_DD(5)
+
+// TODO:
+constant G_TX_NOMIRROR(0)
+constant G_TX_MIRROR(1)
+constant G_TX_WRAP(0)
+constant G_TX_CLAMP(2)
+
+// TODO: actually unrelated to the last set of enums
+constant G_TX_RENDERTILE(0)
+constant G_TX_LOADTILE(7)
 
 // gGeometryMode: clearbits, setbits arguments
 constant G_ZBUFFER(1 << 0)
@@ -320,7 +329,7 @@ macro gTexture(variable scaleS, variable scaleT, variable level, variable tile, 
     // level + 1: number of mipmaps
     if level < 0 || level > 7 {; error "level out of range"; }
     if tile < 0 || tile > 7 {; error "tile out of range"; }
-    if on != 0 && on != 1 {; error "invalid enum for on"; }
+    //if on != 0 && on != 1 {; error "invalid enum for on"; } // FIXME
     if scaleS < 0 || scaleS > 0xFFFF {; error "scaleS out of range"; }
     if scaleT < 0 || scaleT > 0xFFFF {; error "scaleT out of range"; }
     _g(0xD7, (level << 11) | (tile << 8) | on, (scaleS << 16) | scaleT)
@@ -514,9 +523,11 @@ macro gRdpSetOtherMode(variable omodeH, variable omodeL) {
 
 macro gLoadTLUT(variable tile, variable count) { // TODO: rename?
     // used for loading color palettes.
-    // TODO: document properly, check ranges.
+    // TODO: document properly.
+    // NOTE: count is off-by-one compared to the official API.
     if tile < 0 || tile > 7 {; error "tile out of range"; }
-    _g(0xF0, 0, (tile << 24) | ((count & 0x3FF) << 14))
+    if count < 1 || count > 0x400 {; error "count out of range"; }
+    _g(0xF0, 0, (tile << 24) | ((count - 1) << 14))
 }
 
 macro gRdpHalf2(variable wordlo) {
@@ -542,9 +553,9 @@ macro gLoadTile(variable tile, variable uls, variable ult, variable lrs, variabl
     _g(0xF4, (uls << 12) | ult, (tile << 24) | (lrs << 12) | lrt)
 }
 
-macro gSetTile() {
-    // TODO
-    _g(0xF5, 0, 0)
+macro gSetTile(variable fmt, variable size, variable line, variable tmem, variable tile, variable palette, variable cmT, variable maskT, variable shiftT, variable cmS, variable maskS, variable shiftS) {
+    // TODO: everything.
+    _g(0xF5, fmt << 21 | size << 19 | line << 9 | tmem, tile << 24 | palette << 20 | cmT << 18 | maskT << 14 | shiftT << 10 | cmS << 8 | maskS << 4 | shiftS)
 }
 
 macro gFillRect(variable ulx, variable uly, variable lrx, variable lry) {
@@ -666,7 +677,6 @@ macro gSetOtherMode(variable omodeH, variable omodeL) {; gRdpSetOtherMode(omodeH
 macro gVtx(variable vaddr, variable numv, variable vbidx) {; gVertex(vaddr, numv, vbidx); }
 macro gModifyVtx(variable vbidx, variable where, variable val) {; gModifyVertex(vbidx, where, val); }
 
-// TODO: just how useful is this really?
 macro gTextureOff() {; gTexture(0xFFFF, 0xFFFF, 0, 0, 0); }
 
 // possible idea for the future: keeping track of segment addresses in bass defines?
@@ -686,9 +696,6 @@ macro gSetSegmentC(variable vaddr) {; gMoveWord(G_MW_SEGMENT, 0xC * 4, vaddr); }
 macro gSetSegmentD(variable vaddr) {; gMoveWord(G_MW_SEGMENT, 0xD * 4, vaddr); }
 macro gSetSegmentE(variable vaddr) {; gMoveWord(G_MW_SEGMENT, 0xE * 4, vaddr); }
 macro gSetSegmentF(variable vaddr) {; gMoveWord(G_MW_SEGMENT, 0xF * 4, vaddr); }
-
-// TODO
-macro gInit() {; }
 
 macro gQuadTri(variable v0, variable v1, variable v2, variable v3) {
     gTri2(v0, v1, v2, v2, v3, v0)
@@ -721,6 +728,107 @@ macro gPerspNorm(variable norm) {
     gMoveWord(G_MW_PERSPNORM, 0, norm)
 }
 
+macro gLoadPal256(variable paladdr) {
+    gSetTImage(G_IM_FMT_RGBA, G_IM_SIZE_16, 1, paladdr)
+    gTileSync()
+    gSetTile(0, 0, 0, 256, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0)
+    gLoadSync()
+    gLoadTLUT(G_TX_LOADTILE, 256)
+    gPipeSync()
+}
+
+variable result(0)
+macro texlog2(variable x) {
+    // lol this macro
+    if x == 0 {; error "can't let you do that, starfox"; }
+    if x == 1 {; global evaluate result(0); }
+    if x == 2 {; global evaluate result(1); }
+    if x == 4 {; global evaluate result(2); }
+    if x == 8 {; global evaluate result(3); }
+    if x == 16 {; global evaluate result(4); }
+    if x == 32 {; global evaluate result(5); }
+    if x == 64 {; global evaluate result(6); }
+    if x == 128 {; global evaluate result(7); }
+    if x == 256 {; global evaluate result(8); }
+    // TODO: default to error.
+}
+
+macro gLoadTex(variable addr, variable fmt, variable size, variable width, variable height) {
+    // this macros omits the cms, cmt, masks, maskt, shifts, shiftt args,
+    // and assumes you want the texture to wrap.
+    // TODO: merge fmt and size argument enums? might be less of a headache.
+
+    if fmt == G_IM_SIZE_4 {
+        error "unimplemented" // TODO: specialized macro for 4-bit textures.
+    }
+
+    variable cm(G_TX_NOMIRROR | G_TX_WRAP)
+    texlog2(width)
+    variable log2_w({result})
+    texlog2(height)
+    variable log2_h({result})
+
+    if size == G_IM_SIZE_4 {
+        variable incr(3)
+        variable shift(2)
+        variable bytes(0)
+        variable line_bytes(0)
+        variable fake_size(G_IM_SIZE_16)
+    } else if size == G_IM_SIZE_8 {
+        variable incr(1)
+        variable shift(1)
+        variable bytes(1)
+        variable line_bytes(1)
+        variable fake_size(G_IM_SIZE_16)
+    } else if size == G_IM_SIZE_16 {
+        variable incr(0)
+        variable shift(0)
+        variable bytes(2)
+        variable line_bytes(2)
+        variable fake_size(G_IM_SIZE_16)
+    } else if size == G_IM_SIZE_32 {
+        variable incr(0)
+        variable shift(0)
+        variable bytes(4)
+        variable line_bytes(2)
+        variable fake_size(G_IM_SIZE_32)
+    }
+
+    variable texels((width * height + incr) >> shift)
+    variable words(width * bytes / 8)
+    if words < 1 {; variable words(1); }
+    variable dxt((0x800 + words - 1) / words)
+    variable lines(((width * line_bytes) + 7) >> 3)
+
+    gSetTImage(fmt, fake_size, 1, addr)
+    gSetTile(fmt, fake_size, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0)
+    gLoadSync()
+
+    gLoadBlock(G_TX_LOADTILE, 0, 0, texels - 1, dxt)
+    gPipeSync()
+
+    gSetTile(fmt, size, lines, 0, G_TX_RENDERTILE, 0, cm, log2_w, 0, cm, log2_h, 0)
+    gSetTileSize(G_TX_RENDERTILE, 0, 0, (width - 1) << 2, (height - 1) << 2)
+}
+
+macro gReset() {
+    // set some sane values on both RSP and RDP.
+    // TODO: remove redundant syncs.
+    gPipeSync()
+    gLoadSync()
+    gTileSync()
+    gSetCombine(0,0,0,4,0,0,0,4, 0,0,0,4,0,0,0,4) // G_CC_SHADE
+    // G_RM_OPA_SURF
+    variable clk1(G_BL_CLR_IN << 12 | G_BL_0 << 8 | G_BL_CLR_IN << 4 | G_BL_1)
+    variable clk2(G_BL_CLR_IN << 12 | G_BL_0 << 8 | G_BL_CLR_IN << 4 | G_BL_1)
+    variable upper(G_CYC_1CYCLE | G_PM_1PRIMITIVE | G_TL_TILE | G_TT_NONE | G_TD_CLAMP | G_TP_PERSP | G_TF_BILERP | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ)
+    variable lower(G_AC_NONE | CVG_DST_CLAMP | FORCE_BL | ZMODE_OPA | clk1 << 18 | clk2 << 16)
+    gSetOtherMode(upper, lower)
+    gTextureOff()
+    gGeometryMode(0xFFFFFF, G_SHADE | G_SHADING_SMOOTH)
+    gPipeSync()
+}
+
 // a tool to figure out just what the heck raw gSetCombine commands are doing.
 macro gDisasmCombine(variable upper, variable lower) {
     if (upper >> 24) != 0xFC {; error "that's not a gSetCombine command!"; }
@@ -740,5 +848,5 @@ macro gDisasmCombine(variable upper, variable lower) {
     variable d1((lower >> 6) & 0x7)
     variable Ab1((lower >> 3) & 0x7)
     variable Ad1(lower & 0x7)
-    print "gSetCombine(",a0,",",b0,",",c0,",",d0,",",Aa0,",",Ab0,",",Ac0,",",Ad0,", ",a1,",",b1,",",c1,",",d1,",",Aa1,",",Ab1,",",Ac1,",",Ad1,")\n"
+    print "gSetCombine(",a0,",",b0,",",c0,",",d0,", ",Aa0,",",Ab0,",",Ac0,",",Ad0,", ",a1,",",b1,",",c1,",",d1,", ",Aa1,",",Ab1,",",Ac1,",",Ad1,")\n"
 }
