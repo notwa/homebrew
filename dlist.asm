@@ -1,4 +1,5 @@
 include "inc/F3DEX2.inc"
+include "inc/CC.inc"
 include "inc/dlist.inc"
 
 constant FOV90(0)
@@ -172,6 +173,8 @@ if HIRES {
     gMatrix(view_mat0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION)
     gMatrix(view_mat1, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION)
 
+if 0 {
+    // colorful
     gPipeSync()
     gSetCombine(0,0,0,4,0,0,0,4, 0,0,0,4,0,0,0,4)
 variable clk1(G_BL_CLR_IN << 12 | G_BL_A_IN << 8 | G_BL_CLR_MEM << 4 | G_BL_A_MEM)
@@ -180,6 +183,44 @@ variable upper(G_PM_NPRIMITIVE | G_CYC_1CYCLE | G_TP_NONE | G_TD_CLAMP | G_TL_TI
 variable lower(AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | clk1 << 18 | clk2 << 16)
     gSetOtherMode(upper, lower)
     gGeometryMode(0, G_ZBUFFER | G_SHADE | G_CULL_FRONT | G_SHADING_SMOOTH)
+
+} else {
+    gReset()
+
+// sane upper other mode: no lod
+constant SANE(G_PM_NPRIMITIVE | G_TP_PERSP | G_TD_CLAMP | G_TL_TILE | G_TC_FILT | G_CK_NONE | G_CD_MAGICSQ | G_AD_PATTERN)
+// sane lower other mode: high quality
+constant AAZB(AA_EN | Z_CMP | Z_UPD | IM_RD)
+
+gPipeSync()
+
+if 1 {
+    //gLoadTex(texture + 0x200, G_IM_FMT_CI, G_IM_SIZE_8, 64, 64)
+    gLoadTex(texture + 0x200, G_IM_FMT_CI, G_IM_SIZE_8, 32, 32)
+    gLoadPal256(texture)
+    variable G_TT(G_TT_RGBA16)
+} else {
+    gLoadTex(texture, G_IM_FMT_RGBA, G_IM_SIZE_16, 32, 64)
+    variable G_TT(G_TT_NONE)
+}
+
+CC.Cycle1Color(CC.COLOR_TEXEL_0, CC.CONST_0, CC.COLOR_SHADE, CC.CONST_0)
+CC.Cycle1Alpha(CC.CONST_0, CC.CONST_0, CC.CONST_0, CC.CONST_1)
+CC.Cycle2Color(CC.CONST_0, CC.CONST_0, CC.CONST_0, CC.COLOR_OUT)
+CC.Cycle2Alpha(CC.CONST_0, CC.CONST_0, CC.CONST_0, CC.ALPHA_OUT)
+CC.Commit()
+
+variable clk1(G_BL_CLR_IN << 12 | G_BL_A_IN << 8 | G_BL_CLR_IN  << 4 | G_BL_1MA)
+variable clk2(G_BL_CLR_IN << 12 | G_BL_A_IN << 8 | G_BL_CLR_MEM << 4 | G_BL_A_MEM)
+variable upper(SANE | G_CYC_2CYCLE | G_TF_BILERP | G_TT)
+variable lower(AAZB | ZMODE_OPA | ALPHA_CVG_SEL | clk1 << 18 | clk2 << 16)
+
+gSetOtherMode(upper, lower)
+gGeometryMode(0xFFFFFF, G_CULL_BACK)
+gSetPrimColor(0, 0, 0xFF,0xFF,0xFF,0xFF)
+gTexture(0x8000, 0x8000, 0, 0, 2)
+
+}
 
     gSetSegment6(model)
     gMatrix(model_mat, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW)
@@ -253,18 +294,21 @@ macro _g(variable c, variable a, variable b) {
     dw (c << 24) | a, b
 }
 
-if 0 {
+if 1 {
+
 model: // a colorful cube
 constant S(0x400)
+variable lo(0 << 5)
+variable hi(63 << 5) // assuming texture is HALF the width/height here
     // TODO: write a macro for this struct
-    dh  -S, -S, -S, 0,  0, 0, 0x0000, 0x00FF
-    dh  -S, -S, +S, 0,  0, 0, 0x0000, 0xFFFF
-    dh  -S, +S, -S, 0,  0, 0, 0x00FF, 0x00FF
-    dh  -S, +S, +S, 0,  0, 0, 0x00FF, 0xFFFF
-    dh  +S, -S, -S, 0,  0, 0, 0xFF00, 0x00FF
-    dh  +S, -S, +S, 0,  0, 0, 0xFF00, 0xFFFF
-    dh  +S, +S, -S, 0,  0, 0, 0xFFFF, 0x00FF
-    dh  +S, +S, +S, 0,  0, 0, 0xFFFF, 0xFFFF
+    dh  -S, -S, -S, 0, lo, lo, 0x0000, 0x00FF // left  bot back
+    dh  -S, -S, +S, 0, lo, hi, 0x0000, 0xFFFF // left  bot front
+    dh  -S, +S, -S, 0, hi, lo, 0x00FF, 0x00FF // left  top back
+    dh  -S, +S, +S, 0, hi, hi, 0x00FF, 0xFFFF // left  top front
+    dh  +S, -S, -S, 0, lo, hi, 0xFF00, 0x00FF // right bot back
+    dh  +S, -S, +S, 0, lo, lo, 0xFF00, 0xFFFF // right bot front
+    dh  +S, +S, -S, 0, hi, hi, 0xFFFF, 0x00FF // right top back
+    dh  +S, +S, +S, 0, hi, lo, 0xFFFF, 0xFFFF // right top font
 
 constant MODEL_START(pc() - model)
     gPipeSync()
@@ -276,7 +320,11 @@ constant MODEL_START(pc() - model)
     gQuadTri(4, 5, 1, 0)
     gQuadTri(2, 3, 7, 6)
     gEndList()
+
 } else {
     constant MODEL_START(0)
     insert model, "res/teapot.F3D"
 }
+
+align(16)
+insert texture, "res/blah.ci8" // 0x200 pal followed by 0x800 image
