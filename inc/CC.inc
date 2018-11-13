@@ -4,7 +4,7 @@ scope CC {
     // the color combiner computes the equation: out = (a - b) * c + d
     // it uses this equation for both color (rgb) and alpha channels.
     // the alpha channel differs in that it uses a different set of inputs.
-    // it can be used in one-cycle or two-cycle mode.
+    // the color combiner can be used in one-cycle or two-cycle mode.
     // the second cycle can use the first cycle's outputs as inputs.
     // using texels requires two-cycle mode regardless of settings.
 
@@ -137,20 +137,36 @@ scope CC {
         if c2d <= CC.COLOR_OUT && c2d >= CC.COLOR_ENV {; variable c2d(CC.COLOR_OUT - c2d); }
 
         // handle this before we handle the general range since it's different:
-        if c1C == CC.LOD {; variable c1D(0); }
-        if c2C == CC.LOD {; variable c2D(0); }
+        if c1C == CC.LOD {; variable c1C(0); }
+        if c2C == CC.LOD {; variable c2C(0); }
 
         if c1A <= CC.ALPHA_OUT && c1A >= CC.ALPHA_ENV {; variable c1A(CC.ALPHA_OUT - c1A); }
         if c1B <= CC.ALPHA_OUT && c1B >= CC.ALPHA_ENV {; variable c1B(CC.ALPHA_OUT - c1B); }
-        if c1C <= CC.ALPHA_OUT && c1C >= CC.ALPHA_ENV {; variable c1C(CC.ALPHA_OUT - c1C); }
         if c1D <= CC.ALPHA_OUT && c1D >= CC.ALPHA_ENV {; variable c1D(CC.ALPHA_OUT - c1D); }
         if c2A <= CC.ALPHA_OUT && c2A >= CC.ALPHA_ENV {; variable c2A(CC.ALPHA_OUT - c2A); }
         if c2B <= CC.ALPHA_OUT && c2B >= CC.ALPHA_ENV {; variable c2B(CC.ALPHA_OUT - c2B); }
-        if c2C <= CC.ALPHA_OUT && c2C >= CC.ALPHA_ENV {; variable c2C(CC.ALPHA_OUT - c2C); }
         if c2D <= CC.ALPHA_OUT && c2D >= CC.ALPHA_ENV {; variable c2D(CC.ALPHA_OUT - c2D); }
 
-        if c1c == CC.ALPHA_OUT {; variable c1c(7); }
-        if c2c == CC.ALPHA_OUT {; variable c2c(7); }
+        if c1C <= CC.ALPHA_TEXEL_0 && c1C >= CC.ALPHA_ENV {; variable c1C(CC.ALPHA_OUT - c1C); }
+        if c2C <= CC.ALPHA_TEXEL_0 && c2C >= CC.ALPHA_ENV {; variable c2C(CC.ALPHA_OUT - c2C); }
+
+        if c1C == CC.PRIM_LOD {; variable c1C(6); }
+        if c2C == CC.PRIM_LOD {; variable c2C(6); }
+
+        if c1c <= CC.KEY_SCALE && c1c >= CC.PRIM_LOD {; variable c1c(CC.KEY_SCALE - c1c + 6); }
+        if c2c <= CC.KEY_SCALE && c2c >= CC.PRIM_LOD {; variable c2c(CC.KEY_SCALE - c2c + 6); }
+
+        if c1b == CC.KEY_CENTER {; variable c1b(6); }
+        if c2b == CC.KEY_CENTER {; variable c2b(6); }
+
+        if c1a == CC.NOISE {; variable c1a(7); }
+        if c2a == CC.NOISE {; variable c2a(7); }
+
+        if c1b == CC.K4 {; variable c1b(7); }
+        if c2b == CC.K4 {; variable c2b(7); }
+
+        if c1c == CC.K5 {; variable c1c(15); }
+        if c2c == CC.K5 {; variable c2c(15); }
 
         if c1a == CC.CONST_1 {; variable c1a(6); }
         if c1d == CC.CONST_1 {; variable c1d(6); }
@@ -179,14 +195,6 @@ scope CC {
         if c2B == CC.CONST_0 {; variable c2B(7); }
         if c2C == CC.CONST_0 {; variable c2C(7); }
         if c2D == CC.CONST_0 {; variable c2D(7); }
-
-        // TODO: handle CC.KEY_CENTER
-        // TODO: handle CC.KEY_SCALE
-        // TODO: handle CC.ALPHA_* as c1c/c2c
-        // TODO: handle CC.*LOD
-        // TODO: handle CC.NOISE
-        // TODO: handle CC.K4
-        // TODO: handle CC.K5
 
         if c1a < 0 || c1a >= 16 {; error "Invalid color for CC cycle 1 (a)"; }
         if c1b < 0 || c1b >= 16 {; error "Invalid color for CC cycle 1 (b)"; }
