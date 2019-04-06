@@ -57,9 +57,9 @@ scope CC {
     constant CONST_1(-20)
     constant CONST_0(-21)
 
-    define c1a(0); define c1d(0); define c1c(0); define c1d(0) // cycle 1 color
+    define c1a(0); define c1b(0); define c1c(0); define c1d(0) // cycle 1 color
     define c1A(0); define c1B(0); define c1C(0); define c1D(0) // cycle 1 alpha
-    define c2a(0); define c2d(0); define c2c(0); define c2d(0) // cycle 2 color
+    define c2a(0); define c2b(0); define c2c(0); define c2d(0) // cycle 2 color
     define c2A(0); define c2B(0); define c2C(0); define c2D(0) // cycle 2 alpha
 
     macro Cycle1Color(variable a, variable b, variable c, variable d) {

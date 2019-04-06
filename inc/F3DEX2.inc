@@ -754,7 +754,7 @@ macro texlog2(variable x) {
 }
 
 macro gLoadTex(variable addr, variable fmt, variable size, variable width, variable height) {
-    // this macros omits the cms, cmt, masks, maskt, shifts, shiftt args,
+    // this macro omits the cms, cmt, masks, maskt, shifts, shiftt args,
     // and assumes you want the texture to wrap.
     // TODO: merge fmt and size argument enums? might be less of a headache.
 
